@@ -1,0 +1,213 @@
+global proc LoadFloorPlan()
+{
+    
+}
+
+global proc SaveFloorPlan()
+{
+    
+}
+
+global proc LoadProfile()
+{
+    
+}
+
+global proc SaveProfile()
+{
+    
+}
+
+
+//Creates new floor plan curve
+global proc CreateFloorPlan()
+{
+    
+}
+
+//Edits the floor plan curve
+global proc EditFloorPlan()
+{
+    
+}
+
+//Creates a new profile (adds tab if there is already one)
+global proc CreateNewProfile()
+{
+    
+}
+
+//Edits the selected profile curve
+global proc EditProfile()
+{
+    
+}
+
+//Links the selected profile to  floor plan edge 
+//Validate floor plan edge selection
+global proc LinkProfileToFloorPlan()
+{
+    
+}
+
+//Links anchor to floor plan
+//Validates floor plan edge selection
+global proc LinkAnchorToFloorPlan()
+{
+    
+}
+
+//Links anchor to profile
+//Validates profile edge selection
+global proc LinkAnchorToProfile()
+{
+    
+}
+
+//Creates a new building from the selected input
+global proc CreateMesh()
+{
+    
+}
+
+//Updates the selected mesh (just redraw the mesh-> used later when handle more than 1 building)
+global proc EditMesh()
+{
+    
+}
+
+
+//****************************************************************************************************************
+// GUI LAYOUT 
+//****************************************************************************************************************
+global proc ProGUI()
+{
+// window;
+if(`window -exists myFormPanelWindow`)
+deleteUI -window myFormPanelWindow;
+if (`modelPanel -exists floorPlanPanel`)
+    deleteUI -panel floorPlanPanel;
+if (`modelPanel -exists profilePanel`)
+    deleteUI -panel profilePanel;
+window
+-title "Pro-trusion"
+-w 650
+-h 600
+
+myFormPanelWindow;
+//form layout
+formLayout -numberOfDivisions 100 myFormForm;
+
+//Menu bar
+menuBarLayout popUpMenu;
+    menu -label "Floor plan";
+        menuItem
+        -label "Load floor plan"
+        -command "LoadFloorPlan()";
+        menuItem
+        -label "Save floor plan"
+        -command "SaveFloorPlan()";
+        menuItem
+        -label "Create new plan"
+        -command "CreateFloorPlan()";
+        menuItem
+        -label "Edit floor plan"
+        -command "EditFloorPlan()";
+     menu -label "Profile";
+        menuItem
+        -label "Load profile"
+        -command "LoadProfile()";
+        menuItem
+        -label "Save profile"
+        -command "SaveProfile()";
+        menuItem
+        -label "Create new profile"
+        -command "CreateNewProfile()";
+        menuItem
+        -label "Edit selected profile"
+        -command "EditProfile()";
+     menu -label "Assign profile/anchors";
+        menuItem
+        -label "Link profile to floor plan edge"
+        -command "LinkProfileToFloorPlan()";
+        menuItem
+        -label "Assign anchor to floor plan"
+        -command "LinkAnchorToFloorPlan()";
+        menuItem 
+        -label "Assign anchor to profile"
+        -command "LinkAnchorToProfile()";
+     menu -label "Create building mesh";
+         menuItem
+         -label "Generate building"
+         -command "CreateMesh()";
+         menuItem
+         -label "Update selected building"
+         -command "UpdateMesh()";
+    setParent..;
+
+string $sep = `separator -style "singleDash"`;
+
+//Descriptions
+string $floorPlanTxt = `text "Floor plan input\t\t\t\t\t"`;
+string $profileTxt = `text "Profile input"`;
+
+//Floor plan editor
+modelPanel -mbv 0 -cam "persp" floorPlanPanel;
+$currentModelPanel = `modelPanel -q -modelEditor floorPlanPanel`;
+modelEditor -e -cam "persp" -allObjects 0 -grid 0 -nurbsSurfaces 1 -dimensions 1 $currentModelPanel;
+setParent ..;
+
+//Profile editor
+
+modelPanel -mbv 0 -cam "persp" profilePanel;
+$currentModelPanel2 = `modelPanel -q -modelEditor profilePanel`;
+modelEditor -e -cam "persp" -allObjects 0 -grid 0 -nurbsSurfaces 1 -dimensions 1 $currentModelPanel2;
+setParent ..;
+
+
+//button -l "Left Button" LeftButton;
+formLayout -edit
+
+-attachForm $sep top 19
+-attachForm $sep left 0
+-attachForm $sep right 0
+-attachForm $sep bottom 625
+
+-attachForm $floorPlanTxt top 20
+-attachForm $floorPlanTxt left 0
+-attachForm $floorPlanTxt right 325
+-attachForm $floorPlanTxt bottom 600
+
+-attachForm $profileTxt top 20
+-attachForm $profileTxt left 0
+-attachForm $profileTxt right -325
+-attachForm $profileTxt bottom 600
+
+-attachForm popUpMenu top 0
+-attachForm popUpMenu left 0
+-attachForm popUpMenu right 0
+-attachForm popUpMenu bottom 0
+
+-attachForm floorPlanPanel top 45
+-attachForm floorPlanPanel left 10
+-attachForm floorPlanPanel right 370
+-attachForm floorPlanPanel bottom 10
+
+
+-attachForm profilePanel top 45
+-attachForm profilePanel left 360
+-attachForm profilePanel right 10
+-attachForm profilePanel bottom 10
+
+
+/*
+-attachControl LeftButton top 2 floorPlanPanel
+-attachForm LeftButton left 0
+-attachPosition LeftButton right 2 50
+-attachForm LeftButton bottom 2
+*/
+
+//Form
+myFormForm;
+showWindow myFormPanelWindow;
+}
