@@ -1,3 +1,6 @@
+//Global menu name
+global string $ProTrusionMenu;
+
 global proc LoadFloorPlan()
 {
     
@@ -67,6 +70,20 @@ global proc LinkAnchorToProfile()
 //Creates a new building from the selected input
 global proc CreateMesh()
 {
+    //TODO - figure out how to delete the nodes if they exist
+   // if(`objExists transformNode`)
+           //doDelete;
+     //Create node
+    createNode transform -n transformNode;
+    createNode mesh -n meshShape -p transformNode;
+    sets -add initialShadingGroup meshShape;
+    createNode ProTrusionNode -n ProTrusionNode1;
+    
+    //connectAttr....TODO - add in the other attributes here
+    connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
+ 
+    //Draw mesh
+ 
     
 }
 
@@ -143,6 +160,10 @@ menuBarLayout popUpMenu;
          menuItem
          -label "Update selected building"
          -command "UpdateMesh()";
+     menu -label "Help";
+         menuItem
+         -label "Help"
+         -command "Help()";
     setParent..;
 
 string $sep = `separator -style "singleDash"`;
@@ -152,16 +173,15 @@ string $floorPlanTxt = `text "Floor plan input\t\t\t\t\t"`;
 string $profileTxt = `text "Profile input"`;
 
 //Floor plan editor
-modelPanel -mbv 0 -cam "persp" floorPlanPanel;
+modelPanel -mbv 0 -cam "top" floorPlanPanel;
 $currentModelPanel = `modelPanel -q -modelEditor floorPlanPanel`;
-modelEditor -e -cam "persp" -allObjects 0 -grid 0 -nurbsSurfaces 1 -dimensions 1 $currentModelPanel;
+modelEditor -e -cam "top" -allObjects 0 -grid 1 -nurbsSurfaces 1 -dimensions 1 $currentModelPanel;
 setParent ..;
 
 //Profile editor
-
-modelPanel -mbv 0 -cam "persp" profilePanel;
+modelPanel -mbv 0 -cam "side" profilePanel;
 $currentModelPanel2 = `modelPanel -q -modelEditor profilePanel`;
-modelEditor -e -cam "persp" -allObjects 0 -grid 0 -nurbsSurfaces 1 -dimensions 1 $currentModelPanel2;
+modelEditor -e -cam "side" -allObjects 0 -grid 1 -nurbsSurfaces 1 -dimensions 1 $currentModelPanel2;
 setParent ..;
 
 
@@ -210,4 +230,23 @@ formLayout -edit
 //Form
 myFormForm;
 showWindow myFormPanelWindow;
+}
+
+
+//TODO - add to C++ to add/remove menu item when the plugin is loaded
+global proc createMenuItem()
+{
+   global string $gMainWindow;
+    setParent $gMainWindow;
+    global string $ProTrusionMenu;
+    $ProTrusionMenu = `menu -label "Pro-Trusion" -parent $gMainWindow -tearOff on`;
+    menuItem
+    -label "Open Pro-Trusions Options"  
+    -command "ProGUI()";                
+}
+
+global proc deleteMenuItem()
+{
+    global string $ProTrusionMenu;
+    deleteUI -menu $ProTrusionMenu;
 }
