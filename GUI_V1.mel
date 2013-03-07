@@ -1,1 +1,549 @@
-asAnchor;
+//Global variables
+global string $ProTrusionMenu;
+
+//Curve names
+global string $floorPlanCurve;
+global string $profileCurves[];
+//Profile info
+global int $fpEdgeToProfile[]; 
+global int $numPtsInProfile[]; 
+global vector $pPoints[];
+
+global proc LoadFloorPlan()
+{
+    
+}
+
+global proc SaveFloorPlan()
+{
+    
+}
+
+global proc LoadProfile()
+{
+    
+}
+
+global proc SaveProfile()
+{
+    
+}
+
+
+//Creates new floor plan curve
+global proc CreateFloorPlan()
+{
+     //TODO - Select the floor plan panel
+    //enableIsolateSelect floorPlanPanel 1;
+    //isolateSelect -state 1 floorPlanPanel;
+
+   //Set curve to linear EP curve
+   $fpC = `curveEPCtx`;
+   setToolTo $fpC;
+   curveEPCtx -e -d 1 -bez 0 `currentCtx`; 
+   
+   //TODO - how can we get this wait for the user to draw to store the name...this isn't working! :(
+   //evalDeferred;  
+   //string $fp[] = `ls -sl`;
+   //$floorPlanCurve = $fp[0];
+}
+
+
+//Creates a new profile (adds tab if there is already one)
+global proc CreateNewProfile()
+{
+    //TODO - Hightlight the profile modelPanel 
+    
+    //Set curve to linear EP curve
+   $pCurve = `curveEPCtx`;
+   setToolTo $pCurve;
+   curveEPCtx -e -d 1 -bez 0 `currentCtx`;  
+}
+
+//Deletes the selected profile
+global proc DeleteProfile()
+{
+    
+}
+
+//Validate floor plan edge selection
+global proc ProfileToFPHelper1(string $win)
+{
+    //Check that there are 2 endpoints & that they are next to eachother
+    string $points[] = `ls -sl`;
+    int $i, $start, $end;
+    int $success = 0;  
+ 
+    
+    if (size($points) == 1)
+    {      
+        string $splitColon[];
+        string $splitBracketF[];
+        string $splitBracketB[];
+        tokenize $points[0] ":" $splitColon; 
+        //If there is a colon, the selection is OK. 
+        //Split out points & add them to edge points
+        if (size($splitColon) > 1)
+        {
+          tokenize $splitColon[0] "[" $splitBracketF;  
+          tokenize $splitColon[1] "]" $splitBracketB;
+          $start = $splitBracketF[1];
+          $end = $splitBracketB[0];  
+          if ($end < $start)
+              $start = $end;
+          $success = 1;
+        }
+
+    } else if(size($points)== 2 )
+    {
+        
+    } 
+    deleteUI $win;
+    
+    if ($success == 1)
+    {
+       $win2 = `window -title "Profile selector" edgePrompt`;
+       columnLayout;
+            text "Select profile that you want to assign to the edge.\n";
+            rowLayout -numberOfColumns 2;
+            // ("Test "+$stringA+" "+$stringB)`
+                button -label "Confirm" -command ("ProfileToFPHelper2 "+$win2 +" "+$start);
+                button -label "Cancel" -command ("deleteUI " + $win2);
+                setParent..;
+       showWindow edgePrompt;
+    } else 
+    {
+        print "Error. You must select two vertices that surround an edge.\n";
+    }
+}
+
+//Makes sure that the curve selected for the profile has been added.  Add it if not.
+global proc ProfileToFPHelper2(string $window, int $edge)
+{
+    global int $fpEdgeToProfile[];
+    global string $profileCurves[];
+    
+    string $curve[] = `ls -sl`;
+    if (size($curve) != 1)
+    {
+        print "You must select one curve.\n";
+    }
+    
+    int $i;
+    int $flag = 0;
+    //Check if curve in list
+    for ($i = 0; $i < size($profileCurves); $i++)
+    {
+        if ($profileCurves[$i] == $curve[0]) 
+        {
+            $fpEdgeToProfile[$edge] = $i; 
+            $flag = 1;
+            break;
+        }
+    }
+    //Add if not in list    
+    if ($flag == 0)
+    {
+       CurveAsProfile();
+       $fpEdgeToProfile[$edge]  = (size($profileCurves) - 1); 
+    }
+}
+
+//Links the selected profile to  floor plan edge 
+global proc LinkProfileToFloorPlan()
+{
+    global string $floorPlanCurve;
+    global string $profileCurves[];
+  
+    //Select floor plan & turn mode to edit points
+    select -r $floorPlanCurve; 
+    doMenuNURBComponentSelection($floorPlanCurve, "editPoint");
+    $win = `window -title "Floor plan edge selector" edgePrompt`;
+        columnLayout;
+            text "Select edit points of the floor plan edge you want to assign.\n";
+            rowLayout -numberOfColumns 2;
+                button -label "Confirm" -command ("ProfileToFPHelper1 " + $win);
+                button -label "Cancel" -command ("deleteUI " + $win);
+                setParent..;
+    showWindow edgePrompt;
+}
+
+//Links anchor to floor plan
+//Validates floor plan edge selection
+global proc LinkAnchorToFloorPlan()
+{
+    
+}
+
+//Links anchor to profile
+//Validates profile edge selection
+global proc LinkAnchorToProfile()
+{
+    
+}
+
+//Creates a list of the edit points for a given curve (FP or Profile)
+//Validates that the curve is a floor plan (1) or profile curve (2)
+global proc vector[] GetEditPoints(string $curve, int $type)
+{
+    string $infoNode = `createNode curveInfo`;
+    connectAttr ($curve +".worldSpace")  ($infoNode+".inputCurve");
+    //#CV's = degree + curve span & #EP's = CV - 2 -> TODO- check! This was the case & now it seems I have changed a setting so they arethe same number
+    int $degree = eval("getAttr "+$curve+".degree");
+    int $span = eval("getAttr "+$curve+".spans");  	
+	int $numEPs = $span + $degree;
+    vector $editPoints[];
+    
+	for ($i=0; $i < $numEPs; $i++)
+	{
+		float $ep[]   = `pointPosition -l ( $curve + ".ep["+$i+"]" )`;
+		vector $temp = <<$ep[0], $ep[1], $ep[2]>>;
+		if ($ep[$type] != 0)
+		{
+		    error; 
+		    return $editPoints;
+		}
+		print($ep[0]+" "+$ep[1]+" "+$ep[2]+"\n");
+		$editPoints[$i] = $temp;
+	}
+
+	delete $infoNode; //Delete node bc we don't need it anymore	
+	return $editPoints;
+}
+
+//Assigns the selected curve to the floor plan 
+global proc vector[] CurveAsFP()
+{
+    global string $floorPlanCurve;
+    
+    string $fp[] = `ls -sl`;
+        
+    //One curve must be selected
+    if (size($fp) !=  1)
+    {
+       window -title "Error";
+       columnLayout;
+           text "You must select one curve for the floor plan.\t";      
+       showWindow;
+       error;
+    }
+    
+    $floorPlanCurve = $fp[0];
+    //Floor plan curves can only have y value as 0 -> TODO- should we allow axis to be rotated in future versions?
+    vector $floorPlanArray[];
+    if ( catch ( $floorPlanArray = GetEditPoints($fp[0], 1) ) )
+    {
+       window -title "Error";
+       columnLayout;
+           text "The floor plan must lie on the xz plane.\t";      
+       showWindow;
+       error;
+    }    else {
+        //Make sure that the start = end
+        int $size = size($floorPlanArray) - 1;
+        vector $start = $floorPlanArray[0];
+        float $sx = $start.x; float $sy = $start.y; float $sz = $start.z;
+        vector $end = $floorPlanArray[$size];
+        float $ex = $end.x; float $ey = $end.y; float $ez = $end.z;
+        //TODO  - Do we want to give the user an option to close off or just do it?
+        if ($sx != $ex || $sy != $ey || $sz != $ez)
+        {
+            string $curveCV = $floorPlanCurve + ".cv[" + string($size) + "]";
+            print $curveCV;
+            select -r $curveCV;
+            curve -os -a -p $sx $sy $sz $floorPlanCurve;  
+        }    
+        
+        //Create null anchor array
+        global int $fpHasAnchor[];
+        int $i;
+        for ($i = 0; $i < size($floorPlanArray); $i++)
+        {
+            $fpHasAnchor[$i] = 0;
+        }
+             
+        return $floorPlanArray;
+    }
+}
+
+//Sets the selected curves as profile curves
+global proc CurveAsProfile()
+{
+    global int $numPtsInProfile[];
+    global vector $pPoints[];
+    global string $profileCurves[];
+    global int $pHasAnchor[];
+    
+    vector $profilePoints[]; //Temp array for new profile points
+    string $profile[] = `ls -sl`;  
+    //TODO - validate that selection  is a curve-> ls -selection -showType gives "transform"?    
+    //One curve must be selected
+    if (size($profile) <  1)
+    {
+       window -title "Error";
+       columnLayout;
+           text "You must select one curve for the profile.\t";      
+       showWindow;
+       error;
+    }
+    int $currNumProfiles = size($numPtsInProfile);
+    int $initialNumProfilePts = size($pPoints); 
+    int $i;
+    for ($i = 0; $i < size($profile); $i++)
+    {
+        print "\nIn profile ";
+        print $profile[$i];
+        print "\n";
+        if (catch ($profilePoints = GetEditPoints($profile[$i], 0) ) )
+        {
+            print "Error";
+        } else 
+        {
+            
+            int $currNumPoints = size($pPoints);
+            print "\nNumber points: ";
+            print $currNumPoints;
+            $profileCurves[$currNumProfiles + $i] = $profile[$i];
+            $numPtsInProfile[$currNumProfiles + $i] = size($profilePoints);
+            int $k;
+            for ($k = 0; $k < size($profilePoints); $k++)
+            {
+                $pPoints[$currNumPoints + $k] = $profilePoints[$k];
+            }
+        }
+    }
+    //Add null anchor points for each additional profile
+   for ($i = 0; $i < size($profilePoints); $i++)
+   {
+      $pAnchorPoints[$initialNumProfilePts + $i] = 0;
+   }
+}
+
+
+//Creates a new building from the selected input
+//global proc CreateMesh(vector $fpPoints[], int $fpHasAnchor[], int $fpEdgeToProfile[], vector $pPoints[], int $pHasAnchor[])
+global proc CreateMesh(vector $fpPoints[])
+{
+    //Curve names
+    global string $floorPlanCurve;
+    global string $profileCurves[];
+    global int $fpHasAnchor[];   
+    //Profile info
+    global int $fpEdgeToProfile[]; 
+    global int $numPtsInProfile[]; 
+    global vector $pPoints[];
+    global int $pHasAnchor[];   
+    print "IN CREATE MESH ";
+    //**************************************************************************** 
+    //**************************************************************************** 
+    int $i = 0;
+    for ($i = 0; $i < size($fpPoints); $i++)
+    {
+        print $fpPoints[$i];
+        print " ";
+    }
+
+    //TODO - figure out how to delete the nodes if they exist
+   // if(`objExists transformNode`)
+           //doDelete;
+     //Create node
+    createNode transform -n transformNode;
+    createNode mesh -n meshShape -p transformNode;
+    sets -add initialShadingGroup meshShape;
+    createNode ProTrusionNode -n ProTrusionNode1;
+    
+    //TODO - check if this is linking correctly
+    connectAttr ProTrusionNode1.outputMesh $fpEdgeToProfile;
+    connectAttr ProTrusionNode1.outputMesh $numPtsInProfile;
+    connectAttr ProTrusionNode1.outputMesh $pPoints;
+    connectAttr ProTrusionNode1.outputMesh $pHasAnchor;
+    connectAttr ProTrusionNode1.outputMesh $fpPoints;
+    connectAttr ProTrusionNode1.outputMesh $fpHasAnchor;
+    //connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
+ 
+    //Draw mesh
+}
+
+//Updates the selected mesh (just redraw the mesh-> used later when handle more than 1 building)
+global proc EditMesh()
+{
+    
+}
+
+
+//****************************************************************************************************************
+// GUI LAYOUT 
+//****************************************************************************************************************
+global proc ProGUI()
+{
+    //All the variables needed to generate the final mesh
+    //Floor plan 
+    vector $fpPoints[];
+    global int $fpHasAnchor[];
+    global int $fpEdgeToProfile[];
+    //Profile
+    global vector $pPoints[];
+    global int $numPtsInProfile[];
+    global int $pHasAnchor[];       
+        
+    print "Number points in profile at start: ";
+    int $size = size($pPoints);
+    print $size;
+    print "\n"; 
+    
+if(`window -exists myFormPanelWindow`)
+    deleteUI -window myFormPanelWindow;
+if (`modelPanel -exists floorPlanPanel`)
+    deleteUI -panel floorPlanPanel;
+if (`modelPanel -exists profilePanel`)
+    deleteUI -panel profilePanel;
+window
+-title "Pro-trusion"
+-w 650
+-h 600
+
+myFormPanelWindow;
+//form layout
+formLayout -numberOfDivisions 100 myFormForm;
+
+//Menu bar
+menuBarLayout popUpMenu;
+    menu -label "Floor plan";
+        menuItem
+        -label "Load floor plan"
+        -command "LoadFloorPlan()";
+        menuItem
+        -label "Save floor plan"
+        -command "SaveFloorPlan()";
+        menuItem
+        -label "Create new plan"
+        -command "CreateFloorPlan()";
+        menuItem
+        -l "Set selected curve as floor plan" 
+        -c "$fpPoints = CurveAsFP()";
+     menu -label "Profile";
+        menuItem
+        -label "Load profile"
+        -command "LoadProfile()";
+        menuItem
+        -label "Save profile"
+        -command "SaveProfile()";
+        menuItem
+        -label "Create new profile"
+        -command "CreateNewProfile()";
+        menuItem
+        -label "Delete selected profile"
+        -command "DeleteProfile()";
+        menuItem
+        -label "Set selected curve(s) as a profile curve"
+        -command "CurveAsProfile()";
+     menu -label "Assign profile/anchors";
+        menuItem
+        -label "Link profile to floor plan edge"
+        -command "LinkProfileToFloorPlan()";
+        menuItem
+        -label "Assign anchor to floor plan"
+        -command "LinkAnchorToFloorPlan()";
+        menuItem 
+        -label "Assign anchor to profile"
+        -command "LinkAnchorToProfile()";
+     menu -label "Create building mesh";
+         menuItem
+         -label "Generate building"
+         //-command " CreateMesh($fpPoints, $fpHasAnchor, $fpEdgeToProfile, $pPoints, $pHasAnchor)";
+         -command "CreateMesh($fpPoints)";
+         menuItem
+         -label "Update selected building"
+         -command "UpdateMesh()";
+     menu -label "Help";
+         menuItem
+         -label "Help"
+         -command "Help()";
+    setParent..;
+
+string $sep = `separator -style "singleDash"`;
+
+//Descriptions
+string $floorPlanTxt = `text "Floor plan input\t\t\t\t\t"`;
+string $profileTxt = `text "Profile input"`;
+
+//Floor plan editor
+modelPanel -mbv 0 -cam "top" floorPlanPanel;
+$currentModelPanel = `modelPanel -q -modelEditor floorPlanPanel`;
+modelEditor -e -cam "top" -grid 1 -nurbsCurves 1 -nurbsSurfaces 1 -polymeshes 0 -dimensions 1 $currentModelPanel;
+setParent ..;
+
+//Profile editor
+modelPanel -mbv 0 -cam "side" profilePanel;
+$currentModelPanel2 = `modelPanel -q -modelEditor profilePanel`;
+modelEditor -e -cam "side" -grid 1 -nurbsCurves 1 -nurbsSurfaces 1 -polymeshes 0 -dimensions 1 $currentModelPanel2;
+setParent ..;
+
+/*
+button -l "Set selected curve as floor plan" 
+       -c "$fpPoints = CurveAsFP()"
+       LeftButton;
+*/
+       
+formLayout -edit
+
+-attachForm $sep top 19
+-attachForm $sep left 0
+-attachForm $sep right 0
+-attachForm $sep bottom 625
+
+-attachForm $floorPlanTxt top 20
+-attachForm $floorPlanTxt left 0
+-attachForm $floorPlanTxt right 325
+-attachForm $floorPlanTxt bottom 600
+
+-attachForm $profileTxt top 20
+-attachForm $profileTxt left 0
+-attachForm $profileTxt right -325
+-attachForm $profileTxt bottom 600
+
+-attachForm popUpMenu top 0
+-attachForm popUpMenu left 0
+-attachForm popUpMenu right 0
+-attachForm popUpMenu bottom 0
+
+-attachForm floorPlanPanel top 45
+-attachForm floorPlanPanel left 10
+-attachForm floorPlanPanel right 370
+-attachForm floorPlanPanel bottom 30
+
+-attachForm profilePanel top 45
+-attachForm profilePanel left 360
+-attachForm profilePanel right 10
+-attachForm profilePanel bottom 30
+
+/*
+-attachControl LeftButton top 2 floorPlanPanel
+-attachForm LeftButton left 0
+-attachPosition LeftButton right 2 50
+-attachForm LeftButton bottom 2
+*/
+
+//Form
+myFormForm;
+showWindow myFormPanelWindow;
+}
+
+
+//TODO - add to C++ to add/remove menu item when the plugin is loaded
+global proc createMenuItem()
+{
+   global string $gMainWindow;
+    setParent $gMainWindow;
+    global string $ProTrusionMenu;
+    $ProTrusionMenu = `menu -label "Pro-Trusion" -parent $gMainWindow -tearOff on`;
+    menuItem
+    -label "Open Pro-Trusions Options"  
+    -command "ProGUI()";                
+}
+
+global proc deleteMenuItem()
+{
+    global string $ProTrusionMenu;
+    deleteUI -menu $ProTrusionMenu;
+}
