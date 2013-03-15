@@ -1,6 +1,7 @@
 #pragma once
 #include "Edge.h"
 #include <vector>
+#include <deque>
 
 class FloorPlan
 {
@@ -9,8 +10,9 @@ private:
 	std::vector<Edge> edgeList;
 	
 	int numPoints;
-	//TODO: Will replace this with a pointer to a profile object when that class is complete
+	
 	std::vector<int> profileList;
+	std::deque<glm::vec3> inputPlan;
 	
 
 public:
@@ -22,6 +24,9 @@ public:
 	std::vector<Edge> getEdgeList();
 	int getNumPoints();
 	std::vector<int> getProfileList();
+
+	//Key Methods
+	void buildInputPlan();
 
 	~FloorPlan(void);
 };

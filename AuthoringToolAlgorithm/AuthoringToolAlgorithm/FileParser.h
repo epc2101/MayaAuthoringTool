@@ -8,6 +8,7 @@
 #include "FloorPlan.h"
 #include "Profile.h"
 
+
 //This class exists to parse a text file 
 class FileParser
 {
@@ -15,6 +16,7 @@ private:
 	std::string fileName;
 	FloorPlan plan;
 	std::vector<Profile>profiles;
+	
 
 public:
 	//Constructors
@@ -27,6 +29,7 @@ public:
 
 	//Key Methods
 	void parseFile();
+	
 
 	//Destructors
 	~FileParser(void);
