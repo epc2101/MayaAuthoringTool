@@ -66,8 +66,8 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		// connections to be evaluated so that the correct value is supplied.
 		// 
 
-		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
-		MDataHandle fileNameHandle = data.inputValue(fileName, &returnStatus);
+		MDataHandle numberOfPointsHandle = data.inputValue(AuthoringToolPlugin::numberOfPoints, &returnStatus); //Done
+		MDataHandle fileNameHandle = data.inputValue(AuthoringToolPlugin::fileName, &returnStatus);
 
 
 		if( returnStatus != MS::kSuccess )
@@ -78,9 +78,10 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		{
 			//These values will be used to construct the FloorPlan object
 			int numberOfPoints = numberOfPointsHandle.asInt();
-			MString fileName = fileNameHandle.asString();
+			MString thefile = fileNameHandle.asString();
 			
-			std::string myFile = fileName.asChar();
+			std::string myFile = thefile.asChar();
+			cout<<"The name of the file is: "<<myFile<<endl;
 			FileParser parser = FileParser(myFile);
 			parser.parseFile();
 
@@ -97,7 +98,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			// "inputValue" call above except that no dependency graph 
 			// computation will be done as a result of this call.
 			// 
-			MDataHandle outputMeshHandle = data.outputValue( AuthoringToolPlugin::outputMesh );
+			MDataHandle outputMeshHandle = data.outputValue(AuthoringToolPlugin::outputMesh, &returnStatus );
 			MFnMeshData dataCreator;
 			MObject newOutputData = dataCreator.create(&returnStatus);
 			// This just copies the input value through to the output.  
@@ -153,7 +154,7 @@ MStatus AuthoringToolPlugin::initialize()
 
 
 
-	AuthoringToolPlugin::numberOfPoints = nAttr.create("numPoints","np",MFnNumericData::kInt, 1.0);
+	AuthoringToolPlugin::numberOfPoints = nAttr.create("numPoints","np",MFnNumericData::kInt, 1.0, &stat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 
@@ -162,11 +163,14 @@ MStatus AuthoringToolPlugin::initialize()
 	tAttr.setKeyable(true);
 
 	AuthoringToolPlugin::outputMesh = tAttr.create("outputMesh", "outMesh", MFnData::kMesh, &stat);
+	tAttr.setWritable(true);
+	
+
 	//Need to figure out what traits to a
 
 	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::fileName));
 	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::numberOfPoints));
-	
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::outputMesh));
 
 	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::fileName,AuthoringToolPlugin::outputMesh));
 	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::numberOfPoints,AuthoringToolPlugin::outputMesh));

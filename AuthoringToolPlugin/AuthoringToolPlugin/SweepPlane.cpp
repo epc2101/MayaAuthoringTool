@@ -52,13 +52,11 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 {
 
 		int  numVertices, frame;
-        
-        
         MFnMesh  meshFS;
 
-			MPointArray pointArray;
-			MIntArray faceConnects;
-			MIntArray faceCounts;
+		MPointArray pointArray;
+		MIntArray faceConnects;
+		MIntArray faceCounts;
 
 	for(int i = 0; i<plan.getNumPoints(); i++){
 		glm::vec3 point = plan.getEdgeList().at(i).getStartPoint();
