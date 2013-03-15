@@ -446,8 +446,9 @@ global proc CreateMesh(vector $fpPoints[])
     //TODO - check if this is linking correctly
     //addAttr -ln fpEdgeToProfile -dt Int32Array;
     int $numPts = size($fpPoints);
-    //connectAttr ProTrusionNode1.edgeArray $fpPoints;
-    connectAttr ProTrusionNode1.numPoints numPts;
+    
+    //setAttr ProTrusionNode1.edgeArray $fpPoints;
+    setAttr ProTrusionNode1.numPoints $numPts;
   /*  connectAttr ProTrusionNode1.outputMesh $pPoints;
     connectAttr ProTrusionNode1.outputMesh $pHasAnchor;
     connectAttr ProTrusionNode1.outputMesh $fpEdgeToProfile;
@@ -477,39 +478,49 @@ global proc GenerateText(vector $fpPoints[])
     //Anchor info
     global int $fpHasAnchor[];
     global int $pHasAnchor[];
-    
-    string $filePath = "C:/Users/Beth/DeskTop/ProTrusionOutput.txt" ;   
-    $fileId = `fopen $filePath "w"` ;  
+    string $plugin = "GUI_V1.mel";
+    string $result = substituteAllString(dirname(eval( "whatIs " + $plugin )), "Script found in: ","");
+    string $filePath = ($result + "ProTrusionOutput.txt") ; 
+   /* if ((filetest -r $filePath))  {
+        print "File exists\n";*/
+        $fileId = `fopen $filePath "w"` ; 
+    /*} 
+    else {
+        print "Creating new file..\n";
+        
+        
+    }*/
        
     fprint $fileId ("#FloorPlanStart\n") ;  
     int $i;
     for ($i = 0; $i < size($fpPoints) - 1; $i++)
     {
         vector $pt = $fpPoints[$i];
-        fprint $fileId ("#FloorPointStart " + string($pt.x) + " " + string($pt.y) + " ");
+        fprint $fileId (" #FloorPointStart " + string($pt.x) + " " + string($pt.y) + " ");
         $pt = $fpPoints[$i+1];
-        fprint $fileId ("#FloorPointEnd " + string($pt.x) + " " + string($pt.y) + " ");
+        fprint $fileId (" #FloorPointEnd " + string($pt.x) + " " + string($pt.y) + " ");
         fprint $fileId ("#Profile " + string($fpEdgeToProfile[$i]) + " ");
         fprint $fileId ("#Anchor " + string($fpHasAnchor[$i]) + "\n");
     }  
-    fprint $fileId ("#FloorPlanEnd\n\n") ;  
-    fprint $fileId ("#Profile " + string(size($profileCurves)) +"\n\n");
+    fprint $fileId (" #FloorPlanEnd \n\n") ;  
+    fprint $fileId (" #Profile " + string(size($profileCurves)) +"\n\n");
     int $k; 
     for ($i = 0; $i < size($profileCurves); $i++)
     {
-        fprint $fileId ("#ProfileStart" + string($i));
+        fprint $fileId (" #ProfileStart" + string($i));
         for ($k = 0; $k < $numPtsInProfile[$i]-1; $k++)
         {
             vector $pt = $pPoints[$i+$k];
-            fprint $fileId ("#ProfilePointStart " + string($pt.x) + " " + string($pt.y) + " ");
+            fprint $fileId (" #ProfilePointStart " + string($pt.x) + " " + string($pt.y) + " ");
             $pt = $fpPoints[$i+$k+1];
             fprint $fileId ("#ProfilePointEnd " + string($pt.y) + " " + string($pt.z) + " ");  
             fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\n");      
         }  
-        fprint $fileId ("#ProfileEnd" + string($i) + "\n\n");      
+        fprint $fileId (" #ProfileEnd " + string($i) + "\n\n");      
     }
     
     fclose $fileId ; 
+    CreateMesh($fpPoints); 
 }
 
 
