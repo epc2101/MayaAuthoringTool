@@ -1,5 +1,8 @@
 #include "SweepPlane.h"
 #include <iostream>
+#include "maya/MFnMesh.h"
+#include "maya/MFloatPointArray.h"
+#include "maya/MPointArray.h"
 
 using namespace std;
 
@@ -45,9 +48,37 @@ void SweepPlane::validateData()
 }
 
 //The following 3 methods are just stubs for now until we perform the algorithm
-void SweepPlane::createMesh()
+MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 {
-	return;
+
+		int  numVertices, frame;
+        
+        
+        MFnMesh  meshFS;
+
+			MPointArray pointArray;
+			MIntArray faceConnects;
+			MIntArray faceCounts;
+
+	for(int i = 0; i<plan.getNumPoints(); i++){
+		glm::vec3 point = plan.getEdgeList().at(i).getStartPoint();
+		MPoint tempPoint = MPoint(point.x, point.y,point.z);
+		pointArray.append(tempPoint);
+		faceConnects.append(i);
+	}
+
+	numVertices = pointArray.length();
+	faceCounts.append(faceConnects.length());
+	
+			
+		//MGlobal::executeCommand((MString)"print " + numVertices +"  ;",true, false);
+		int numFaces = faceCounts.length();
+		//MGlobal::executeCommand((MString)"print " + numFaces +"  ;",true, false);
+		MObject newMesh = meshFS.create(numVertices, numFaces, pointArray,faceCounts, faceConnects, outData, &stat);
+
+        return newMesh;
+
+
 }
 
 void SweepPlane::edgeEvent()

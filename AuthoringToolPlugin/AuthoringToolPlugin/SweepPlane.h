@@ -2,7 +2,7 @@
 #include "Edge.h"
 #include "FloorPlan.h"
 #include "Profile.h"
-//#include <maya/MGlobal.h>
+#include <maya/MGlobal.h>
 #include <vector>
 
 /* This class is reponsible for holding all the key data for the mesh creation and 
@@ -19,7 +19,8 @@ public:
 	SweepPlane(FloorPlan p, std::vector<Profile> pList);
 
 	//Aspects of the algorithm - right now these will just be stubs
-	void createMesh();
+	MObject createMesh(MObject& outData, MStatus& stat);
+
 	void edgeEvent();
 	void splitEvent();
 

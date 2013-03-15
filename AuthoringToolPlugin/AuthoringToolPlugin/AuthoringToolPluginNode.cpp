@@ -14,6 +14,7 @@
 #include "Edge.h"
 #include "FloorPlan.h"
 #include "Profile.h"
+#include <maya/MFnMeshData.h>
 #include "FileParser.h"
 #include <vector>
 
@@ -57,7 +58,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 	// node doesn't know how to compute it, we must return 
 	// MS::kUnknownParameter.
 	// 
-	if( plug == output )
+	if( plug == outputMesh )
 	{
 		// Get a handle to the input attribute that we will need for the
 		// computation.  If the value is being supplied via a connection 
@@ -65,8 +66,6 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		// connections to be evaluated so that the correct value is supplied.
 		// 
 
-
-		
 		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
 		MDataHandle fileNameHandle = data.inputValue(fileName, &returnStatus);
 
@@ -89,6 +88,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 
 			//Validate that the data is structured correctly -> WILL NEED TO SET THE OUTPUT VALUES CORRECTLY!
 			sweep->validateData();
+			
 
 			//WE will now call the sweep plan methods and produce the mesh
 		
@@ -98,9 +98,13 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			// computation will be done as a result of this call.
 			// 
 			MDataHandle outputMeshHandle = data.outputValue( AuthoringToolPlugin::outputMesh );
+			MFnMeshData dataCreator;
+			MObject newOutputData = dataCreator.create(&returnStatus);
 			// This just copies the input value through to the output.  
 			// 
-			//outputMeshHandle.set( result );
+
+			
+			outputMeshHandle.set( newOutputData );
 			// Mark the destination plug as being clean.  This will prevent the
 			// dependency graph from repeating this calculation until an input 
 			// of this node changes.
@@ -160,24 +164,13 @@ MStatus AuthoringToolPlugin::initialize()
 	AuthoringToolPlugin::outputMesh = tAttr.create("outputMesh", "outMesh", MFnData::kMesh, &stat);
 	//Need to figure out what traits to a
 
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::edgeArray));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::fileName));
 	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::numberOfPoints));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileEdgeArray));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::anchorArray));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::numberOfProfiles));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileLengthArray));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileEdges));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileAnchorArray));
-	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::outputMesh));
+	
 
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::edgeArray,AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::fileName,AuthoringToolPlugin::outputMesh));
 	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::numberOfPoints,AuthoringToolPlugin::outputMesh));
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileEdgeArray, AuthoringToolPlugin::outputMesh));
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::anchorArray, AuthoringToolPlugin::outputMesh));
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::numberOfProfiles, AuthoringToolPlugin::outputMesh));
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileLengthArray,AuthoringToolPlugin::outputMesh));
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileEdges,AuthoringToolPlugin::outputMesh));
-	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileAnchorArray, AuthoringToolPlugin::outputMesh));
+
 
 
 	//// Add the attributes we have created to the node
