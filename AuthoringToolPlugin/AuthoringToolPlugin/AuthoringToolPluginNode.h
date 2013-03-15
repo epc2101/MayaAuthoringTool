@@ -38,11 +38,12 @@ public:
 	static  MObject		input;		// Example input attribute
 	static  MObject		output;		// Example output attribute
 
-	//These are associated with the floorplan
+	//These are associated with the floorplan - most of these are no longer in the Node (temporarily
 	 static MObject edgeArray;
 	 static MObject numberOfPoints;
 	 static MObject profileEdgeArray;
 	 static MObject anchorArray;
+	 static MObject fileName;
 
 	//These are general objects coming in
 	 static MObject numberOfProfiles;

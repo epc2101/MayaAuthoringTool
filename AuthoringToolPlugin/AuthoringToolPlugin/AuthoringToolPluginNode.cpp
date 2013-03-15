@@ -14,6 +14,7 @@
 #include "Edge.h"
 #include "FloorPlan.h"
 #include "Profile.h"
+#include "FileParser.h"
 #include <vector>
 
 #include <maya/MPlug.h>
@@ -26,18 +27,8 @@
 // to identify this type of node in the binary file format.  
 //
 	//This is for the floorplan
-	 MObject AuthoringToolPlugin::edgeArray;
+	 MObject AuthoringToolPlugin::fileName;
 	 MObject AuthoringToolPlugin::numberOfPoints;
-	 MObject AuthoringToolPlugin::profileEdgeArray;
-	 MObject AuthoringToolPlugin::anchorArray;
-
-	//These are general objects coming in
-	 MObject AuthoringToolPlugin::numberOfProfiles;
-	 MObject AuthoringToolPlugin::profileLengthArray;
-
-	//These are for the profiles - note that the profiles will be aggregated together
-	 MObject AuthoringToolPlugin::profileEdges;
-	 MObject AuthoringToolPlugin::profileAnchorArray;
 
 	//Output mesh
 	 MObject AuthoringToolPlugin::outputMesh;
@@ -45,11 +36,7 @@
 
 MTypeId     AuthoringToolPlugin::id( 0x01317 );
 
-// Example attributes
-// 
-MObject     AuthoringToolPlugin::input;        
-MObject     AuthoringToolPlugin::output;       
-
+   
 AuthoringToolPlugin::AuthoringToolPlugin() {}
 AuthoringToolPlugin::~AuthoringToolPlugin() {}
 
@@ -79,13 +66,9 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		// 
 
 
-		MArrayDataHandle edgeArrayHandle = data.inputArrayValue(edgeArray, &returnStatus); //Done
+		
 		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
-		MArrayDataHandle profileEdgeArrayHandle = data.inputArrayValue(profileEdgeArray, &returnStatus);
-		MArrayDataHandle anchorArrayHandle = data.inputArrayValue(anchorArray, &returnStatus); //Dpme
-		MDataHandle numberOfProfilesHandle = data.inputValue(numberOfProfiles, &returnStatus); //Done
-		MArrayDataHandle profileLengthArrayHandle = data.inputArrayValue(profileLengthArray, &returnStatus); //Done
-		MArrayDataHandle profileAnchorArrayHandle = data.inputArrayValue(profileAnchorArray, &returnStatus); //Done
+		MDataHandle fileNameHandle = data.inputValue(fileName, &returnStatus);
 
 
 		if( returnStatus != MS::kSuccess )
@@ -96,126 +79,13 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		{
 			//These values will be used to construct the FloorPlan object
 			int numberOfPoints = numberOfPointsHandle.asInt();
-			std::vector<Edge> floorPlanEdgeList;
-			std::vector<int> planAnchorList;
-			std::vector<int> planProfileList;
-
-			//These valueswill be used for the Profile vector
-			int numberOfProfiles = numberOfProfilesHandle.asInt();
-			std::vector<Profile> profileVector;
-			std::vector<int> profileLengthList; //Done
-			std::vector<Edge> profileTempList;
-			std::vector<int> profileAnchorTempList; //Done
+			MString fileName = fileNameHandle.asString();
 			
+			std::string myFile = fileName.asChar();
+			FileParser parser = FileParser(myFile);
+			parser.parseFile();
 
-			//Iterate through the profile anchorArray and convert to the usable vector (to parse later for profile)
-			int profileAnchorArrayLength = profileAnchorArrayHandle.elementCount();
-			for(int i = 0; i<profileAnchorArrayLength; i++){
-				profileAnchorArrayHandle.jumpToArrayElement(i);
-
-				//Not sure if we need to pass parameters into this next line
-				MDataHandle profAnchorHandle = profileAnchorArrayHandle.inputValue();
-				int anchorNum = profAnchorHandle.asInt();
-				profileAnchorTempList.push_back(anchorNum);
-			}
-
-			//Iterate through the profileLengthArray and convert to the usable vector (to parse later for profile)
-			int profileLengthArrayLength = profileLengthArrayHandle.elementCount();
-			for(int i = 0; i<profileLengthArrayLength; i++){
-				profileLengthArrayHandle.jumpToArrayElement(i);
-
-				//Not sure if we need to pass parameters into this next line
-				MDataHandle profLengthHandle = profileLengthArrayHandle.inputValue();
-				int lengthNum = profLengthHandle.asInt();
-				profileLengthList.push_back(lengthNum);
-			}
-
-
-			//Iterate through the edge array and grab points (profile)
-			int proflength = profileEdgeArrayHandle.elementCount();
-			for(int i = 0; i<proflength; i+=2){
-				//Get the starting point for the edge
-				profileEdgeArrayHandle.jumpToArrayElement(i);
-				MDataHandle edgeHandle = profileEdgeArrayHandle.inputValue();
-				MFloatVector tempVec = edgeHandle.asFloatVector();
-				glm::vec3 edgePoint = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
-				
-				//Get the ending point for the edge
-				profileEdgeArrayHandle.jumpToArrayElement(i+1);
-				edgeHandle = profileEdgeArrayHandle.inputValue();
-				tempVec = edgeHandle.asFloatVector();
-				glm::vec3 edgePointEnd = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
-				
-				//Build Edge and grab anchorType from other vector
-				Edge edge = Edge(edgePoint, edgePointEnd,profileAnchorTempList.at(i/2));
-				profileTempList.push_back(edge);
-			}
-
-			//Iterate through the anchorArray and convert to the usable vector (for floor plan)
-			int anchorArrayLength = anchorArrayHandle.elementCount();
-			for(int i = 0; i<anchorArrayLength; i++){
-				anchorArrayHandle.jumpToArrayElement(i);
-
-				//Not sure if we need to pass parameters into this next line
-				MDataHandle anchorHandle = anchorArrayHandle.inputValue();
-				int anchorNum = anchorHandle.asInt();
-				planAnchorList.push_back(anchorNum);
-			}
-
-
-			//Iterate through the edge array and grab points (floor plan)
-			int length = edgeArrayHandle.elementCount();
-			for(int i = 0; i<length; i+=2){
-				//Get the starting point for the edge
-				edgeArrayHandle.jumpToArrayElement(i);
-				MDataHandle edgeHandle = edgeArrayHandle.inputValue();
-				MFloatVector tempVec = edgeHandle.asFloatVector();
-				glm::vec3 edgePoint = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
-				
-				//Get the ending point for the edge
-				edgeArrayHandle.jumpToArrayElement(i+1);
-				edgeHandle = edgeArrayHandle.inputValue();
-				tempVec = edgeHandle.asFloatVector();
-				glm::vec3 edgePointEnd = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
-				
-				//Build Edge and grab anchorType from other vector
-				Edge edge = Edge(edgePoint, edgePointEnd,planAnchorList.at(i/2));
-				floorPlanEdgeList.push_back(edge);
-			}
-
-			//Convert the profile list to a vector
-			int profileArrayLength = profileEdgeArrayHandle.elementCount();
-			for(int i = 0; i<profileArrayLength; i++){
-				profileEdgeArrayHandle.jumpToArrayElement(i);
-
-				//Not sure if we need to pass parameters into this next line
-				MDataHandle profileHandle = profileEdgeArrayHandle.inputValue();
-				int profileNum = profileHandle.asInt();
-				planProfileList.push_back(profileNum);
-			}
-		
-			//Use the vectors to correctly generate the correct profiles
-
-			for (int i = 0; i<numberOfProfiles; i++){
-				Profile prof;
-				std::vector<Edge> profEdgeTemp;
-
-				//Need an aggregated number of the edges from the previous profiles
-				int agg = 0;
-				for (int k = 0; k<i; k++){
-					agg += profileLengthList.at(k);
-				}
-				for (int j = 0; j<profileLengthList.at(i); j++){
-					profEdgeTemp.push_back(profileTempList.at(agg+j));
-				}
-				prof = Profile(profEdgeTemp,profileLengthList.at(i));
-				profileVector.push_back(prof);
-			}
-
-
-			FloorPlan plan = FloorPlan(floorPlanEdgeList,numberOfPoints, planProfileList);
-
-			SweepPlane *sweep = new SweepPlane(plan, profileVector);
+			SweepPlane *sweep = new SweepPlane(parser.getFloorPlan(), parser.getProfiles());
 
 			//Validate that the data is structured correctly -> WILL NEED TO SET THE OUTPUT VALUES CORRECTLY!
 			sweep->validateData();
@@ -277,35 +147,13 @@ MStatus AuthoringToolPlugin::initialize()
 
 	MStatus				stat;
 
-	AuthoringToolPlugin::edgeArray = tAttr.create("edgeArray","eArr", MFnData::kVectorArray, &stat);
-	tAttr.setStorable(true);
-	tAttr.setKeyable(true);
+
 
 	AuthoringToolPlugin::numberOfPoints = nAttr.create("numPoints","np",MFnNumericData::kInt, 1.0);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 
-	AuthoringToolPlugin::profileEdgeArray = tAttr.create("profileEdgeArray","profEdge",MFnData::kIntArray, &stat);
-	tAttr.setStorable(true);
-	tAttr.setKeyable(true);
-
-	AuthoringToolPlugin::anchorArray = tAttr.create("anchorArray", "anchArr", MFnData::kIntArray, &stat);
-	tAttr.setStorable(true);
-	tAttr.setKeyable(true);
-
-	AuthoringToolPlugin::numberOfProfiles = nAttr.create("numberOfProfiles", "numProf", MFnNumericData::kInt, 1.0);
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-
-	AuthoringToolPlugin::profileLengthArray = tAttr.create("profileLengthArray", "pLengthArr", MFnData::kIntArray, &stat);
-	tAttr.setStorable(true);
-	tAttr.setKeyable(true);
-
-	AuthoringToolPlugin::profileEdges = tAttr.create("profileEdgeArray","profErrArr", MFnData::kVectorArray, &stat);
-	tAttr.setStorable(true);
-	tAttr.setKeyable(true);
-
-	AuthoringToolPlugin::profileAnchorArray = tAttr.create("profileAnchorArray", "profAnchArr", MFnData::kIntArray, &stat);
+	AuthoringToolPlugin::fileName = tAttr.create("fileName","fileN",MFnData::kString, &stat);
 	tAttr.setStorable(true);
 	tAttr.setKeyable(true);
 

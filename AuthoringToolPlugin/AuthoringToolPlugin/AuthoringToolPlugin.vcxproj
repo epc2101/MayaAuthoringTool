@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="Options.txt" />
+    <None Include="PluginDataOriginalDump.txt" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

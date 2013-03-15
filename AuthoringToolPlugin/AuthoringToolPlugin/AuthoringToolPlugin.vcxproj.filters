@@ -21,6 +21,9 @@
     <None Include="Options.txt">
       <Filter>Miscellaneous Files</Filter>
     </None>
+    <None Include="PluginDataOriginalDump.txt">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AuthoringToolPluginNode.h">
