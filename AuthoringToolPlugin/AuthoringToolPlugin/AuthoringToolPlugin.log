@@ -1,40 +1,61 @@
-﻿Build started 3/16/2013 2:22:36 PM.
+﻿Build started 3/16/2013 5:14:02 PM.
      1>Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt ActivePlan.cpp AuthoringToolPluginNode.cpp Corner.cpp SweepPlane.cpp /GR /GS /EHsc /I "."  /c 
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt ActivePlan.cpp AuthoringToolPluginNode.cpp Corner.cpp Edge.cpp FileParser.cpp FloorPlan.cpp Profile.cpp SweepPlane.cpp /GR /GS /EHsc /I "."  /c 
          ActivePlan.cpp
          AuthoringToolPluginNode.cpp
+     1>AuthoringToolPluginNode.cpp(68): error C2143: syntax error : missing ';' before '<<'
+     1>AuthoringToolPluginNode.cpp(74): error C2143: syntax error : missing ';' before '=='
+     1>AuthoringToolPluginNode.cpp(77): error C2374: 'fileNameHandle' : redefinition; multiple initialization
+                 AuthoringToolPluginNode.cpp(72) : see declaration of 'fileNameHandle'
+     1>AuthoringToolPluginNode.cpp(79): error C2143: syntax error : missing ';' before '>>'
+     1>AuthoringToolPluginNode.cpp(79): error C2059: syntax error : 'bad suffix on number'
+     1>AuthoringToolPluginNode.cpp(85): error C2181: illegal else without matching if
+     1>AuthoringToolPluginNode.cpp(89): error C2143: syntax error : missing ';' before '<<'
+     1>AuthoringToolPluginNode.cpp(92): error C2065: 'thefileName' : undeclared identifier
+     1>AuthoringToolPluginNode.cpp(92): error C2228: left of '.asChar' must have class/struct/union
+                 type is ''unknown-type''
+     1>AuthoringToolPluginNode.cpp(93): error C2065: 'thefileName' : undeclared identifier
+     1>AuthoringToolPluginNode.cpp(94): error C2143: syntax error : missing ';' before '=='
+     1>AuthoringToolPluginNode.cpp(97): error C2374: 'myFile' : redefinition; multiple initialization
+                 AuthoringToolPluginNode.cpp(92) : see declaration of 'myFile'
+     1>AuthoringToolPluginNode.cpp(97): error C2065: 'thefile' : undeclared identifier
+     1>AuthoringToolPluginNode.cpp(97): error C2228: left of '.asChar' must have class/struct/union
+                 type is ''unknown-type''
+     1>AuthoringToolPluginNode.cpp(98): error C2088: '<<' : illegal for class
+     1>AuthoringToolPluginNode.cpp(99): error C2143: syntax error : missing ';' before '>>'
+     1>AuthoringToolPluginNode.cpp(99): error C2059: syntax error : 'bad suffix on number'
+     1>AuthoringToolPluginNode.cpp(101): error C2065: 'parser' : undeclared identifier
+     1>AuthoringToolPluginNode.cpp(101): error C2228: left of '.parseFile' must have class/struct/union
+                 type is ''unknown-type''
+     1>AuthoringToolPluginNode.cpp(103): error C2065: 'parser' : undeclared identifier
+     1>AuthoringToolPluginNode.cpp(103): error C2228: left of '.getFloorPlan' must have class/struct/union
+                 type is ''unknown-type''
+     1>AuthoringToolPluginNode.cpp(103): error C2065: 'parser' : undeclared identifier
+     1>AuthoringToolPluginNode.cpp(103): error C2228: left of '.getProfiles' must have class/struct/union
+                 type is ''unknown-type''
+     1>AuthoringToolPluginNode.cpp(184): error C2143: syntax error : missing ';' before '<<'
+     1>AuthoringToolPluginNode.cpp(186): error C2143: syntax error : missing ';' before '=='
+     1>AuthoringToolPluginNode.cpp(191): error C2143: syntax error : missing ';' before '>>'
+     1>AuthoringToolPluginNode.cpp(191): error C2059: syntax error : 'bad suffix on number'
+     1>AuthoringToolPluginNode.cpp(193): error C2143: syntax error : missing ';' before '{'
+     1>AuthoringToolPluginNode.cpp(196): error C2143: syntax error : missing ';' before '<<'
+     1>AuthoringToolPluginNode.cpp(200): error C2059: syntax error : 'bad suffix on number'
+     1>AuthoringToolPluginNode.cpp(201): error C2143: syntax error : missing ';' before '{'
          Corner.cpp
+         Edge.cpp
+         FileParser.cpp
+     1>FileParser.cpp(57): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>FileParser.cpp(107): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+         FloorPlan.cpp
+         Profile.cpp
          SweepPlane.cpp
-     1>SweepPlane.cpp(54): warning C4101: 'frame' : unreferenced local variable
+     1>SweepPlane.cpp(57): warning C4101: 'frame' : unreferenced local variable
          Generating Code...
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
-       Link:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"Release_2012\AuthoringToolPlugin.mll" /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2013\lib" Foundation.lib OpenMaya.lib OpenMayaUI.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"AuthoringToolPlugin.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"Release_2012/AuthoringToolPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Release_2012/AuthoringToolPlugin.lib" /MACHINE:X64 /DLL ActivePlan.obj
-         AuthoringToolPluginNode.obj
-         Corner.obj
-         Edge.obj
-         EdgeEvent.obj
-         Event.obj
-         FileParser.obj
-         FloorPlan.obj
-         IntersectionEvent.obj
-         pluginMain.obj
-         Profile.obj
-         ProfileOffsetEvent.obj
-         SweepPlane.obj /subsystem:windows /incremental:no /export:initializePlugin /export:uninitializePlugin 
-            Creating library Release_2012/AuthoringToolPlugin.lib and object Release_2012/AuthoringToolPlugin.exp
-         AuthoringToolPlugin.vcxproj -> C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll
-       Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"Release_2012\AuthoringToolPlugin.mll;#2" /manifest AuthoringToolPlugin.dll.intermediate.manifest
-       FinalizeBuildStatus:
-         Deleting file "AuthoringToolPlugin.unsuccessfulbuild".
-         Touching "AuthoringToolPlugin.lastbuildstate".
-     1>Done Building Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" (build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:03.18
+Time Elapsed 00:00:14.28

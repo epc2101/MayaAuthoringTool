@@ -1,4 +1,5 @@
 #include "FileParser.h"
+#include "maya/MGlobal.h"
 
 using namespace std;
 
@@ -17,6 +18,8 @@ void FileParser::parseFile(){
 	string lineHeader, secondaryLineHeader;
 	glm::vec2 startPoint, endPoint;
 	int profile, anchor;
+
+	MGlobal::executeCommand((MString)"print This was correctly reached",true, false);
 
 	//Variables for Creating Floor Plan
 	std::vector<Edge> FloorPlanEdges;

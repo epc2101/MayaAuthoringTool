@@ -35,23 +35,14 @@ public:
 	// the node will have.  These handles are needed for getting and setting
 	// the values later.
 	//
-	static  MObject		input;		// Example input attribute
-	static  MObject		output;		// Example output attribute
 
 	//These are associated with the floorplan - most of these are no longer in the Node (temporarily
-	 static MObject edgeArray;
+	
 	 static MObject numberOfPoints;
-	 static MObject profileEdgeArray;
-	 static MObject anchorArray;
+	
 	 static MObject fileName;
 
-	//These are general objects coming in
-	 static MObject numberOfProfiles;
-	 static MObject profileLengthArray;
-
-	//These are for the profiles - note that the profiles will be aggregated together
-	 static MObject profileEdges;
-	 static MObject profileAnchorArray;
+	
 
 	//Output mesh
 	 static MObject outputMesh;
