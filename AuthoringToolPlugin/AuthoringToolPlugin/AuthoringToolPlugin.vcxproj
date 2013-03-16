@@ -75,7 +75,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2012|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\Maya2012\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\Maya2013\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(ConfigurationName)/AuthoringToolPlugin.pch</PrecompiledHeaderOutputFile>
@@ -85,12 +85,15 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\Maya2012\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\Maya2013\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(ConfigurationName)\AuthoringToolPlugin.mll</OutputFile>
       <ImportLibrary>$(ConfigurationName)/AuthoringToolPlugin.lib</ImportLibrary>
       <ProgramDatabaseFile>$(ConfigurationName)/AuthoringToolPlugin.pdb</ProgramDatabaseFile>
       <AdditionalOptions>/subsystem:windows /dll /incremental:yes /debug /export:initializePlugin /export:uninitializePlugin %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <BuildLog>
+      <Path>$(MSBuildProjectName).log</Path>
+    </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2012|Win32'">
     <ClCompile>
@@ -139,20 +142,32 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActivePlan.h" />
     <ClInclude Include="AuthoringToolPluginNode.h" />
+    <ClInclude Include="Corner.h" />
     <ClInclude Include="Edge.h" />
+    <ClInclude Include="EdgeEvent.h" />
+    <ClInclude Include="Event.h" />
     <ClInclude Include="FileParser.h" />
     <ClInclude Include="FloorPlan.h" />
+    <ClInclude Include="IntersectionEvent.h" />
     <ClInclude Include="Profile.h" />
+    <ClInclude Include="ProfileOffsetEvent.h" />
     <ClInclude Include="SweepPlane.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActivePlan.cpp" />
     <ClCompile Include="AuthoringToolPluginNode.cpp" />
+    <ClCompile Include="Corner.cpp" />
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="EdgeEvent.cpp" />
+    <ClCompile Include="Event.cpp" />
     <ClCompile Include="FileParser.cpp" />
     <ClCompile Include="FloorPlan.cpp" />
+    <ClCompile Include="IntersectionEvent.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="Profile.cpp" />
+    <ClCompile Include="ProfileOffsetEvent.cpp" />
     <ClCompile Include="SweepPlane.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
