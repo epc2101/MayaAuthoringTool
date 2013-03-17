@@ -25,6 +25,8 @@ void FileParser::parseFile(){
 	std::vector<Edge> FloorPlanEdges;
 	std::vector<int> FloorPlanProfile;
 
+	cout<<"Name "<<fileName<<endl;
+
 	ifstream configFile (fileName);
 	if (configFile.is_open())
 	{
@@ -33,7 +35,7 @@ void FileParser::parseFile(){
 		//Setup the floor plan data
 		if(lineHeader == "#FloorPlanStart"){
 			configFile >> lineHeader;
-			
+			cout<<"In floorplan start..."<<endl;
 			while(lineHeader != "#FloorPlanEnd"){
 				
 				//Parse first point, second point, profile and anchor
@@ -47,6 +49,7 @@ void FileParser::parseFile(){
 				FloorPlanEdges.push_back(tempEdge);
 				FloorPlanProfile.push_back(profile);
 
+				cout<<"lineHeader: "<<lineHeader<<endl;
 				//Check the beginning of next line to see if should end;
 				configFile >> lineHeader;
 			}
@@ -62,6 +65,7 @@ void FileParser::parseFile(){
 		int numProfiles;
 		configFile >> lineHeader;
 		if (lineHeader == "#Profiles"){
+			cout<<"In profiles"<<endl;
 			configFile >> numProfiles;
 			for (int i = 0; i<numProfiles; i++){
 				//Set up comparison

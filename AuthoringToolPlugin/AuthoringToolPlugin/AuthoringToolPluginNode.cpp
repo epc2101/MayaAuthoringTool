@@ -66,9 +66,11 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		// connections to be evaluated so that the correct value is supplied.
 		// 
 
+		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
+		MDataHandle fileNameHandle = data.inputValue(fileName, &returnStatus);
+
 		MDataHandle numberOfPointsHandle = data.inputValue(AuthoringToolPlugin::numberOfPoints, &returnStatus); //Done
 		MDataHandle fileNameHandle = data.inputValue(AuthoringToolPlugin::fileName, &returnStatus);
-
 
 		if( returnStatus != MS::kSuccess )
 			MGlobal::displayError( "Node AuthoringToolPlugin cannot get value\n" );
@@ -78,6 +80,10 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		{
 			//These values will be used to construct the FloorPlan object
 			int numberOfPoints = numberOfPointsHandle.asInt();
+			MString thefileName = fileNameHandle.asString();
+			
+			std::string myFile = thefileName.asChar();
+			MGlobal::displayInfo(thefileName);
 			MString thefile = fileNameHandle.asString();
 			
 			std::string myFile = thefile.asChar();
@@ -101,6 +107,8 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			MDataHandle outputMeshHandle = data.outputValue(AuthoringToolPlugin::outputMesh, &returnStatus );
 			MFnMeshData dataCreator;
 			MObject newOutputData = dataCreator.create(&returnStatus);
+			MGlobal::displayInfo("Before create mesh");
+			sweep->createMesh(newOutputData, returnStatus);
 			// This just copies the input value through to the output.  
 			// 
 
@@ -153,6 +161,7 @@ MStatus AuthoringToolPlugin::initialize()
 	MStatus				stat;
 
 
+	MGlobal::displayInfo("In initialize 1..\n");
 
 	AuthoringToolPlugin::numberOfPoints = nAttr.create("numPoints","np",MFnNumericData::kInt, 1.0, &stat);
 	nAttr.setStorable(true);
@@ -163,6 +172,8 @@ MStatus AuthoringToolPlugin::initialize()
 	tAttr.setKeyable(true);
 
 	AuthoringToolPlugin::outputMesh = tAttr.create("outputMesh", "outMesh", MFnData::kMesh, &stat);
+
+	tAttr.setStorable(false);
 	tAttr.setWritable(true);
 	
 
@@ -190,7 +201,7 @@ MStatus AuthoringToolPlugin::initialize()
 	////
 	//stat = attributeAffects( input, output );
 	//	if (!stat) { stat.perror("attributeAffects"); return stat;}
-
+    MGlobal::displayInfo("In initialize 2..\n");
 	return MS::kSuccess;
 
 }

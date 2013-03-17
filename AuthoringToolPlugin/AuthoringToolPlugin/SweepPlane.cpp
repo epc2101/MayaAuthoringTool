@@ -48,6 +48,9 @@ void SweepPlane::validateData()
 }
 
 //The following 3 methods are just stubs for now until we perform the algorithm
+/*
+TODO - we will have 5 cases here...see the board pics for details on how to draw
+*/
 MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 {
 
@@ -77,6 +80,45 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
         return newMesh;
 
 
+}
+
+/*
+Goes through the active plan and figures out the intersection events.  It then stuffs them into the priority queue!
+*/
+void SweepPlane::fillQueueWithIntersections(float height)
+{
+	//Preprocess the correct profile edges based on the current height of the active plan
+	//We just figure out what edge of the profile we are at here
+	std::vector<Edge> currentProfileFromHeight;
+	for (int i = 0; i<profileList.size(); i++){
+		Profile prof = profileList.at(i);
+		for(int j = 0; j<prof.getEdgeList().size(); j++){
+			Edge edge = prof.getEdgeList().at(j);
+			if (height >= edge.getStartPoint().y && height < edge.getEndPoint().y){
+				currentProfileFromHeight.push_back(edge);
+				continue;
+			}	
+		}
+	}
+
+
+	//Iterate through the whole active plan and create intersection possibilities for adjacent corners and (non adjacent)
+	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
+		//At cach corner we need the current vector associated
+		Corner corner = thePlan.getActivePlan().at(i);
+		Edge firstEdge = corner.getNextEdge();
+		Edge secondEdge = corner.getPreviousEdge();
+		//Edge firstEdgeProfileSegment = firstEdge.
+		
+
+	}
+
+}
+
+
+void SweepPlane::updateApStack(ActivePlan activePlan)
+{
+	activePlanStack.push(activePlan);
 }
 
 void SweepPlane::edgeEvent()
