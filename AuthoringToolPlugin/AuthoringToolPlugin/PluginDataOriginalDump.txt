@@ -1,0 +1,352 @@
+//
+// Copyright (C) Protrusion
+// 
+// File: AuthoringToolPluginNode.cpp
+//
+// Dependency Graph Node: AuthoringToolPlugin
+//
+// Author: Maya Plug-in Wizard 2.0.1
+// Revised by Isaac Peral
+//
+
+#include "AuthoringToolPluginNode.h"
+#include "SweepPlane.h"
+#include "Edge.h"
+#include "FloorPlan.h"
+#include "Profile.h"
+#include <vector>
+
+#include <maya/MPlug.h>
+#include <maya/MDataBlock.h>
+#include <maya/MDataHandle.h>
+
+#include <maya/MGlobal.h>
+
+// You MUST change this to a unique value!!!  The id is a 32bit value used
+// to identify this type of node in the binary file format.  
+//
+	//This is for the floorplan
+	 MObject AuthoringToolPlugin::edgeArray;
+	 MObject AuthoringToolPlugin::numberOfPoints;
+	 MObject AuthoringToolPlugin::profileEdgeArray;
+	 MObject AuthoringToolPlugin::anchorArray;
+
+	//These are general objects coming in
+	 MObject AuthoringToolPlugin::numberOfProfiles;
+	 MObject AuthoringToolPlugin::profileLengthArray;
+
+	//These are for the profiles - note that the profiles will be aggregated together
+	 MObject AuthoringToolPlugin::profileEdges;
+	 MObject AuthoringToolPlugin::profileAnchorArray;
+
+	//Output mesh
+	 MObject AuthoringToolPlugin::outputMesh;
+
+
+MTypeId     AuthoringToolPlugin::id( 0x01317 );
+
+// Example attributes
+// 
+MObject     AuthoringToolPlugin::input;        
+MObject     AuthoringToolPlugin::output;       
+
+AuthoringToolPlugin::AuthoringToolPlugin() {}
+AuthoringToolPlugin::~AuthoringToolPlugin() {}
+
+MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
+//
+//	Description:
+//		This method computes the value of the given output plug based
+//		on the values of the input attributes.
+//
+//	Arguments:
+//		plug - the plug to compute
+//		data - object that provides access to the attributes for this node
+//
+{
+	MStatus returnStatus;
+ 
+	// Check which output attribute we have been asked to compute.  If this 
+	// node doesn't know how to compute it, we must return 
+	// MS::kUnknownParameter.
+	// 
+	if( plug == output )
+	{
+		// Get a handle to the input attribute that we will need for the
+		// computation.  If the value is being supplied via a connection 
+		// in the dependency graph, then this call will cause all upstream  
+		// connections to be evaluated so that the correct value is supplied.
+		// 
+
+
+		MArrayDataHandle edgeArrayHandle = data.inputArrayValue(edgeArray, &returnStatus); //Done
+		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
+		MArrayDataHandle profileEdgeArrayHandle = data.inputArrayValue(profileEdgeArray, &returnStatus);
+		MArrayDataHandle anchorArrayHandle = data.inputArrayValue(anchorArray, &returnStatus); //Dpme
+		MDataHandle numberOfProfilesHandle = data.inputValue(numberOfProfiles, &returnStatus); //Done
+		MArrayDataHandle profileLengthArrayHandle = data.inputArrayValue(profileLengthArray, &returnStatus); //Done
+		MArrayDataHandle profileAnchorArrayHandle = data.inputArrayValue(profileAnchorArray, &returnStatus); //Done
+
+
+		if( returnStatus != MS::kSuccess )
+			MGlobal::displayError( "Node AuthoringToolPlugin cannot get value\n" );
+		
+		//This section is a lot longer than I would like.  I'll look at refactoring this and moving it to other methods.
+		else
+		{
+			//These values will be used to construct the FloorPlan object
+			int numberOfPoints = numberOfPointsHandle.asInt();
+			std::vector<Edge> floorPlanEdgeList;
+			std::vector<int> planAnchorList;
+			std::vector<int> planProfileList;
+
+			//These valueswill be used for the Profile vector
+			int numberOfProfiles = numberOfProfilesHandle.asInt();
+			std::vector<Profile> profileVector;
+			std::vector<int> profileLengthList; //Done
+			std::vector<Edge> profileTempList;
+			std::vector<int> profileAnchorTempList; //Done
+			
+
+			//Iterate through the profile anchorArray and convert to the usable vector (to parse later for profile)
+			int profileAnchorArrayLength = profileAnchorArrayHandle.elementCount();
+			for(int i = 0; i<profileAnchorArrayLength; i++){
+				profileAnchorArrayHandle.jumpToArrayElement(i);
+
+				//Not sure if we need to pass parameters into this next line
+				MDataHandle profAnchorHandle = profileAnchorArrayHandle.inputValue();
+				int anchorNum = profAnchorHandle.asInt();
+				profileAnchorTempList.push_back(anchorNum);
+			}
+
+			//Iterate through the profileLengthArray and convert to the usable vector (to parse later for profile)
+			int profileLengthArrayLength = profileLengthArrayHandle.elementCount();
+			for(int i = 0; i<profileLengthArrayLength; i++){
+				profileLengthArrayHandle.jumpToArrayElement(i);
+
+				//Not sure if we need to pass parameters into this next line
+				MDataHandle profLengthHandle = profileLengthArrayHandle.inputValue();
+				int lengthNum = profLengthHandle.asInt();
+				profileLengthList.push_back(lengthNum);
+			}
+
+
+			//Iterate through the edge array and grab points (profile)
+			int proflength = profileEdgeArrayHandle.elementCount();
+			for(int i = 0; i<proflength; i+=2){
+				//Get the starting point for the edge
+				profileEdgeArrayHandle.jumpToArrayElement(i);
+				MDataHandle edgeHandle = profileEdgeArrayHandle.inputValue();
+				MFloatVector tempVec = edgeHandle.asFloatVector();
+				glm::vec3 edgePoint = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
+				
+				//Get the ending point for the edge
+				profileEdgeArrayHandle.jumpToArrayElement(i+1);
+				edgeHandle = profileEdgeArrayHandle.inputValue();
+				tempVec = edgeHandle.asFloatVector();
+				glm::vec3 edgePointEnd = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
+				
+				//Build Edge and grab anchorType from other vector
+				Edge edge = Edge(edgePoint, edgePointEnd,profileAnchorTempList.at(i/2));
+				profileTempList.push_back(edge);
+			}
+
+			//Iterate through the anchorArray and convert to the usable vector (for floor plan)
+			int anchorArrayLength = anchorArrayHandle.elementCount();
+			for(int i = 0; i<anchorArrayLength; i++){
+				anchorArrayHandle.jumpToArrayElement(i);
+
+				//Not sure if we need to pass parameters into this next line
+				MDataHandle anchorHandle = anchorArrayHandle.inputValue();
+				int anchorNum = anchorHandle.asInt();
+				planAnchorList.push_back(anchorNum);
+			}
+
+
+			//Iterate through the edge array and grab points (floor plan)
+			int length = edgeArrayHandle.elementCount();
+			for(int i = 0; i<length; i+=2){
+				//Get the starting point for the edge
+				edgeArrayHandle.jumpToArrayElement(i);
+				MDataHandle edgeHandle = edgeArrayHandle.inputValue();
+				MFloatVector tempVec = edgeHandle.asFloatVector();
+				glm::vec3 edgePoint = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
+				
+				//Get the ending point for the edge
+				edgeArrayHandle.jumpToArrayElement(i+1);
+				edgeHandle = edgeArrayHandle.inputValue();
+				tempVec = edgeHandle.asFloatVector();
+				glm::vec3 edgePointEnd = glm::vec3(tempVec.x, tempVec.y, tempVec.z);
+				
+				//Build Edge and grab anchorType from other vector
+				Edge edge = Edge(edgePoint, edgePointEnd,planAnchorList.at(i/2));
+				floorPlanEdgeList.push_back(edge);
+			}
+
+			//Convert the profile list to a vector
+			int profileArrayLength = profileEdgeArrayHandle.elementCount();
+			for(int i = 0; i<profileArrayLength; i++){
+				profileEdgeArrayHandle.jumpToArrayElement(i);
+
+				//Not sure if we need to pass parameters into this next line
+				MDataHandle profileHandle = profileEdgeArrayHandle.inputValue();
+				int profileNum = profileHandle.asInt();
+				planProfileList.push_back(profileNum);
+			}
+		
+			//Use the vectors to correctly generate the correct profiles
+
+			for (int i = 0; i<numberOfProfiles; i++){
+				Profile prof;
+				std::vector<Edge> profEdgeTemp;
+
+				//Need an aggregated number of the edges from the previous profiles
+				int agg = 0;
+				for (int k = 0; k<i; k++){
+					agg += profileLengthList.at(k);
+				}
+				for (int j = 0; j<profileLengthList.at(i); j++){
+					profEdgeTemp.push_back(profileTempList.at(agg+j));
+				}
+				prof = Profile(profEdgeTemp,profileLengthList.at(i));
+				profileVector.push_back(prof);
+			}
+
+
+			FloorPlan plan = FloorPlan(floorPlanEdgeList,numberOfPoints, planProfileList);
+
+			SweepPlane *sweep = new SweepPlane(plan, profileVector);
+
+			//Validate that the data is structured correctly -> WILL NEED TO SET THE OUTPUT VALUES CORRECTLY!
+			sweep->validateData();
+
+			//WE will now call the sweep plan methods and produce the mesh
+		
+	
+			// Get a handle to the output attribute.  This is similar to the
+			// "inputValue" call above except that no dependency graph 
+			// computation will be done as a result of this call.
+			// 
+			MDataHandle outputMeshHandle = data.outputValue( AuthoringToolPlugin::outputMesh );
+			// This just copies the input value through to the output.  
+			// 
+			//outputMeshHandle.set( result );
+			// Mark the destination plug as being clean.  This will prevent the
+			// dependency graph from repeating this calculation until an input 
+			// of this node changes.
+			// 
+			data.setClean(plug);
+		}
+	} else {
+		return MS::kUnknownParameter;
+	}
+
+	return MS::kSuccess;
+}
+
+void* AuthoringToolPlugin::creator()
+//
+//	Description:
+//		this method exists to give Maya a way to create new objects
+//      of this type. 
+//
+//	Return Value:
+//		a new object of this type
+//
+{
+	return new AuthoringToolPlugin();
+}
+
+MStatus AuthoringToolPlugin::initialize()
+//
+//	Description:
+//		This method is called to create and initialize all of the attributes
+//      and attribute dependencies for this node type.  This is only called 
+//		once when the node type is registered with Maya.
+//
+//	Return Values:
+//		MS::kSuccess
+//		MS::kFailure
+//		
+{
+	// This sample creates a single input float attribute and a single
+	// output float attribute.
+	//
+	MFnNumericAttribute nAttr;
+	MFnTypedAttribute tAttr;
+
+	MStatus				stat;
+
+	AuthoringToolPlugin::edgeArray = tAttr.create("edgeArray","eArr", MFnData::kVectorArray, &stat);
+	tAttr.setStorable(true);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::numberOfPoints = nAttr.create("numPoints","np",MFnNumericData::kInt, 1.0);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+
+	AuthoringToolPlugin::profileEdgeArray = tAttr.create("profileEdgeArray","profEdge",MFnData::kIntArray, &stat);
+	tAttr.setStorable(true);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::anchorArray = tAttr.create("anchorArray", "anchArr", MFnData::kIntArray, &stat);
+	tAttr.setStorable(true);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::numberOfProfiles = nAttr.create("numberOfProfiles", "numProf", MFnNumericData::kInt, 1.0);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+
+	AuthoringToolPlugin::profileLengthArray = tAttr.create("profileLengthArray", "pLengthArr", MFnData::kIntArray, &stat);
+	tAttr.setStorable(true);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::profileEdges = tAttr.create("profileEdgeArray","profErrArr", MFnData::kVectorArray, &stat);
+	tAttr.setStorable(true);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::profileAnchorArray = tAttr.create("profileAnchorArray", "profAnchArr", MFnData::kIntArray, &stat);
+	tAttr.setStorable(true);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::outputMesh = tAttr.create("outputMesh", "outMesh", MFnData::kMesh, &stat);
+	//Need to figure out what traits to a
+
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::edgeArray));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::numberOfPoints));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileEdgeArray));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::anchorArray));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::numberOfProfiles));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileLengthArray));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileEdges));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::profileAnchorArray));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::outputMesh));
+
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::edgeArray,AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::numberOfPoints,AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileEdgeArray, AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::anchorArray, AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::numberOfProfiles, AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileLengthArray,AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileEdges,AuthoringToolPlugin::outputMesh));
+	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::profileAnchorArray, AuthoringToolPlugin::outputMesh));
+
+
+	//// Add the attributes we have created to the node
+	////
+	//stat = addAttribute( input );
+	//	if (!stat) { stat.perror("addAttribute"); return stat;}
+	//stat = addAttribute( output );
+	//	if (!stat) { stat.perror("addAttribute"); return stat;}
+
+	//// Set up a dependency between the input and the output.  This will cause
+	//// the output to be marked dirty when the input changes.  The output will
+	//// then be recomputed the next time the value of the output is requested.
+	////
+	//stat = attributeAffects( input, output );
+	//	if (!stat) { stat.perror("attributeAffects"); return stat;}
+
+	return MS::kSuccess;
+
+}
+
