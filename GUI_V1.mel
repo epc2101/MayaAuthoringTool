@@ -64,8 +64,53 @@ global proc CreateNewProfile()
 }
 
 //Deletes the selected profile
+//stringArrayRemoveAtIndex.mel does this for strings, but none for ints, so manually doing this the inefficient way
 global proc DeleteProfile()
 {
+    global string $profileCurves[];
+    global int $fpEdgeToProfile[]; 
+    global int $numPtsInProfile[]; 
+    global vector $pPoints[];
+    global int $pHasAnchor[];
+    
+    string $tempCurves[];
+    int $tempNumPtsInProfile[];
+    vector $tempPPoints[];
+    int $tempPHasAnchor[];
+    string $curves[] = `ls -sl`;
+    
+    int $i = 0; 
+    int $index;
+    int $k = 0;
+    for ($curve in $profileCurves)
+    {
+         
+        if ($curve == $curves[0])
+        {
+           $index = $i;           
+        } else 
+        {
+          $tempCurves[$k] = $profileCurves[$i];
+          $tempNumPtsInProfile[$k] = $numPtsInProfile[$i];
+          $tempPPoints[$k] = $pPoints[$i];
+          $tempPHasAnchor[$k] = $pHasAnchor[$i];  
+          $k++; 
+        }
+        $i++;
+    }
+    
+     //Check to see that the profile is not in the floor plan.  Also, move all fp to profile indices
+     //back 1 after the one that has been removed
+    for ($i = 0; $i < size($fpEdgeToProfile); $i++)
+    {
+        if ($fpEdgeToProfile[$i] > $index){
+            $fpEdgeToProfile[$i] = ($fpEdgeToProfile[$i] - 1);
+        } else if ($fpEdgeToProfile[$i] == $index){
+            print "Warning: the profile edge you are deleting was assinged to the floor plan. ";
+            print "You must reassign the edge before generating a building.\n";
+             $fpEdgeToProfile[$i] = -1;
+        }
+    }
     
 }
 
@@ -328,6 +373,7 @@ global proc vector[] CurveAsFP()
             print $curveCV;
             select -r $curveCV;
             curve -os -a -p $sx $sy $sz $floorPlanCurve;  
+            $floorPlanArray[size($floorPlanArray)] = <<$sx, $sy, $sz>>;
         }    
         
         //Create null anchor array & profile array
@@ -398,7 +444,7 @@ global proc CurveAsProfile()
 
 //Creates a new building from the selected input
 //global proc CreateMesh(vector $fpPoints[], int $fpHasAnchor[], int $fpEdgeToProfile[], vector $pPoints[], int $pHasAnchor[])
-global proc CreateMesh(vector $fpPoints[])
+global proc CreateMesh(vector $fpPoints[], string $fileName)
 {
     //Curve names
     global string $floorPlanCurve;
@@ -442,18 +488,15 @@ global proc CreateMesh(vector $fpPoints[])
     createNode mesh -n meshShape -p transformNode;
     sets -add initialShadingGroup meshShape;
     createNode AuthoringToolPlugin -n ProTrusionNode1;
-
-    //TODO - check if this is linking correctly
-    //addAttr -ln fpEdgeToProfile -dt Int32Array;
-    int $numPts = size($fpPoints);
-    
-    //setAttr ProTrusionNode1.edgeArray $fpPoints;
+    int $numPts = size($fpPoints);    
     setAttr ProTrusionNode1.numPoints $numPts;
+    setAttr -type "string" ProTrusionNode1.fileName $fileName;
+    
   /*  connectAttr ProTrusionNode1.outputMesh $pPoints;
     connectAttr ProTrusionNode1.outputMesh $pHasAnchor;
     connectAttr ProTrusionNode1.outputMesh $fpEdgeToProfile;
     connectAttr ProTrusionNode1.outputMesh $fpHasAnchor;*/
-    //connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
+    connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
  
     //Draw mesh
 }
@@ -465,7 +508,7 @@ global proc EditMesh()
     
 }
 
-global proc GenerateText(vector $fpPoints[])
+global proc GenerateText(vector $fpPoints[], int $updateOrNew)
 {
     //TODO - update this to current directory
     //Curve names
@@ -478,32 +521,29 @@ global proc GenerateText(vector $fpPoints[])
     //Anchor info
     global int $fpHasAnchor[];
     global int $pHasAnchor[];
+ 
+ 
+    
     string $plugin = "GUI_V1.mel";
     string $result = substituteAllString(dirname(eval( "whatIs " + $plugin )), "Script found in: ","");
-    string $filePath = ($result + "ProTrusionOutput.txt") ; 
+    string $filePath = ($result + "/ProTrusionOutput.txt") ; 
    /* if ((filetest -r $filePath))  {
         print "File exists\n";*/
         $fileId = `fopen $filePath "w"` ; 
-    /*} 
-    else {
-        print "Creating new file..\n";
-        
-        
-    }*/
-       
+    print ($filePath + "\n");
     fprint $fileId ("#FloorPlanStart\n") ;  
     int $i;
-    for ($i = 0; $i < size($fpPoints) - 1; $i++)
+    for ($i = 0; $i < size($fpPoints)-1; $i++)
     {
         vector $pt = $fpPoints[$i];
-        fprint $fileId (" #FloorPointStart " + string($pt.x) + " " + string($pt.y) + " ");
+        fprint $fileId (" #FloorPointStart " + string($pt.x) + " " + string($pt.z) + " ");
         $pt = $fpPoints[$i+1];
-        fprint $fileId (" #FloorPointEnd " + string($pt.x) + " " + string($pt.y) + " ");
+        fprint $fileId (" #FloorPointEnd " + string($pt.x) + " " + string($pt.z) + " ");
         fprint $fileId ("#Profile " + string($fpEdgeToProfile[$i]) + " ");
         fprint $fileId ("#Anchor " + string($fpHasAnchor[$i]) + "\n");
     }  
     fprint $fileId (" #FloorPlanEnd \n\n") ;  
-    fprint $fileId (" #Profile " + string(size($profileCurves)) +"\n\n");
+    fprint $fileId (" #Profiles " + string(size($profileCurves)) +"\n\n");
     int $k; 
     for ($i = 0; $i < size($profileCurves); $i++)
     {
@@ -511,16 +551,23 @@ global proc GenerateText(vector $fpPoints[])
         for ($k = 0; $k < $numPtsInProfile[$i]-1; $k++)
         {
             vector $pt = $pPoints[$i+$k];
-            fprint $fileId (" #ProfilePointStart " + string($pt.x) + " " + string($pt.y) + " ");
+            fprint $fileId (" #ProfilePointStart " + string($pt.y) + " " + string($pt.z) + " ");
             $pt = $fpPoints[$i+$k+1];
             fprint $fileId ("#ProfilePointEnd " + string($pt.y) + " " + string($pt.z) + " ");  
             fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\n");      
         }  
-        fprint $fileId (" #ProfileEnd " + string($i) + "\n\n");      
+        fprint $fileId (" #ProfileEnd" + string($i) +"\n\n");      
     }
     
     fclose $fileId ; 
-    CreateMesh($fpPoints); 
+    
+    if ($updateOrNew == 0) {
+         CreateMesh($fpPoints, $filePath);
+   } else {
+       int $numPts = size($fpPoints); 
+       setAttr ProTrusionNode1.numPoints $numPts;
+   }
+        
 }
 
 
@@ -604,13 +651,16 @@ menuBarLayout popUpMenu;
          menuItem
          -label "Generate building"
          //-command " CreateMesh($fpPoints, $fpHasAnchor, $fpEdgeToProfile, $pPoints, $pHasAnchor)";
-         -command "CreateMesh($fpPoints)";
+         -command "CreateMesh($fpPoints, "")";
          menuItem
-         -label "Update selected building"
-         -command "UpdateMesh()";
+         -label "Edit mesh"
+         -command "EditMesh()";
+         menuItem
+         -label "Update building via text file"
+         -command "GenerateText($fpPoints, 1)";
          menuItem
          -label "Create text file"
-         -command "GenerateText($fpPoints)";
+         -command "GenerateText($fpPoints, 0)";
      menu -label "Help";
          menuItem
          -label "Help"
