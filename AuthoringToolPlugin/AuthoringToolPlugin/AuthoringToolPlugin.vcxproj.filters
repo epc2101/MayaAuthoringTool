@@ -62,6 +62,12 @@
     <ClInclude Include="ActivePlan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CompareHeight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CompareParent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AuthoringToolPluginNode.cpp">
@@ -101,6 +107,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ActivePlan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompareHeight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompareParent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

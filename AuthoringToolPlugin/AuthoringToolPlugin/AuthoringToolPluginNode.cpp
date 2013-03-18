@@ -69,8 +69,8 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
 		MDataHandle fileNameHandle = data.inputValue(fileName, &returnStatus);
 
-		MDataHandle numberOfPointsHandle = data.inputValue(AuthoringToolPlugin::numberOfPoints, &returnStatus); //Done
-		MDataHandle fileNameHandle = data.inputValue(AuthoringToolPlugin::fileName, &returnStatus);
+		//MDataHandle numberOfPointsHandle = data.inputValue(AuthoringToolPlugin::numberOfPoints, &returnStatus); //Done
+		//MDataHandle fileNameHandle = data.inputValue(AuthoringToolPlugin::fileName, &returnStatus);
 
 		if( returnStatus != MS::kSuccess )
 			MGlobal::displayError( "Node AuthoringToolPlugin cannot get value\n" );
@@ -84,10 +84,10 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			
 			std::string myFile = thefileName.asChar();
 			MGlobal::displayInfo(thefileName);
-			MString thefile = fileNameHandle.asString();
+			//MString thefile = fileNameHandle.asString();
 			
-			std::string myFile = thefile.asChar();
-			cout<<"The name of the file is: "<<myFile<<endl;
+			//std::string myFile = thefile.asChar();
+			//std::cout<<"The name of the file is: "<<myFile<<std::endl;
 			FileParser parser = FileParser(myFile);
 			parser.parseFile();
 
@@ -95,6 +95,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 
 			//Validate that the data is structured correctly -> WILL NEED TO SET THE OUTPUT VALUES CORRECTLY!
 			sweep->validateData();
+			sweep->buildIt();
 			
 
 			//WE will now call the sweep plan methods and produce the mesh

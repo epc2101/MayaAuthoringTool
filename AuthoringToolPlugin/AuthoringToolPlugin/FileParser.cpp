@@ -19,7 +19,7 @@ void FileParser::parseFile(){
 	glm::vec2 startPoint, endPoint;
 	int profile, anchor;
 
-	MGlobal::executeCommand((MString)"print This was correctly reached",true, false);
+	//MGlobal::executeCommand((MString)"print This was correctly reached",true, false);
 
 	//Variables for Creating Floor Plan
 	std::vector<Edge> FloorPlanEdges;
@@ -45,9 +45,11 @@ void FileParser::parseFile(){
 				configFile >> secondaryLineHeader >> anchor;
 
 				//Construct the data structures for the floorplan
-				Edge tempEdge(glm::vec3(startPoint.x,0,startPoint.y), glm::vec3(endPoint.x, 0, endPoint.y), anchor);
+				Edge tempEdge(glm::vec3(startPoint.x,0,startPoint.y), glm::vec3(endPoint.x, 0, endPoint.y), anchor,profile);
 				FloorPlanEdges.push_back(tempEdge);
 				FloorPlanProfile.push_back(profile);
+
+				cout<<"The profile index at parsing is"<<FloorPlanProfile.back()<<endl;
 
 				cout<<"lineHeader: "<<lineHeader<<endl;
 				//Check the beginning of next line to see if should end;
@@ -90,7 +92,7 @@ void FileParser::parseFile(){
 						configFile >> startPoint.x >> startPoint.y;
 						configFile >> secondaryLineHeader >> endPoint.x >> endPoint. y;
 						configFile >> secondaryLineHeader >> anchor;
-						Edge tempEdge(glm::vec3(startPoint.x,0,startPoint.y), glm::vec3(endPoint.x, 0, endPoint.y), anchor);
+						Edge tempEdge(glm::vec3(startPoint.x,startPoint.y,0), glm::vec3(endPoint.x, endPoint.y,0), anchor);
 
 						profileEdgeList.push_back(tempEdge);
 
@@ -105,6 +107,7 @@ void FileParser::parseFile(){
 
 				//Because the last point isn't share, we add an additional 1 to the total point size
 				Profile tempProf = Profile(profileEdgeList, profileEdgeList.size()+1);
+
 				profiles.push_back(tempProf);
 			}
 		}
