@@ -80,7 +80,7 @@ void ActivePlan::setIndexNums()
 }
 
 ActivePlan::ActivePlan(std::vector<Corner> cornerPlan){
-	for(int i = 0; i>cornerPlan.size(); i++){
+	for(int i = 0; i < cornerPlan.size(); i++){
 		cornerPlan.at(i).setIndex(i);
 		activePlan.push_back(cornerPlan.at(i));
 	}

@@ -40,7 +40,7 @@ public:
 	
 
 	void fillQueueWithIntersections(float height);
-	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 intersection);
+	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
 
 	void updateApStack(ActivePlan); 
 	void processQueue();

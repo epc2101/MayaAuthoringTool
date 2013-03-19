@@ -12,7 +12,7 @@ CompareHeight::~CompareHeight(void)
 
 bool CompareHeight::operator()(Event& a, Event&b)
 {
-	if (a.getHeight() < b.getHeight()){
+	if (a.getHeight() > b.getHeight()){
 		return true;
 	}
 	return false;

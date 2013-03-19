@@ -15,7 +15,7 @@ bool CompareParent::operator()(Corner &a, Corner &b)
 	int indexA, indexB;
 	indexA = a.getSource().at(a.getSource().size()-1).getIndex();
 	indexB = b.getSource().at(b.getSource().size()-1).getIndex();
-	if (indexA < indexB){
+	if (indexA > indexB){
 		return true;
 	}
 

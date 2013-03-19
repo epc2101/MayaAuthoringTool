@@ -67,30 +67,37 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 		
 		int numbersToIndex = activePlanQueue.size();
 		//We fill up the point array
+		int i = 1;
 		while(!activePlanQueue.empty()){
+			cout<<"In plan : "<<i<<endl;
 			ActivePlan temp = activePlanQueue.front();
 			for(int j = 0; j<temp.getActivePlan().size(); j++){
 				glm::vec3 tempVec = temp.getActivePlan().at(j).getPt();
+				cout<<"Point is "<<tempVec.x<< " "<<tempVec.y<<" " <<tempVec.z<<endl;
 				MPoint tempPoint = MPoint(tempVec.x, tempVec.y,tempVec.z);
 				pointArray.append(tempPoint);
-				activePlanQueue.pop();
+				
 			}
+			activePlanQueue.pop();
 			indexingHolder.push_back(temp.getActivePlan().size());
+			i++;
 
 		}
 
 		
 		numVertices = pointArray.length();
 		int stackLevel = indexingHolder.size();
-
+		cout<<"We are checking the number of vertice at the top and the number is "<<numVertices<<endl;
 		//Move through the stack and start building the polygons
 
 		while(!activePlanStack.empty()){
+			cout<<"Active plan stack is not empty"<<endl;
 			ActivePlan temp = activePlanStack.top();
 			activePlanStack.pop();
 			stackLevel--;
 			//Check if this is the floorplan
 			if(temp.getActivePlan().at(0).getSource().size()==0){
+				cout<<"Taking care of the floorplan"<<endl;
 				int polySize = temp.getActivePlan().size();
 				faceCounts.append(polySize);
 				for(int i = 0; i<polySize; i++){
@@ -110,74 +117,78 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 					//We know it's a quad
 					if (corner.getSource().size() == 1){
 						int index1, index2,index3,index4;
-						
-						if (i== temp.getActivePlan().size()-1){
-						index1 = currentPosition + corner.getIndex();
-						index2 = positionBelow + corner.getSource().at(0).getIndex();
-						index3 = positionBelow + temp.getActivePlan().at(0).getSource().at(0).getIndex();
-						index4 = positionBelow + temp.getActivePlan().at(0).getIndex();
-						faceCounts.append(4);
-						faceConnects.append(index1);
-						faceConnects.append(index2);
-						faceConnects.append(index3);
-						faceConnects.append(index4);
-						}
-						else {
 
-						//THe first index is this corner
-						index1 = currentPosition + corner.getIndex();
-						index2 = positionBelow + corner.getSource().at(0).getIndex();
-						index3 = positionBelow + corner.getSource().at(0).getIndex()+1;
-						index4 = currentPosition + corner.getIndex() + 1;
-						faceCounts.append(4);
-						faceConnects.append(index1);
-						faceConnects.append(index2);
-						faceConnects.append(index3);
-						faceConnects.append(index4);
-						}
-					}
-					//This is going to be a triangle and a quad
-					else if (corner.getSource().size()==2){
-						int index1, index2, index3, index4;
-						//Process the triangle first
-						for (int k = 0; k<corner.getSource().size(); k++) {
-						if(k < corner.getSource().size()-1) {
+						if (i== temp.getActivePlan().size()-1){
 							index1 = currentPosition + corner.getIndex();
-							index2 = positionBelow + corner.getSource().at(k).getIndex();
-							index3 = positionBelow + corner.getSource().at(k).getIndex()+1;
-						
-							faceCounts.append(3);
+							index2 = positionBelow + corner.getSource().at(0).getIndex();
+							index3 = positionBelow + temp.getActivePlan().at(0).getSource().at(0).getIndex();
+							index4 = positionBelow + temp.getActivePlan().at(0).getIndex();
+							faceCounts.append(4);
 							faceConnects.append(index1);
 							faceConnects.append(index2);
 							faceConnects.append(index3);
-
+							faceConnects.append(index4);
 						}
 						else {
-						//Then process teh quad
 
-								if (i== temp.getActivePlan().size()-1){
+							//THe first index is this corner
+							index1 = currentPosition + corner.getIndex();
+							index2 = positionBelow + corner.getSource().at(0).getIndex();
+							index3 = positionBelow + corner.getSource().at(0).getIndex()+1;
+							index4 = currentPosition + corner.getIndex() + 1;
+							faceCounts.append(4);
+							faceConnects.append(index1);
+							faceConnects.append(index2);
+							faceConnects.append(index3);
+							faceConnects.append(index4);
+						}
+					}
+					//This is going to be a triangle and a quad
+					else if (corner.getSource().size() >= 2){
+						cout<<"We should be at this part"<<endl;
+						int index1, index2, index3, index4;
+						//Process the triangle first
+						for (int k = 0; k<corner.getSource().size(); k++) {
+							if(k < corner.getSource().size()-1) {
 								index1 = currentPosition + corner.getIndex();
+								cout<<"Position below is "<<positionBelow<<endl;
 								index2 = positionBelow + corner.getSource().at(k).getIndex();
-								index3 = positionBelow + temp.getActivePlan().at(0).getSource().at(0).getIndex();
-								index4 = positionBelow + temp.getActivePlan().at(0).getIndex();
-								faceCounts.append(4);
+								index3 = positionBelow + corner.getSource().at(k+1).getIndex();
+
+								faceCounts.append(3);
 								faceConnects.append(index1);
 								faceConnects.append(index2);
 								faceConnects.append(index3);
-								faceConnects.append(index4);
+
+							}
+							else {
+								//Then process the quad
+
+								if (i== temp.getActivePlan().size()-1){
+									cout<<"Processing the last quad. The number of parents it has is: "<<corner.getSource().size()<<endl;
+									cout<<"Position below is "<<positionBelow<<endl;
+									index1 = currentPosition + corner.getIndex();
+									index2 = positionBelow + corner.getSource().at(k).getIndex();
+									index3 = positionBelow + temp.getActivePlan().at(0).getSource().at(0).getIndex();
+									index4 = currentPosition + temp.getActivePlan().at(0).getIndex();
+									faceCounts.append(4);
+									faceConnects.append(index1);
+									faceConnects.append(index2);
+									faceConnects.append(index3);
+									faceConnects.append(index4);
 								}
 								else {
 
-								//THe first index is this corner
-								index1 = currentPosition + corner.getIndex();
-								index2 = positionBelow + corner.getSource().at(k).getIndex();
-								index3 = positionBelow + corner.getSource().at(k).getIndex()+1;
-								index4 = currentPosition + corner.getIndex() + 1;
-								faceCounts.append(4);
-								faceConnects.append(index1);
-								faceConnects.append(index2);
-								faceConnects.append(index3);
-								faceConnects.append(index4);
+									//THe first index is this corner
+									index1 = currentPosition + corner.getIndex();
+									index2 = positionBelow + corner.getSource().at(k).getIndex();
+									index3 = positionBelow + corner.getSource().at(k).getIndex()+1;
+									index4 = currentPosition + corner.getIndex() + 1;
+									faceCounts.append(4);
+									faceConnects.append(index1);
+									faceConnects.append(index2);
+									faceConnects.append(index3);
+									faceConnects.append(index4);
 								}
 							}
 						}
@@ -197,11 +208,22 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 	//}
 
 	numVertices = pointArray.length();
-	
-	
+	int numFaces = faceCounts.length();
+
+		cout<<"This is the general data of the mesh"<<endl<<endl;
+		cout<<"The number of vertices is "<<numVertices<<endl;
+		cout<<"The number of faces is "<<numFaces<<endl;
+		for(int i = 0; i < pointArray.length(); i++){
+			cout<<"The point "<<pointArray[i].x<<" "<<pointArray[i].y<<" "<<pointArray[i].z<<endl;
+		}
+		cout<<"The connections array is "<<endl;
+		for (int i =0; i<faceConnects.length(); i++){
+			cout<<faceConnects[i]<<" "<<endl;
+		}
+		
 			
 		//MGlobal::executeCommand((MString)"print " + numVertices +"  ;",true, false);
-		int numFaces = faceCounts.length();
+		
 		//MGlobal::executeCommand((MString)"print " + numFaces +"  ;",true, false);
 		MObject newMesh = meshFS.create(numVertices, numFaces, pointArray,faceCounts, faceConnects, outData, &stat);
 
@@ -347,8 +369,8 @@ void SweepPlane::fillQueueWithIntersections(float height)
 			secondCorner = thePlan.getActivePlan().at(i+1);
 		}
 
-		glm::normalize(firstVec);
-		glm::normalize(secondVec);
+		firstVec = glm::normalize(firstVec);
+		secondVec = glm::normalize(secondVec);
 		//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
 		//We extend the vectors in both directions from their current points and perform a line intersection test
 		glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
@@ -382,7 +404,7 @@ void SweepPlane::fillQueueWithIntersections(float height)
 
 }
 
-bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 intersection )
+bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection )
 {
 	cout<<"In intersection test"<<endl;
 	glm::vec3 da = line1E-line1S, db = line2E-line2S, dc = line2S-line1S;
@@ -414,18 +436,27 @@ void SweepPlane::processQueue()
 	ActivePlan localPlan;
 
 	Event firstEvent = q.top();
+
 	q.pop();
 
 	events.push_back(firstEvent);
 
 	//Get list of all events at the same height 
-	while (q.top().getHeight() - firstEvent.getHeight() < EPSILON)
+	while ((q.top().getHeight() - firstEvent.getHeight() < EPSILON) && !q.empty())
 	{
+		cout<<"The height of the firs event is "<<firstEvent.getHeight()<<endl;
+		cout<<"The height of the event we are comparing is "<<q.top().getHeight()<<endl;
 		events.push_back(q.top());
 		q.pop();
 	}
 
 	//TODO- check if we need to filter invalid events
+
+	//This is a loop to get a print out of the event
+	for(int i =0; i<events.size(); i++){
+		Event e = events.at(i);
+		cout<<"The intersection for the event at position "<<i<<" is "<<e.getPoint().x<<" "<<e.getPoint().y<<" "<<e.getPoint().z<<endl;
+	}
 
 
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> cornerQ;
@@ -440,28 +471,26 @@ void SweepPlane::processQueue()
 	{
 		 Event e = events.at(i);
 		 Corner corner = Corner(e.getPoint(), e.getCorners());
+		 for(int j = 0; j<corner.getSource().size(); j++){
+			Corner parent = corner.getSource().at(j);
+			flagPlan.at(parent.getIndex())=true;
+		}
 		 cornerQ.push(corner);
 	}
 
 
+	cout<<"The size of the sorting queue is "<<cornerQ.size()<<endl;
 
-	//Now we connect the edge!
-	for( int i = 0; i<tempActivePlan.size(); i++){
-		Corner temp = tempActivePlan.at(i);
-		for(int j = 0; j<temp.getSource().size(); j++){
-			Corner parent = temp.getSource().at(j);
-			flagPlan.at(parent.getIndex())=true;
-		}
-	}
 
 	//Raise the extra points that don't get no love!
 	for (int i = 0; i<flagPlan.size(); i++){
 		if (flagPlan.at(i) == false){
+			cout<<"We shouldn't be in here!!!"<<endl;
 			glm::vec3 vec = thePlan.getIntersectionVectors().at(i);
 			Corner parentCorner = thePlan.getActivePlan().at(i);
-			float newActivePlanHeight = tempActivePlan.at(0).getPt().y;
+			float newActivePlanHeight = cornerQ.top().getPt().y;
 			float difference = newActivePlanHeight - parentCorner.getPt().y;
-			float multiply = difference/vec.y;
+			float multiply = difference/(vec.y+pow(10.0,-6.0));
 			glm::vec3 newPoint = parentCorner.getPt()+(vec*multiply);
 			std::vector<Corner> myParent;
 			myParent.push_back(parentCorner);
@@ -472,14 +501,18 @@ void SweepPlane::processQueue()
 
 
 	//Go thorugh the priority queue and set the edges then turn it into a regular active plan for clustering!
-	for(int i = 0; i<cornerQ.size(); i++){
+	while(!cornerQ.empty()){
+		cout<<"CornerQ pt "<<cornerQ.top().getPt().x<<" "<<cornerQ.top().getPt().y<<" "<<cornerQ.top().getPt().z<<" "<<endl;
 		tempActivePlan.push_back(cornerQ.top());
 		cornerQ.pop();
 	}
 
-		for(int i = 0; tempActivePlan.size(); i++){
+	cout<<"Made it past the poppin'! The size is"<<tempActivePlan.size()<<endl;
+
+	for(int i = 0; i < tempActivePlan.size(); i++){
 		glm::vec3 startPoint, endPoint;
 		int profile;
+		cout<<"We are looping to set up the new active plan.  Finished number "<<i<<endl;
 		if (i == tempActivePlan.size()-1){	
 			startPoint = tempActivePlan.at(i).getPt();
 			endPoint = tempActivePlan.at(0).getPt();
@@ -497,8 +530,12 @@ void SweepPlane::processQueue()
 			Edge edge = Edge(startPoint,endPoint,profile);
 			tempActivePlan.at(i).setPreviousEdge(edge);
 			tempActivePlan.at(i+1).setNextEdge(edge);
-		}		
+		}	
+		cout<<"Temp active plan pt "<<tempActivePlan.at(i).getPt().x<<" "<<tempActivePlan.at(i).getPt().y<<" "<<tempActivePlan.at(i).getPt().z<<" "<<endl;
 	}
+
+		cout<<"Just checking that we even made it this far in this gigantic method"<<endl;
+		cout<<"The size of the temp active plan is: "<< tempActivePlan.size()<<endl;
 
 	//Now we cluster and then we have our next active plan!
 	//Cluster the events based on the radius
@@ -512,28 +549,39 @@ void SweepPlane::processQueue()
 	{
 		Corner temp = tempActivePlan.at(i);
 		std::vector<Corner> temp2; 
-		temp2.push_back(temp);
-		cornerInCluster.at(i) = true; 
+		if (cornerInCluster.at(i) == false) {
+			temp2.push_back(temp);
+			cornerInCluster.at(i) = true; 
+		}
+		
 
-		for (int k = 0; k < events.size(); k++)
+		for (int k = 0; k < tempActivePlan.size(); k++)
 		{
 			if (k == i ) continue;
-			if (glm::distance(tempActivePlan.at(i).getPt(), tempActivePlan.at(k).getPt()) < RADIUS)
+			if (glm::distance(tempActivePlan.at(i).getPt(), tempActivePlan.at(k).getPt()) < 0.1)
 			{
+				cout<<"Found one that is close"<<endl;
 				//TODO - think about pruning...we'll be getting multiple chains of the same thing
 				if (cornerInCluster.at(k) == false) {
 					temp2.push_back(tempActivePlan.at(k));
+					cornerInCluster.at(k) = true; 
 				}
 			}
 		}
+
+
 		clusters.push_back(temp2);
 	}
+
+
 
 	//Process the interclusters
 	std::vector<Corner> postCluster;
 	for (int i = 0; i < clusters.size(); i++)
 	{
+		cout<<"Number of points in cluster: "<<clusters.at(i).size()<<endl;
 		std::vector<Corner> cluster = clusters.at(i); 
+		if (cluster.size() == 0) continue; 
 		Edge startEdge = cluster.at(0).getNextEdge();
 		Edge endEdge = cluster.at(cluster.size() - 1).getPreviousEdge();
 		std::vector<Corner> parents;
@@ -554,9 +602,13 @@ void SweepPlane::processQueue()
 		postCluster.push_back(newCorner);
 	}
 
-
+	
+	cout<<"The new size of intersections is "<<postCluster.size()<<endl;
+	cout<<"Survived the cluster..."<<endl;
 	//Process the intraclusters
+	//TODO - change back to postCluster
 	thePlan = ActivePlan(postCluster);
+
 
 	//Clean out the queue
 	while (!q.empty()){
@@ -591,8 +643,11 @@ void SweepPlane::buildIt()
 		processQueue();
 		activePlanStack.push(thePlan);
 		activePlanQueue.push(thePlan);
+		cout<<"The stack has "<<activePlanStack.size()<<" and the queue has "<<activePlanQueue.size()<<endl;
+		if (thePlan.getActivePlan().size() <= 2)
+			break;
 		fillQueueWithIntersections(thePlan.getActivePlan().at(0).getPt().y);
-		break;
+		
 	}
 
 
