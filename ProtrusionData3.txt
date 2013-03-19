@@ -1,0 +1,18 @@
+#FloorPlanStart
+#FloorPointStart 0 0 #FloorPointEnd 1 -1 #Profile 0 #Anchor 0
+#FloorPointStart 1-1 #FloorPointEnd 3 -1 #Profile 0 #Anchor 0
+#FloorPointStart 3 -1 #FloorPointEnd 4 0 #Profile 0 #Anchor 1
+#FloorPointStart 4 0 #FloorPointEnd 3 1 #Profile 0 #Anchor 0
+#FloorPointStart 3 1 #FloorPointEnd 1 1 #Profile 0 #Anchor 1
+#FloorPointStart 1 1 #FloorPointEnd 0 0 #Profile 0 #Anchor 1
+#FloorPlanEnd
+
+#Profiles 1
+
+#ProfileStart0
+#ProfilePointStart 0 0 #ProfilePointEnd 3 4 #Anchor 0
+
+#ProfileEnd0
+
+
+
