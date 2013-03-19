@@ -11,6 +11,7 @@
 #include <set>
 #include "CompareHeight.h"
 #include "CompareParent.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 /* This class is reponsible for holding all the key data for the mesh creation and 
 eventually outputting a workable mesh object*/

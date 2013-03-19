@@ -8,7 +8,7 @@
 #Profiles 1
 
 #ProfileStart0
-#ProfilePointStart 0 0 #ProfilePointEnd 0 8 #Anchor 0
+#ProfilePointStart 0 0 #ProfilePointEnd 3 8 #Anchor 0
 
 #ProfileEnd0
 
