@@ -9,6 +9,8 @@ class ActivePlan
 {
 private:
 	std::deque<Corner> activePlan;
+
+	//These are the vectors that come from each corner (used to find interections and locations of edge direction change)
 	std::vector<glm::vec3> intersectionVectors;
 
 public:
@@ -19,6 +21,7 @@ public:
 
 	std::vector<glm::vec3> getIntersectionVectors();
 	void setIntersectionVector(glm::vec3 v);
+	void cleanIntersectionVectors();
 
 	ActivePlan(std::vector<Corner> cornerPlan);
 	ActivePlan(void);

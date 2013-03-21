@@ -36,13 +36,20 @@ public:
 	//Aspects of the algorithm - right now these will just be stubs
 	MObject createMesh(MObject& outData, MStatus& stat);
 
-
+	//Preprocessing helpers (before event generation)
+	void updateIntersectionVectors(float height);
+	std::vector<Edge> getProfileEdgesAtHeight(float height); 
 	
-
+	//Event generation methods
 	void fillQueueWithIntersections(float height);
 	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
 
-	void updateApStack(ActivePlan); 
+	//Queue processing helper functions
+	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
+	void updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
+	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
+
+	//Main control loops
 	void processQueue();
 	void buildIt();
 

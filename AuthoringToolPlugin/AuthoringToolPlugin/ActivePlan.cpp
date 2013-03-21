@@ -85,3 +85,8 @@ ActivePlan::ActivePlan(std::vector<Corner> cornerPlan){
 		activePlan.push_back(cornerPlan.at(i));
 	}
 }
+
+void ActivePlan::cleanIntersectionVectors()
+{
+	intersectionVectors.clear();
+}
