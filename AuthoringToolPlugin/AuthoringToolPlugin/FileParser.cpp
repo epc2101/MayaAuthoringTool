@@ -22,7 +22,7 @@ void FileParser::parseFile(){
 	//MGlobal::executeCommand((MString)"print This was correctly reached",true, false);
 
 	//Variables for Creating Floor Plan
-	std::vector<Edge> FloorPlanEdges;
+	std::vector<PlanEdge> FloorPlanEdges;
 	std::vector<int> FloorPlanProfile;
 
 	cout<<"Name "<<fileName<<endl;
@@ -45,7 +45,7 @@ void FileParser::parseFile(){
 				configFile >> secondaryLineHeader >> anchor;
 
 				//Construct the data structures for the floorplan
-				Edge tempEdge(glm::vec3(startPoint.x,0,startPoint.y), glm::vec3(endPoint.x, 0, endPoint.y), anchor,profile);
+				PlanEdge tempEdge(glm::vec3(startPoint.x,0,startPoint.y), glm::vec3(endPoint.x, 0, endPoint.y), profile, anchor);
 				FloorPlanEdges.push_back(tempEdge);
 				FloorPlanProfile.push_back(profile);
 
@@ -56,7 +56,35 @@ void FileParser::parseFile(){
 				configFile >> lineHeader;
 			}
 
-			plan = FloorPlan(FloorPlanEdges, FloorPlanEdges.size(), FloorPlanProfile);
+			//In this section we determine if the floorplan has been arranged clockwise or counter.  Is counter we reverse the edges and floorPlan profileVector
+
+			//Test the ordering of the plan edges - if CW we are good, otherweise we need to flip
+			if (testOrder(FloorPlanEdges)){
+				plan = FloorPlan(FloorPlanEdges, FloorPlanEdges.size(), FloorPlanProfile);
+			}
+			else {
+				std::vector<PlanEdge> tempPlanEdge;
+				std::vector<int> tempProfileList;
+
+				while(!FloorPlanEdges.empty()){
+					PlanEdge temp = FloorPlanEdges.back();
+					FloorPlanEdges.pop_back();
+					int tempNum = FloorPlanProfile.back();
+					FloorPlanProfile.pop_back();
+
+					glm::vec3 newStart, newEnd;
+					newStart = temp.getEndPoint();
+					newEnd = temp.getStartPoint();
+					int anchor = temp.getAnchorType();
+					int profile = temp.getProfileType();
+
+					PlanEdge newEdge = PlanEdge(newStart,newEnd,profile,anchor);
+					tempPlanEdge.push_back(newEdge);	
+					tempProfileList.push_back(tempNum);
+				}
+
+				plan = FloorPlan(tempPlanEdge, tempPlanEdge.size(), tempProfileList);
+			}
 		}
 		else {
 			cout<<"File is incorrectly formatted"<<endl;
@@ -76,7 +104,7 @@ void FileParser::parseFile(){
 				comparisonString.append(numString);
 
 				//Create temporary storagefor points
-				std::vector<Edge> profileEdgeList;
+				std::vector<ProfileEdge> profileEdgeList;
 				
 				configFile >> lineHeader;
 				if (lineHeader.compare(comparisonString)==0){
@@ -92,7 +120,10 @@ void FileParser::parseFile(){
 						configFile >> startPoint.x >> startPoint.y;
 						configFile >> secondaryLineHeader >> endPoint.x >> endPoint. y;
 						configFile >> secondaryLineHeader >> anchor;
-						Edge tempEdge(glm::vec3(startPoint.x,startPoint.y,0), glm::vec3(endPoint.x, endPoint.y,0), anchor);
+
+						//We will determine the topmost point and horizontalness at normalization
+						bool isHorizontal = false, isTop = false;
+						ProfileEdge tempEdge(glm::vec3(startPoint.x,startPoint.y,0), glm::vec3(endPoint.x, endPoint.y,0),isTop,isHorizontal, anchor);
 
 						profileEdgeList.push_back(tempEdge);
 
@@ -117,6 +148,27 @@ void FileParser::parseFile(){
 		}
 	}
 	configFile.close();
+}
+
+bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
+{
+	int testNum = 0;
+	for(int i = 0; i<currentPlan.size(); i++){
+		PlanEdge tempEdge = currentPlan.at(i);
+		int xNum = tempEdge.getEndPoint().x- tempEdge.getStartPoint().x;
+		int zNum = tempEdge.getEndPoint().z- tempEdge.getStartPoint().z;
+		testNum += (xNum*zNum);
+	}
+	if(testNum <= 0){
+		cout<<"IS COUNTER CLOCKWISE"<<endl;
+		return false;
+	}
+	else {
+		cout<<"IS CLOCKWISE"<<endl;
+		return true;
+	}
+
+
 }
 
 FloorPlan FileParser::getFloorPlan(){

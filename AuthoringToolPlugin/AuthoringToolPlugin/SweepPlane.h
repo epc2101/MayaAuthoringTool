@@ -3,6 +3,8 @@
 #include "FloorPlan.h"
 #include "Profile.h"
 #include "ActivePlan.h"
+#include "ProfileEdge.h"
+#include "PlanEdge.h"
 #include "Event.h"
 #include <maya/MGlobal.h>
 #include <vector>
@@ -38,10 +40,11 @@ public:
 
 	//Preprocessing helpers (before event generation)
 	void updateIntersectionVectors(float height);
-	std::vector<Edge> getProfileEdgesAtHeight(float height); 
+	std::vector<ProfileEdge> getProfileEdgesAtHeight(float height); 
 	
 	//Event generation methods
 	void fillQueueWithIntersections(float height);
+	void fillQueueWithEdgeDirectionChanges(float height);
 	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
 
 	//Queue processing helper functions

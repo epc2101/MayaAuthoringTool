@@ -10,7 +10,7 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 {
 	for (int i = 0; i < thePlan.getNumPoints(); i++)
 	{
-		Edge e = thePlan.getEdgeList().at(i);
+		PlanEdge e = thePlan.getEdgeList().at(i);
 		//TODO - if the edge is a quad- get the profile from the previous edge below.
 		e.setProfileType(thePlan.getProfileList().at(i));
 
@@ -19,7 +19,7 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 
 		std::cout<<"The profile index is "<<e.getProfileType()<<std::endl;
 		glm::vec3 pt = e.getStartPoint();
-		Edge previousEdge, nextEdge;
+		PlanEdge previousEdge, nextEdge;
 
 		if (i == 0) {
 			previousEdge = thePlan.getEdgeList().at(thePlan.getNumPoints()-1);
@@ -36,7 +36,7 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 
 
 		Corner c = Corner(previousEdge, nextEdge, pt); 
-		std::cout<<"The corner has the edge profile type of: "<<c.getNextEdge().getProfileType()<<std::endl;
+		std::cout<<"The corner has the edge profile type of: "<<c.getLeftEdge().getProfileType()<<std::endl;
 
 		c.setIndex(i);
 		activePlan.push_back(c);

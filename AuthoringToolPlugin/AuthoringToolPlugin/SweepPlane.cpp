@@ -235,14 +235,14 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 
 //Preprocess the correct profile edges based on the current height of the active plan
 //We just figure out what edge of the profile we are at here
-std::vector<Edge> SweepPlane::getProfileEdgesAtHeight(float height)
+std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 {
 
-	std::vector<Edge> currentProfileFromHeight;
+	std::vector<ProfileEdge> currentProfileFromHeight;
 	for (int i = 0; i<profileList.size(); i++){
 		Profile prof = profileList.at(i);
 		for(int j = 0; j<prof.getEdgeList().size(); j++){
-			Edge edge = prof.getEdgeList().at(j);
+			ProfileEdge edge = prof.getEdgeList().at(j);
 			if (DEBUG == 1)
 			{
 				cout<<"The height of the start poin is "<<edge.getStartPoint().y<<endl;
@@ -262,15 +262,15 @@ std::vector<Edge> SweepPlane::getProfileEdgesAtHeight(float height)
 //Updates the vectors from the active plan's corners based off of the profile's intersections
 void SweepPlane::updateIntersectionVectors(float height)
 {
-	std::vector<Edge> currentProfileFromHeight = getProfileEdgesAtHeight(height);
+	std::vector<ProfileEdge> currentProfileFromHeight = getProfileEdgesAtHeight(height);
 
 	//Iterate through the active plan and calculate the varying vectors based on the different edge plans.
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 		//At cach corner we need the current vector associated
 		Corner corner = thePlan.getActivePlan().at(i);
-		Edge firstEdge = corner.getNextEdge();
-		Edge secondEdge = corner.getPreviousEdge();		
-		Edge firstProfileEdge = currentProfileFromHeight.at(firstEdge.getProfileType());
+		PlanEdge firstEdge = corner.getLeftEdge();
+		PlanEdge secondEdge = corner.getRightEdge();		
+		ProfileEdge firstProfileEdge = currentProfileFromHeight.at(firstEdge.getProfileType());
 
 		if (DEBUG ==1 ) {
 			cout<<"Current profile from height : "<<currentProfileFromHeight.size()<<endl;
@@ -282,7 +282,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 			cout<<"First Profile Edge Start Point is "<<firstProfileEdge.getStartPoint().x<<" "<<firstProfileEdge.getStartPoint().y<<" "<<firstProfileEdge.getStartPoint().z<<endl;
 			cout<<"First Profile Edge End Point is "<<firstProfileEdge.getEndPoint().x<<" "<<firstProfileEdge.getEndPoint().y<<" "<<firstProfileEdge.getEndPoint().z<<endl;
 		}
-		Edge secondProfileEdge = currentProfileFromHeight.at(secondEdge.getProfileType());
+		ProfileEdge secondProfileEdge = currentProfileFromHeight.at(secondEdge.getProfileType());
 
 		//Calculate the normal of the first edge.
 		glm::vec3 normal1, normal2, finalVector;
@@ -354,58 +354,72 @@ void SweepPlane::fillQueueWithIntersections(float height)
 	}
 	//Compare each corner to all the other ones and determine the possible intersection events
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
-		//TODO - Add in intersection detection and handling for non adjacent corners
-		glm::vec3 firstVec, secondVec;
-		Corner firstCorner, secondCorner;
-		//We will calculate the intersection with the corner and its next neighbor - need to handle the end
-		if (i == thePlan.getActivePlan().size()-1){
-			firstVec = thePlan.getIntersectionVectors().at(i);
-			secondVec = thePlan.getIntersectionVectors().at(0);
-			firstCorner = thePlan.getActivePlan().at(i);
-			secondCorner = thePlan.getActivePlan().at(0);
-		} else {
-			firstVec = thePlan.getIntersectionVectors().at(i);
-			secondVec = thePlan.getIntersectionVectors().at(i+1);
-			firstCorner = thePlan.getActivePlan().at(i);
-			secondCorner = thePlan.getActivePlan().at(i+1);
-		}
+		//for (int j = 1; j < thePlan.getActivePlan().size(); j++) {
+			//TODO - Add in intersection detection and handling for non adjacent corners
+			glm::vec3 firstVec, secondVec;
+			Corner firstCorner, secondCorner;
+			//We will calculate the intersection with the corner and its next neighbor - need to handle the end
+			 if (i == thePlan.getActivePlan().size()-1){
+				firstVec = thePlan.getIntersectionVectors().at(i);
+				secondVec = thePlan.getIntersectionVectors().at(0);
+				firstCorner = thePlan.getActivePlan().at(i);
+				secondCorner = thePlan.getActivePlan().at(0);
+			} else {
+				//if (i == j ) continue; 
+				firstVec = thePlan.getIntersectionVectors().at(i);
+				secondVec = thePlan.getIntersectionVectors().at(i+1);
+				firstCorner = thePlan.getActivePlan().at(i);
+				secondCorner = thePlan.getActivePlan().at(i+1);
+			 }
+			
 
-		firstVec = glm::normalize(firstVec);
-		secondVec = glm::normalize(secondVec);
-		//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
-		//We extend the vectors in both directions from their current points and perform a line intersection test
-		glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
+			firstVec = glm::normalize(firstVec);
+			secondVec = glm::normalize(secondVec);
+			//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
+			//We extend the vectors in both directions from their current points and perform a line intersection test
+			glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
 
-		//These are the initial starting points
-		firstStartPoint = firstCorner.getPt();
-		secondStartPoint = secondCorner.getPt();
+			//These are the initial starting points
+			firstStartPoint = firstCorner.getPt();
+			secondStartPoint = secondCorner.getPt();
 
-		float t = 10000;
+			float t = 10000;
 
-		//The top points are multiplied by a large t value (around 10000)
-		firstTopPoint = firstStartPoint + (firstVec*t);
-		secondTopPoint = secondStartPoint + (secondVec*t);
+			//The top points are multiplied by a large t value (around 10000)
+			firstTopPoint = firstStartPoint + (firstVec*t);
+			secondTopPoint = secondStartPoint + (secondVec*t);
 
-		if (intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint)){
-			//This is the code to create the intersection event and push it onto the queue
-			std::vector<Corner> source;
-			source.push_back(firstCorner);
-			source.push_back(secondCorner);
-			Event intersect = Event(intersectionPoint.y, intersectionPoint,source, Event::INTERSECTION);
+			//cout<<"in loop: "<<i<< " "<<j<<endl;
 
-			q.push(intersect);
-			if (DEBUG == 1) {
-				cout<<"The size of the queue is "<<q.size()<<endl;
+			if (intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint)){
+				//This is the code to create the intersection event and push it onto the queue
+				std::vector<Corner> source;
+				source.push_back(firstCorner);
+				source.push_back(secondCorner);
+				Event intersect = Event(intersectionPoint.y, intersectionPoint,source, Event::INTERSECTION);
+
+				q.push(intersect);
+				if (DEBUG == 1) {
+					cout<<"The size of the queue is "<<q.size()<<endl;
+				}
 			}
-		}
-		else {
-			if (DEBUG == 1) {
-				cout<<"Didn't find intersection..."<<endl;
+			else {
+				if (DEBUG == 1) {
+					cout<<"Didn't find intersection..."<<endl;
+				}
+				continue;
 			}
-			continue;
-		}		
+		//}
 	}
+	cout<<"After intersection..."<<endl;
 
+}
+
+void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
+	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
+		Event edgeChange = Event();
+
+	}
 }
 
 bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection )
@@ -489,19 +503,19 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			startPoint = tempActivePlan.at(i).getPt();
 			endPoint = tempActivePlan.at(0).getPt();
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
-			profile = myCorn.at(myCorn.size()-1).getPreviousEdge().getProfileType();
-			Edge edge = Edge(startPoint,endPoint,profile);
-			tempActivePlan.at(i).setPreviousEdge(edge);
-			tempActivePlan.at(0).setNextEdge(edge);
+			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
+			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
+			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
+			tempActivePlan.at(0).setLeftEdge(edge);
 			
 		} else {
 			startPoint = tempActivePlan.at(i).getPt();
 			endPoint = tempActivePlan.at(i+1).getPt();
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
-			profile = myCorn.at(myCorn.size()-1).getPreviousEdge().getProfileType();
-			Edge edge = Edge(startPoint,endPoint,profile);
-			tempActivePlan.at(i).setPreviousEdge(edge);
-			tempActivePlan.at(i+1).setNextEdge(edge);
+			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
+			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
+			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
+			tempActivePlan.at(i+1).setLeftEdge(edge);
 		} 
 		if (DEBUG == 1) {
 			cout<<"We are looping to set up the new active plan.  Finished number "<<i<<endl;
@@ -559,8 +573,8 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 		std::vector<Corner> cluster = clusters.at(i); 
 		if (cluster.size() == 0) continue; 
 
-		Edge startEdge = cluster.at(0).getNextEdge();
-		Edge endEdge = cluster.at(cluster.size() - 1).getPreviousEdge();
+		PlanEdge startEdge = cluster.at(0).getLeftEdge();
+		PlanEdge endEdge = cluster.at(cluster.size() - 1).getRightEdge();
 		std::vector<Corner> parents;
 
 		for (int k = 0; k < cluster.size(); k++)
@@ -647,13 +661,13 @@ void SweepPlane::buildIt()
 	thePlan = ActivePlan(plan);
 	if (DEBUG == 1) {
 		for(int i = 0; i<thePlan.getActivePlan().size(); i++){
-			cout<<"In BUILDIT: The profile for each edge is "<<thePlan.getActivePlan().at(i).getPreviousEdge().getProfileType()<<endl;
+			cout<<"In BUILDIT: The profile for each edge is "<<thePlan.getActivePlan().at(i).getRightEdge().getProfileType()<<endl;
 		}
 	}
 	activePlanStack.push(thePlan);
 	activePlanQueue.push(thePlan);
 	float height = 0;
-
+	updateIntersectionVectors(height);
 	fillQueueWithIntersections(height);
 	if (DEBUG == 1) {
 		cout<<"Supposedly filled with events"<<endl;
@@ -675,11 +689,8 @@ void SweepPlane::buildIt()
 		thePlan.cleanIntersectionVectors();
 		float height = thePlan.getActivePlan().at(0).getPt().y;
 		updateIntersectionVectors(height); 
-		fillQueueWithIntersections(height);
-		
+		fillQueueWithIntersections(height);	
 	}
-
-
 }
 
 SweepPlane::~SweepPlane(void)

@@ -1,20 +1,15 @@
-﻿Build started 3/21/2013 1:17:20 PM.
+﻿Build started 3/22/2013 6:16:38 PM.
      1>Project "C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt SweepPlane.cpp /GR /GS /EHsc /I "."  /c 
-         SweepPlane.cpp
-     1>SweepPlane.cpp(8): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(9): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(69): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(83): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(90): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(102): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(217): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(221): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(60): warning C4101: 'frame' : unreferenced local variable
-     1>SweepPlane.cpp(469): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt FileParser.cpp /GR /GS /EHsc /I "."  /c 
+         FileParser.cpp
+     1>FileParser.cpp(63): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>FileParser.cpp(86): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>FileParser.cpp(140): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>FileParser.cpp(158): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>FileParser.cpp(159): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
@@ -29,8 +24,10 @@
          FileParser.obj
          FloorPlan.obj
          IntersectionEvent.obj
+         PlanEdge.obj
          pluginMain.obj
          Profile.obj
+         ProfileEdge.obj
          ProfileOffsetEvent.obj
          SweepPlane.obj /subsystem:windows /incremental:no /export:initializePlugin /export:uninitializePlugin 
             Creating library Release_2012/AuthoringToolPlugin.lib and object Release_2012/AuthoringToolPlugin.exp
@@ -44,4 +41,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.41
+Time Elapsed 00:00:02.08

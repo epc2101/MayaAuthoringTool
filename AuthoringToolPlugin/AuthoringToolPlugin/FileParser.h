@@ -5,6 +5,8 @@
 #include <vector>
 #include <stdio.h>
 #include "Edge.h"
+#include "ProfileEdge.h"
+#include "PlanEdge.h"
 #include "FloorPlan.h"
 #include "Profile.h"
 
@@ -27,6 +29,7 @@ public:
 
 	//Key Methods
 	void parseFile();
+	bool testOrder(std::vector<PlanEdge> currentPlan);
 
 	//Destructors
 	~FileParser(void);

@@ -1,6 +1,6 @@
 #include "Profile.h"
 #include <iostream>
-
+float DIFF = 0.001;
 
 Profile::Profile(void)
 {
@@ -11,7 +11,7 @@ Profile::~Profile(void)
 {
 }
 
-Profile::Profile(std::vector<Edge> e, int length){
+Profile::Profile(std::vector<ProfileEdge> e, int length){
 	
 	
 	edgeList = normalizeProfile(e);
@@ -19,7 +19,7 @@ Profile::Profile(std::vector<Edge> e, int length){
 }
 
 //Getters - Don't expect to be modifying these fields in the future
-std::vector<Edge> Profile::getEdgeList(){
+std::vector<ProfileEdge> Profile::getEdgeList(){
 	return edgeList;
 }
 int Profile::getNumPoints(){
@@ -29,11 +29,11 @@ int Profile::getNumPoints(){
 /*
 This translate the points on the 2d profile to come from the origin (this is important for accurate height detection)
 */
-std::vector<Edge> Profile::normalizeProfile(std::vector<Edge> e)
+std::vector<ProfileEdge> Profile::normalizeProfile(std::vector<ProfileEdge> e)
 {
 	//We get the first point to see it's distance from the origin
-	Edge edge = e.at(0);
-	std::vector<Edge> tempEdgeList;
+	ProfileEdge edge = e.at(0);
+	std::vector<ProfileEdge> tempEdgeList;
 
 	glm::vec3 start = edge.getStartPoint();
 	float heightChange = start.y;
@@ -41,7 +41,7 @@ std::vector<Edge> Profile::normalizeProfile(std::vector<Edge> e)
 	std::cout<<"Height change is: "<<heightChange<<std::endl;
 
 	for(int i = 0; i<e.size(); i++){
-		Edge temp = e.at(i);
+		ProfileEdge temp = e.at(i);
 		glm::vec3 startPoint = temp.getStartPoint();
 		glm::vec3 endPoint = temp.getEndPoint();
 		int anchor = temp.getAnchorType();
@@ -53,7 +53,24 @@ std::vector<Edge> Profile::normalizeProfile(std::vector<Edge> e)
 		endPoint.x -= transChange;
 		endPoint.y -= heightChange;
 
-		Edge newEdge = Edge(startPoint,endPoint,anchor,-1);
+		//Check if horizontal and if it is the topmost point
+		bool isTop, isHorizontal;
+
+		if (i == e.size()-1){
+			isTop = true;
+		}
+		else {
+			isTop = false;
+		}
+
+		if((startPoint.y - endPoint.y) < DIFF){
+			isHorizontal = true;
+		}
+		else{
+			isHorizontal = false;
+		}
+
+		ProfileEdge newEdge = ProfileEdge(startPoint,endPoint,isTop,isHorizontal,anchor);
 		tempEdgeList.push_back(newEdge);	
 	}
 	

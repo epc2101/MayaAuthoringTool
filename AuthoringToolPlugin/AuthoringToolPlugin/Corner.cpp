@@ -5,7 +5,7 @@ Corner::Corner(void)
 {
 }
 
-Corner::Corner(Edge _previousEdge, Edge _nextEdge, glm::vec3 _pt)
+Corner::Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt)
 {
 	previousEdge = _previousEdge;
 	nextEdge = _nextEdge;
@@ -13,7 +13,7 @@ Corner::Corner(Edge _previousEdge, Edge _nextEdge, glm::vec3 _pt)
 
 }
 
-Corner::Corner(Edge _previousEdge, Edge _nextEdge, glm::vec3 _pt, std::vector<Corner> parents)
+Corner::Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt, std::vector<Corner> parents)
 {
 	previousEdge = _previousEdge;
 	nextEdge = _nextEdge;
@@ -21,12 +21,12 @@ Corner::Corner(Edge _previousEdge, Edge _nextEdge, glm::vec3 _pt, std::vector<Co
 	srcCorners = parents; 
 }
 
-Edge Corner::getPreviousEdge()
+PlanEdge Corner::getRightEdge()
 {
 	return previousEdge;
 }
 
-Edge Corner::getNextEdge()
+PlanEdge Corner::getLeftEdge()
 {
 	return nextEdge;
 }
@@ -65,11 +65,11 @@ Corner::Corner(glm::vec3 p, std::vector<Corner> parents)
 	pt = p;
 	srcCorners = parents;
 }
-void Corner::setNextEdge(Edge e)
+void Corner::setLeftEdge(PlanEdge e)
 {
 	nextEdge = e;
 }
-void Corner::setPreviousEdge(Edge e)
+void Corner::setRightEdge(PlanEdge e)
 {
 	previousEdge = e;
 }

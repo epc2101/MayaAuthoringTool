@@ -156,7 +156,9 @@
     <ClInclude Include="FileParser.h" />
     <ClInclude Include="FloorPlan.h" />
     <ClInclude Include="IntersectionEvent.h" />
+    <ClInclude Include="PlanEdge.h" />
     <ClInclude Include="Profile.h" />
+    <ClInclude Include="ProfileEdge.h" />
     <ClInclude Include="ProfileOffsetEvent.h" />
     <ClInclude Include="SweepPlane.h" />
   </ItemGroup>
@@ -172,8 +174,10 @@
     <ClCompile Include="FileParser.cpp" />
     <ClCompile Include="FloorPlan.cpp" />
     <ClCompile Include="IntersectionEvent.cpp" />
+    <ClCompile Include="PlanEdge.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="Profile.cpp" />
+    <ClCompile Include="ProfileEdge.cpp" />
     <ClCompile Include="ProfileOffsetEvent.cpp" />
     <ClCompile Include="SweepPlane.cpp" />
   </ItemGroup>
