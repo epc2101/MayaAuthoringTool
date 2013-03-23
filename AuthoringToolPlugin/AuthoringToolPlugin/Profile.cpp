@@ -53,6 +53,8 @@ std::vector<ProfileEdge> Profile::normalizeProfile(std::vector<ProfileEdge> e)
 		endPoint.x -= transChange;
 		endPoint.y -= heightChange;
 
+		std::cout<<"The y value of the end point is "<<endPoint.y<<std::endl;
+
 		//Check if horizontal and if it is the topmost point
 		bool isTop, isHorizontal;
 

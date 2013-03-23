@@ -159,7 +159,7 @@ bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
 		int zNum = tempEdge.getEndPoint().z- tempEdge.getStartPoint().z;
 		testNum += (xNum*zNum);
 	}
-	if(testNum <= 0){
+	if(testNum < 0){
 		cout<<"IS COUNTER CLOCKWISE"<<endl;
 		return false;
 	}
