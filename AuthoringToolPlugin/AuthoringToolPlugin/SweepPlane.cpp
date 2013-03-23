@@ -105,6 +105,43 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 					faceConnects.append(i);
 				}
 			}
+			//This is going to be just a pyrimid
+			else if (temp.getActivePlan().size() == 1){
+				int currentPosition = 0,positionBelow = 0;
+
+				for (int i = 0; i<stackLevel; i++){
+					currentPosition+=indexingHolder.at(i);
+				}
+				positionBelow = currentPosition-indexingHolder.at(stackLevel-1);
+				Corner corner = temp.getActivePlan().at(0);
+				int index1, index2,index3,index4;
+				for (int k = 0; k<corner.getSource().size(); k++) {
+					if(k < corner.getSource().size()-1) {
+						index1 = currentPosition + corner.getIndex();
+						cout<<"Position below is "<<positionBelow<<endl;
+						index2 = positionBelow + corner.getSource().at(k).getIndex();
+						index3 = positionBelow + corner.getSource().at(k+1).getIndex();
+
+						faceCounts.append(3);
+						faceConnects.append(index1);
+						faceConnects.append(index2);
+						faceConnects.append(index3);
+					}
+					else {
+						index1 = currentPosition + corner.getIndex();
+						cout<<"Position below is "<<positionBelow<<endl;
+						index2 = positionBelow + corner.getSource().at(k).getIndex();
+						index3 = positionBelow + corner.getSource().at(0).getIndex();
+
+						faceCounts.append(3);
+						faceConnects.append(index1);
+						faceConnects.append(index2);
+						faceConnects.append(index3);
+
+					}
+				}
+
+			}
 			else {
 				int currentPosition = 0,positionBelow = 0;
 				
