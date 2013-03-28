@@ -150,6 +150,7 @@
     <ClInclude Include="AnchorEvent.h" />
     <ClInclude Include="AuthoringToolPluginNode.h" />
     <ClInclude Include="CompareHeight.h" />
+    <ClInclude Include="CompareIndex.h" />
     <ClInclude Include="CompareParent.h" />
     <ClInclude Include="Corner.h" />
     <ClInclude Include="Edge.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="AnchorEvent.cpp" />
     <ClCompile Include="AuthoringToolPluginNode.cpp" />
     <ClCompile Include="CompareHeight.cpp" />
+    <ClCompile Include="CompareIndex.cpp" />
     <ClCompile Include="CompareParent.cpp" />
     <ClCompile Include="Corner.cpp" />
     <ClCompile Include="Edge.cpp" />

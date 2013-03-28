@@ -10,8 +10,9 @@ Anchor::~Anchor(void)
 {
 }
 
-Anchor::Anchor(float edgeNumPercent, int profile, float profileNumPercent)
+Anchor::Anchor(int i, float edgeNumPercent, int profile, float profileNumPercent)
 {
+	index = i; 
 	floorPlanPercent = edgeNumPercent - (int) edgeNumPercent; 
 	floorPlanIndex = (int) edgeNumPercent; 
 
@@ -27,6 +28,11 @@ Anchor::Anchor(float edgeNumPercent, int profile, float profileNumPercent)
 }
 
 //Getters & setters
+int Anchor::getIndex()
+{
+	return index; 
+}
+
 float Anchor::getFloorPlanPercent()
 {
 	return floorPlanPercent; 

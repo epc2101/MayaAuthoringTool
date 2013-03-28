@@ -80,6 +80,9 @@
     <ClInclude Include="Anchor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CompareIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AuthoringToolPluginNode.cpp">
@@ -137,6 +140,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Anchor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CompareIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

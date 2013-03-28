@@ -23,7 +23,7 @@ class SweepPlane
 private:
 	FloorPlan plan;
 	std::vector<Profile> profileList;
-	std::vector<Anchor> anchorList; 
+	std::queue<Anchor> anchorList; 
 	std::stack<ActivePlan> activePlanStack;
 	std::queue<ActivePlan> activePlanQueue;
 
@@ -40,6 +40,9 @@ public:
 	//Aspects of the algorithm - right now these will just be stubs
 	MObject createMesh(MObject& outData, MStatus& stat);
 
+	//Anchor processing
+	std::queue<Anchor> getAnchors(); 
+
 	//Preprocessing helpers (before event generation)
 	void updateIntersectionVectors(float height);
 	std::vector<ProfileEdge> getProfileEdgesAtHeight(float height); 
@@ -53,6 +56,7 @@ public:
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
 	void updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
 	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
+	//std::vector<Corner> processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &tempActivePlan);
 
 	//Main control loops
 	void processQueue();
