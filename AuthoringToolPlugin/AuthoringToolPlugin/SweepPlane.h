@@ -14,6 +14,7 @@
 #include "CompareHeight.h"
 #include "CompareParent.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "Anchor.h"
 
 /* This class is reponsible for holding all the key data for the mesh creation and 
 eventually outputting a workable mesh object*/
@@ -22,6 +23,7 @@ class SweepPlane
 private:
 	FloorPlan plan;
 	std::vector<Profile> profileList;
+	std::vector<Anchor> anchorList; 
 	std::stack<ActivePlan> activePlanStack;
 	std::queue<ActivePlan> activePlanQueue;
 
@@ -33,7 +35,7 @@ private:
 public:
 	//Constructor
 	SweepPlane(void);
-	SweepPlane(FloorPlan p, std::vector<Profile> pList);
+	SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anchor> aList);
 
 	//Aspects of the algorithm - right now these will just be stubs
 	MObject createMesh(MObject& outData, MStatus& stat);

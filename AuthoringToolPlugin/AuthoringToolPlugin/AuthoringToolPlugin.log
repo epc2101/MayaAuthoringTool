@@ -1,52 +1,19 @@
-﻿Build started 3/23/2013 2:30:49 AM.
-     1>Project "D:\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
+﻿Build started 3/27/2013 10:14:24 PM.
+     1>Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Touching "AuthoringToolPlugin.unsuccessfulbuild".
+         Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt SweepPlane.cpp /GR /GS /EHsc /I "."  /c 
-         SweepPlane.cpp
-     1>SweepPlane.cpp(8): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(9): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(69): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(83): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(90): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(102): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(254): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(258): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(60): warning C4101: 'frame' : unreferenced local variable
-     1>SweepPlane.cpp(117): warning C4101: 'index4' : unreferenced local variable
-     1>SweepPlane.cpp(277): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(503): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(590): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(D:\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (D:\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+         All outputs are up-to-date.
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"Release_2012\AuthoringToolPlugin.mll" /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2013\lib" Foundation.lib OpenMaya.lib OpenMayaUI.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"AuthoringToolPlugin.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"Release_2012/AuthoringToolPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Release_2012/AuthoringToolPlugin.lib" /MACHINE:X64 /DLL ActivePlan.obj
-         AuthoringToolPluginNode.obj
-         CompareHeight.obj
-         CompareParent.obj
-         Corner.obj
-         Edge.obj
-         EdgeEvent.obj
-         Event.obj
-         FileParser.obj
-         FloorPlan.obj
-         IntersectionEvent.obj
-         PlanEdge.obj
-         pluginMain.obj
-         Profile.obj
-         ProfileEdge.obj
-         ProfileOffsetEvent.obj
-         SweepPlane.obj /subsystem:windows /incremental:no /export:initializePlugin /export:uninitializePlugin 
-            Creating library Release_2012/AuthoringToolPlugin.lib and object Release_2012/AuthoringToolPlugin.exp
-         AuthoringToolPlugin.vcxproj -> D:\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll
-       Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"Release_2012\AuthoringToolPlugin.mll;#2" /manifest AuthoringToolPlugin.dll.intermediate.manifest
+         All outputs are up-to-date.
+         AuthoringToolPlugin.vcxproj -> C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll
        FinalizeBuildStatus:
          Deleting file "AuthoringToolPlugin.unsuccessfulbuild".
          Touching "AuthoringToolPlugin.lastbuildstate".
-     1>Done Building Project "D:\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:02.05
+Time Elapsed 00:00:00.10

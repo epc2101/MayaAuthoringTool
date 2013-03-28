@@ -88,10 +88,11 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			
 			//std::string myFile = thefile.asChar();
 			//std::cout<<"The name of the file is: "<<myFile<<std::endl;
+			std::cout<<"In Node..."<<std::endl;
 			FileParser parser = FileParser(myFile);
 			parser.parseFile();
 
-			SweepPlane *sweep = new SweepPlane(parser.getFloorPlan(), parser.getProfiles());
+			SweepPlane *sweep = new SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
 
 			//Validate that the data is structured correctly -> WILL NEED TO SET THE OUTPUT VALUES CORRECTLY!
 			sweep->validateData();
@@ -111,9 +112,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			MGlobal::displayInfo("Before create mesh");
 			sweep->createMesh(newOutputData, returnStatus);
 			// This just copies the input value through to the output.  
-			// 
 
-			
 			outputMeshHandle.set( newOutputData );
 			// Mark the destination plug as being clean.  This will prevent the
 			// dependency graph from repeating this calculation until an input 

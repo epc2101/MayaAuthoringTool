@@ -74,6 +74,12 @@
     <ClInclude Include="PlanEdge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AnchorEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Anchor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AuthoringToolPluginNode.cpp">
@@ -125,6 +131,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PlanEdge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnchorEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Anchor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

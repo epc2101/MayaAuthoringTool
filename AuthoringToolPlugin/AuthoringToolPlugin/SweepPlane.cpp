@@ -13,10 +13,11 @@ SweepPlane::SweepPlane(void)
 {
 }
 
-SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList)
+SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anchor> aList)
 {
 	plan = p;
 	profileList = pList;
+	anchorList = aList; 
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
