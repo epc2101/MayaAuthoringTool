@@ -4,13 +4,21 @@ global string $ProTrusionMenu;
 //Curve names
 global string $floorPlanCurve;
 global string $profileCurves[];
+
 //Profile info
 global int $fpEdgeToProfile[]; 
 global int $numPtsInProfile[]; 
 global vector $pPoints[];
+
 //Anchor info
 global int $fpHasAnchor[];
-global int $pHasAnchor[];
+global int $pHasAnchor[];  //TODO - maybe get rid of these guys
+
+//Each of these anchors are linked to a specific fp & profile edge (indices match for each anchor)
+global string $anchorFiles[];
+global float $anchorFPEdge[]; //edge#.percentInbetween
+global int $anchorProfileNum[]; //the profile the anchor is linked to 
+global float $anchorProfileEdge[]; //edge#.percentInbetween
 
 global proc LoadFloorPlan()
 {
@@ -259,47 +267,150 @@ global proc LinkProfileToFloorPlan()
     showWindow edgePrompt;
 }
 
+//Links the selected profile to  floor plan edge 
+global proc LinkProfileToEntireFP()
+{
+    global string $profileCurves[];
+    global int $fpEdgeToProfile[];
+    global string $profileCurves[];
+    
+    string $curve[] = `ls -sl`;
+    if (size($curve) != 1)
+    {
+        print "You must select one curve.\n";
+        return;
+    }
+    
+    //Find curve in curve list
+    int $profileNum = 0; 
+    for ($c in $profileCurves)
+    {
+        if ($c == $curve[0])
+            break;
+        $profileNum++;
+    }
+    
+    int $i;
+    for ($i = 0; $i < size($fpEdgeToProfile); $i++)
+    {
+        $fpEdgeToProfile[$i] = $profileNum; 
+        
+    }
+    
+}
+
+//***************************************************************************
+//TODO -MAKE SURE TO HANDLE CANCELS!!!! RIGHT NOW, WE AREN'T UPDATING ARRAYS!!!!!!!!!!!!!
+//***************************************************************************
+
 //Links anchor to floor plan
 //Validates floor plan edge selection
 global proc LinkAnchorToFloorPlan()
 {
     global string $floorPlanCurve;
+
+    //Call to select the file
+    global string $anchorFiles[];  
+    string $selectedFile = `fileDialog -dm "*.obj"`;  
+    print ("Got file: " + $selectedFile);
+    if (size($selectedFile) > 0) {
+        $anchorFiles[size($anchorFiles)] = $selectedFile; 
+    } else {
+        //If user cancels, stop anchor process
+        print "You hit cancel!!\n";
+        return;
+    }
   
     //Select floor plan & turn mode to edit points
     select -r $floorPlanCurve; 
-    doMenuNURBComponentSelection($floorPlanCurve, "editPoint");
-    $win = `window -title "Floor plan edge selector" edgePrompt`;
+    //doMenuNURBComponentSelection($floorPlanCurve, "editPoint");
+    doMenuNURBComponentSelection($floorPlanCurve, "curveParameterPoint");
+    $win = `window -title "Floor plan edge - Anchor selector" edgePrompt`;
         columnLayout;
-            text "Select edit points of the floor plan edge you want to assign.\n";
+            text "Select a point on the floor plan edge .\n";
             rowLayout -numberOfColumns 2;
-                button -label "Confirm" -command ("EdgeValidationHelper " + $win + " 0 0");
+                button -label "Confirm" -command ("LinkAnchorToFloorPlanHelper " + $win);
                 button -label "Cancel" -command ("deleteUI " + $win);
                 setParent..;
     showWindow edgePrompt;    
 }
 
-//Links anchor to profile
-//Validates profile edge selection
-global proc LinkAnchorToProfile()
+global proc LinkAnchorToFloorPlanHelper(string $win)
+{
+
+    global string $floorPlanCurve; 
+    global float $anchorFPEdge[]; //edge#.percentInbetween
+    global int $fpEdgeToProfile[]; 
+    
+    global string $anchorFiles[];
+    global int $anchorProfileNum[]; //the profile the anchor is linked to 
+    global float $anchorProfileEdge[]; //edge#.percentInbetween
+
+    string $anchorPt[] = `ls -sl`;
+    string $splitBracketF[];
+    string $splitBracketB[]; 
+    global int $fpEdgeToProfile[]; 
+    tokenize $anchorPt[0] "[" $splitBracketF;  
+    tokenize $splitBracketF[1] "]" $splitBracketB;
+    print ("Got our anchor floor point: " + $splitBracketB[0]);
+    $anchorFPEdge[size($anchorFPEdge)] = (float) $splitBracketB[0];
+    
+    //TODO - come up with a better way to mark the anchor
+    float $pos[];
+    string $cmd = ("pointOnCurve -position -pr " + string($splitBracketB[0]) + " " +  $floorPlanCurve); 
+    $pos = `eval($cmd)`;
+    circle -center $pos[0] $pos[1] $pos[2] -normal 0 1 0 -radius 0.5; 
+    
+    deleteUI $win;
+    
+    //Get the matching profile & have user select the profile
+    string $fpEdge[];
+    tokenize $splitBracketB[0] "." $fpEdge;
+    int $edge = (int) $fpEdge[0];
+    int $profile = $fpEdgeToProfile[$edge];
+    LinkAnchorToProfile($profile);
+    //Store which profile the edge is associated with
+    $anchorProfileNum[size($anchorProfileNum)] = $profile;
+}
+
+
+//Links anchor to profile (Makes sure that the user has the correct profile selected)
+global proc LinkAnchorToProfile(int $selectedProfile)
 {
     global string $profileCurves[];
-    int $i;
-    //Select profiles & turn mode to edit points
-    for ($i = 0; $i < size($profileCurves); $i++)
-    {
-        select -r $profileCurves[$i];  
-    }
-
-    doMenuNURBComponentSelection($profileCurves[0], "editPoint");
-    $win = `window -title "Anchor profile edge selector" edgePrompt`;
+    select -r $profileCurves[$selectedProfile];  
+    
+    doMenuNURBComponentSelection($profileCurves[$selectedProfile], "curveParameterPoint");
+    $win = `window -title "Profile - Anchor selection" edgePrompt`;
         columnLayout;
-            text "Select edit points of the profile edge to add the anchor.\n";
+            text "Select the point on profile edge to add the anchor.\n";
             rowLayout -numberOfColumns 2;
-                button -label "Confirm" -command ("EdgeValidationHelper " + $win + " 0 1");
+                button -label "Confirm" -command ("AnchorToProfileHelper " + $win);
                 button -label "Cancel" -command ("deleteUI " + $win);
                 setParent..;
     showWindow edgePrompt;  
 }
+
+global proc AnchorToProfileHelper(string $win)
+{
+    global float $anchorProfileEdge[]; //edge#.percentInbetween
+
+    string $anchorPt[] = `ls -sl`;
+    string $splitBracketF[];
+    string $splitBracketB[]; 
+
+    //Split out the edge.percentOfEdge
+    tokenize $anchorPt[0] "[" $splitBracketF;  
+    tokenize $splitBracketF[1] "]" $splitBracketB;
+    print ("Got our anchor profile point: " + $splitBracketB[0]);
+    //Add the edge and percent to the anchorProfileEdge list
+    $anchorProfileEdge[size($anchorProfileEdge)] = $splitBracketB[0];
+    
+    deleteUI $win;
+    
+
+}
+
 
 //Creates a list of the edit points for a given curve (FP or Profile)
 //Validates that the curve is a floor plan (1) or profile curve (2)
@@ -455,6 +566,11 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     global int $numPtsInProfile[]; 
     global vector $pPoints[];
     global int $pHasAnchor[];   
+    //Anchor info
+    global string $anchorFiles[];
+    global float $anchorFPEdge[]; //edge#.percentInbetween
+    global int $anchorProfileNum[]; //the profile the anchor is linked to 
+    global float $anchorProfileEdge[]; //edge#.percentInbetween
     
     //**************************************************************************** 
     //Tests - TODO - take out when done testing
@@ -492,6 +608,30 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     setAttr ProTrusionNode1.numPoints $numPts;
     setAttr -type "string" ProTrusionNode1.fileName $fileName;
     
+    //For each anchor -> link data from anchor node to the transform node, link to imported obj  file
+    //TODO - change when done testing to bring in 
+   /* for ($i = 0; $i < size($anchorFiles); $i++)
+    {
+       float $r; 
+       float $x, $y, $z;
+       $r = `getAttr ProTrusionNode1.rotateY" `;
+       $x = `getAttr ProTrusionNode1.transX" `;
+       $y = `getAttr ProTrusionNode1.transY" `;
+       $z = `getAttr ProTrusionNode1.transZ" `;
+       string $anchorNamespace = ("anchor" + string($i)); 
+       file -import -type "OBJ" -ra true -mergeNamespacesOnClash false -namespace $anchorNamespace -options "mo=1"  -pr -loadReferenceDepth "all" $anchorFiles[$i];
+       select -r ($anchorNamespace+ ":*");
+       setAttr ($anchorNamespace + ":default1.rotateY") r; 
+       setAttr ($anchorNamespace + ":default1.translateX") x;
+       setAttr ($anchorNamespace + ":default1.translateY") y;
+       setAttr ($anchorNamespace + ":default1.translateZ") z;
+    }*/
+    
+    file -import -type "OBJ" -ra true -mergeNamespacesOnClash false -namespace "testAnchor" -options "mo=1"  -pr -loadReferenceDepth "all" "C:/Users/Beth/MayaAuthoringTool/testAnchor.obj";
+    select -r "testAnchor:*";
+    setAttr "testAnchor:default1.rotateY" 45; //This is parsed from the edge direction from C++
+    setAttr "testAnchor:default1.rotateX" 20; //From the direction plane of the active plan at height anchoer height
+        
   /*  connectAttr ProTrusionNode1.outputMesh $pPoints;
     connectAttr ProTrusionNode1.outputMesh $pHasAnchor;
     connectAttr ProTrusionNode1.outputMesh $fpEdgeToProfile;
@@ -519,11 +659,14 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
     global int $numPtsInProfile[]; 
     global vector $pPoints[];
     //Anchor info
-    global int $fpHasAnchor[];
+    global int $fpHasAnchor[]; //TODO - maybe get rid of these in cleanup?
     global int $pHasAnchor[];
- 
- 
-    
+    //REAL anchor info
+    //Each of these anchors are linked to a specific fp & profile edge (indices match for each anchor)
+    global float $anchorFPEdge[]; //edge#.percentInbetween
+    global int $anchorProfileNum[]; //the profile the anchor is linked to 
+    global float $anchorProfileEdge[]; //edge#.percentInbetween
+   
     string $plugin = "GUI_V1.mel";
     string $result = substituteAllString(dirname(eval( "whatIs " + $plugin )), "Script found in: ","");
     string $filePath = ($result + "/ProTrusionOutput.txt") ; 
@@ -531,7 +674,10 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
         print "File exists\n";*/
         $fileId = `fopen $filePath "w"` ; 
     print ($filePath + "\n");
-    fprint $fileId ("#FloorPlanStart\n") ;  
+    
+    //***************************************************************************************************
+    //Start of floorplan parse
+    fprint $fileId ("#FloorPlanStart\r\n") ;  
     int $i;
     for ($i = 0; $i < size($fpPoints)-1; $i++)
     {
@@ -540,25 +686,41 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
         $pt = $fpPoints[$i+1];
         fprint $fileId (" #FloorPointEnd " + string($pt.x) + " " + string($pt.z) + " ");
         fprint $fileId ("#Profile " + string($fpEdgeToProfile[$i]) + " ");
-        fprint $fileId ("#Anchor " + string($fpHasAnchor[$i]) + "\n");
+        fprint $fileId ("#Anchor " + string($fpHasAnchor[$i]) + "\r\n");
     }  
-    fprint $fileId (" #FloorPlanEnd \n\n") ;  
-    fprint $fileId (" #Profiles " + string(size($profileCurves)) +"\n\n");
+    fprint $fileId (" #FloorPlanEnd \r\n\r\n") ;  
+    
+    //***************************************************************************************************
+    //Start of profile parse
+    fprint $fileId (" #Profiles " + string(size($profileCurves)) +"\r\n");
     int $k; 
     for ($i = 0; $i < size($profileCurves); $i++)
     {
-        fprint $fileId (" #ProfileStart" + string($i));
+        fprint $fileId (" #ProfileStart" + string($i) + "\r\n");
         for ($k = 0; $k < $numPtsInProfile[$i]-1; $k++)
         {
             vector $pt = $pPoints[$i+$k];
             fprint $fileId (" #ProfilePointStart " + string($pt.y) + " " + string($pt.z) + " ");
             $pt = $fpPoints[$i+$k+1];
             fprint $fileId ("#ProfilePointEnd " + string($pt.y) + " " + string($pt.z) + " ");  
-            fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\n");      
+            fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\r\n");      
         }  
-        fprint $fileId (" #ProfileEnd" + string($i) +"\n\n");      
+        fprint $fileId (" #ProfileEnd" + string($i) +"\r\n");      
     }
     
+    //***************************************************************************************************
+    //Start of anchor parse
+    print ("Num anchors: " + string(size($anchorFPEdge)) + "\n");  
+    fprint $fileId("\r\n#NumAnchors " + string(size($anchorFPEdge)) + "\r\n");
+    for ($i = 0; $i < size($anchorFPEdge); $i++)
+    {
+        fprint $fileId (" #AnchorStart" + string($i) + "\r\n");
+            fprint $fileId (" #FloorPlanEdge " + string($anchorFPEdge[$i]) + " ");
+            fprint $fileId ("#ProfileNum  " + string($anchorProfileNum[$i]) + " ");  
+            fprint $fileId ("#ProfileEdge " + string($anchorProfileEdge[$i]) + "\r\n");       
+        fprint $fileId (" #AnchorEnd" + string($i) +"\r\n");      
+    }
+ 
     fclose $fileId ; 
     
     if ($updateOrNew == 0) {
@@ -576,7 +738,7 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
 //****************************************************************************************************************
 global proc ProGUI()
 {
-    //All the variables needed to generate the final mesh
+    //All the variables needed to LinkAnchorToFloorPlan the final mesh
     //Floor plan 
     vector $fpPoints[];
     global int $fpHasAnchor[];
@@ -642,11 +804,11 @@ menuBarLayout popUpMenu;
         -label "Link profile to floor plan edge"
         -command "LinkProfileToFloorPlan()";
         menuItem
-        -label "Assign anchor to floor plan"
+        -label "Link selected profile to all edges"
+        -command "LinkProfileToEntireFP()";
+        menuItem
+        -label "Create new anchor"
         -command "LinkAnchorToFloorPlan()";
-        menuItem 
-        -label "Assign anchor to profile"
-        -command "LinkAnchorToProfile()";
      menu -label "Create building mesh";
          menuItem
          -label "Generate building"
@@ -656,11 +818,11 @@ menuBarLayout popUpMenu;
          -label "Edit mesh"
          -command "EditMesh()";
          menuItem
+         -label "Generate building with text file"
+         -command "GenerateText($fpPoints, 0)";
+         menuItem
          -label "Update building via text file"
          -command "GenerateText($fpPoints, 1)";
-         menuItem
-         -label "Create text file"
-         -command "GenerateText($fpPoints, 0)";
      menu -label "Help";
          menuItem
          -label "Help"
