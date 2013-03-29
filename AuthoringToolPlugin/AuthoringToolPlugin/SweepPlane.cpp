@@ -270,6 +270,17 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 
 }
 
+void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, MStatus& stat)
+{
+	//TODO - fill in with correct anchors...testing for now
+	MDoubleArray anchorPos; 
+	MDoubleArray anchorRot; 
+	//x, y, z
+	anchorPos.append(1.0); anchorPos.append(0.0); anchorPos.append(0.0); 
+	anchorRot.append(90.0);
+
+}
+
 //Preprocess the correct profile edges based on the current height of the active plan
 //We just figure out what edge of the profile we are at here
 std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)

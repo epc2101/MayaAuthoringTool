@@ -7,6 +7,7 @@
 #include "PlanEdge.h"
 #include "Event.h"
 #include <maya/MGlobal.h>
+#include <maya\MFnDoubleArrayData.h>
 #include <vector>
 #include <queue>
 #include <stack>
@@ -37,6 +38,7 @@ public:
 
 	//Aspects of the algorithm - right now these will just be stubs
 	MObject createMesh(MObject& outData, MStatus& stat);
+	void createAnchors(MObject& anchorPosData, MObject& anchorRotData, MStatus& stat);
 
 	//Preprocessing helpers (before event generation)
 	void updateIntersectionVectors(float height);

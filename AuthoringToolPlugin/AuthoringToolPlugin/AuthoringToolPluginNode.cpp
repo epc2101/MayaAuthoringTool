@@ -15,6 +15,7 @@
 #include "FloorPlan.h"
 #include "Profile.h"
 #include <maya/MFnMeshData.h>
+#include <maya\MFnDoubleArrayData.h>
 #include "FileParser.h"
 #include <vector>
 
@@ -30,6 +31,8 @@
 	//This is for the floorplan
 	 MObject AuthoringToolPlugin::fileName;
 	 MObject AuthoringToolPlugin::numberOfPoints;
+	 MObject AuthoringToolPlugin::anchorPositions; 
+	 MObject AuthoringToolPlugin::anchorRotations;
 
 	//Output mesh
 	 MObject AuthoringToolPlugin::outputMesh;
@@ -58,7 +61,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 	// node doesn't know how to compute it, we must return 
 	// MS::kUnknownParameter.
 	// 
-	if( plug == outputMesh )
+	if( plug == outputMesh || plug == anchorPositions || plug == anchorRotations)
 	{
 		// Get a handle to the input attribute that we will need for the
 		// computation.  If the value is being supplied via a connection 
@@ -68,9 +71,6 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 
 		MDataHandle numberOfPointsHandle = data.inputValue(numberOfPoints, &returnStatus); //Done
 		MDataHandle fileNameHandle = data.inputValue(fileName, &returnStatus);
-
-		//MDataHandle numberOfPointsHandle = data.inputValue(AuthoringToolPlugin::numberOfPoints, &returnStatus); //Done
-		//MDataHandle fileNameHandle = data.inputValue(AuthoringToolPlugin::fileName, &returnStatus);
 
 		if( returnStatus != MS::kSuccess )
 			MGlobal::displayError( "Node AuthoringToolPlugin cannot get value\n" );
@@ -84,10 +84,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			
 			std::string myFile = thefileName.asChar();
 			MGlobal::displayInfo(thefileName);
-			//MString thefile = fileNameHandle.asString();
-			
-			//std::string myFile = thefile.asChar();
-			//std::cout<<"The name of the file is: "<<myFile<<std::endl;
+
 			FileParser parser = FileParser(myFile);
 			parser.parseFile();
 
@@ -106,13 +103,27 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			// computation will be done as a result of this call.
 			// 
 			MDataHandle outputMeshHandle = data.outputValue(AuthoringToolPlugin::outputMesh, &returnStatus );
+			//TODO - add anchor info here
+			MDataHandle outputAnchorPosHandle = data.outputValue(AuthoringToolPlugin::anchorPositions, &returnStatus); 
+			MDataHandle outputAnchorRotHandle = data.outputValue(AuthoringToolPlugin::anchorRotations, &returnStatus); 
+
 			MFnMeshData dataCreator;
 			MObject newOutputData = dataCreator.create(&returnStatus);
-			MGlobal::displayInfo("Before create mesh");
+
+			MGlobal::displayInfo("Before create mesh..addd mesh output");
+
+			MFnDoubleArrayData dataCreator2;
+			MObject newAnchorPosData = dataCreator2.create(&returnStatus);
+
+		    MFnDoubleArrayData dataCreator3;
+			MObject newAnchorRotData = dataCreator3.create(&returnStatus);
+
 			sweep->createMesh(newOutputData, returnStatus);
 			// This just copies the input value through to the output.  
 			// 
-
+			sweep->createAnchors(newAnchorPosData, newAnchorRotData, returnStatus); 
+			if (!returnStatus)
+				cout<<"UHOH! Our anchors didn't get created"<<endl;
 			
 			outputMeshHandle.set( newOutputData );
 			// Mark the destination plug as being clean.  This will prevent the
@@ -172,6 +183,14 @@ MStatus AuthoringToolPlugin::initialize()
 	tAttr.setStorable(true);
 	tAttr.setKeyable(true);
 
+	AuthoringToolPlugin::anchorPositions = tAttr.create("anchorPosition", "ap", MFnData::kDoubleArray, &stat); 
+	tAttr.setStorable(false);
+	tAttr.setKeyable(true);
+
+	AuthoringToolPlugin::anchorRotations = tAttr.create("anchorRotations", "ar", MFnData::kDoubleArray, &stat); 
+	tAttr.setStorable(false);
+	tAttr.setKeyable(true);
+
 	AuthoringToolPlugin::outputMesh = tAttr.create("outputMesh", "outMesh", MFnData::kMesh, &stat);
 
 	tAttr.setStorable(false);
@@ -182,12 +201,12 @@ MStatus AuthoringToolPlugin::initialize()
 
 	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::fileName));
 	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::numberOfPoints));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::anchorPositions));
+	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::anchorRotations));
 	CHECK_MSTATUS(addAttribute(AuthoringToolPlugin::outputMesh));
 
 	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::fileName,AuthoringToolPlugin::outputMesh));
 	CHECK_MSTATUS(attributeAffects(AuthoringToolPlugin::numberOfPoints,AuthoringToolPlugin::outputMesh));
-
-
 
 	//// Add the attributes we have created to the node
 	////
