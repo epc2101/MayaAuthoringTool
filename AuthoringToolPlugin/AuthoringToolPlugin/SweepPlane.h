@@ -15,6 +15,7 @@
 #include "CompareHeight.h"
 #include "CompareParent.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "Anchor.h"
 
 /* This class is reponsible for holding all the key data for the mesh creation and 
 eventually outputting a workable mesh object*/
@@ -23,6 +24,7 @@ class SweepPlane
 private:
 	FloorPlan plan;
 	std::vector<Profile> profileList;
+	std::queue<Anchor> anchorList; 
 	std::stack<ActivePlan> activePlanStack;
 	std::queue<ActivePlan> activePlanQueue;
 
@@ -34,11 +36,14 @@ private:
 public:
 	//Constructor
 	SweepPlane(void);
-	SweepPlane(FloorPlan p, std::vector<Profile> pList);
+	SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anchor> aList);
 
 	//Aspects of the algorithm - right now these will just be stubs
 	MObject createMesh(MObject& outData, MStatus& stat);
 	void createAnchors(MObject& anchorPosData, MObject& anchorRotData, MStatus& stat);
+
+	//Anchor processing
+	std::queue<Anchor> getAnchors(); 
 
 	//Preprocessing helpers (before event generation)
 	void updateIntersectionVectors(float height);
@@ -53,6 +58,7 @@ public:
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
 	void updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
 	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
+	//std::vector<Corner> processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &tempActivePlan);
 
 	//Main control loops
 	void processQueue();

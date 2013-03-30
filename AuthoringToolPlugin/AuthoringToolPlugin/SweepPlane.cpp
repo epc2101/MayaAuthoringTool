@@ -13,10 +13,11 @@ SweepPlane::SweepPlane(void)
 {
 }
 
-SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList)
+SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anchor> aList)
 {
 	plan = p;
 	profileList = pList;
+	anchorList = aList; 
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
@@ -349,7 +350,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 		glm::vec3 profVec1 = firstProfileEdge.getEndPoint()-firstProfileEdge.getStartPoint();
 		
 		glm::mat4 tempMat = glm::mat4(1.0);
-		glm::mat4 firstRot = glm::rotate(tempMat,90.0f,glm::vec3(0,1,0));
+		glm::mat4 firstRot = glm::rotate(tempMat,-90.0f,glm::vec3(0,1,0));
 
 		glm::vec4 rotVec = glm::vec4(edgeVec1,1.0);
 		rotVec = firstRot * rotVec;
@@ -360,9 +361,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 		
 		normal1 = glm::cross(edgeVec1, profVec1);
 		normal1 = glm::normalize(normal1);
-
-
-
+		
 		if (DEBUG == 1) {
 			cout<<endl;
 			cout<<"New Vector 1 is "<<newVector.x<<" "<<newVector.y<<" "<<newVector.z<<endl;
@@ -376,7 +375,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 		glm::vec3 edgeVec2 = secondEdge.getEndPoint()-secondEdge.getStartPoint();
 		glm::vec3 profVec2 = secondProfileEdge.getEndPoint()-secondProfileEdge.getStartPoint();
 
-		firstRot = glm::rotate(tempMat,90.0f,glm::vec3(0,1,0));
+		firstRot = glm::rotate(tempMat,-90.0f,glm::vec3(0,1,0));
 		rotVec = glm::vec4(edgeVec2,1.0);
 		rotVec = firstRot * rotVec;
 
@@ -426,25 +425,14 @@ void SweepPlane::fillQueueWithIntersections(float height)
 	}
 	//Compare each corner to all the other ones and determine the possible intersection events
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
-		//for (int j = 1; j < thePlan.getActivePlan().size(); j++) {
-			//TODO - Add in intersection detection and handling for non adjacent corners
+		for (int j = 1; j < thePlan.getActivePlan().size(); j++) {
 			glm::vec3 firstVec, secondVec;
 			Corner firstCorner, secondCorner;
 			//We will calculate the intersection with the corner and its next neighbor - need to handle the end
-			 if (i == thePlan.getActivePlan().size()-1){
-				firstVec = thePlan.getIntersectionVectors().at(i);
-				secondVec = thePlan.getIntersectionVectors().at(0);
-				firstCorner = thePlan.getActivePlan().at(i);
-				secondCorner = thePlan.getActivePlan().at(0);
-			} else {
-				//if (i == j ) continue; 
-				firstVec = thePlan.getIntersectionVectors().at(i);
-				secondVec = thePlan.getIntersectionVectors().at(i+1);
-				firstCorner = thePlan.getActivePlan().at(i);
-				secondCorner = thePlan.getActivePlan().at(i+1);
-			 }
-			
-
+			firstVec = thePlan.getIntersectionVectors().at(i);
+			secondVec = thePlan.getIntersectionVectors().at(j);
+			firstCorner = thePlan.getActivePlan().at(i);
+			secondCorner = thePlan.getActivePlan().at(j);
 			firstVec = glm::normalize(firstVec);
 			secondVec = glm::normalize(secondVec);
 
@@ -493,7 +481,7 @@ void SweepPlane::fillQueueWithIntersections(float height)
 		//}
 	}
 	cout<<"After intersection..."<<endl;
-
+	}
 }
 
 void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
@@ -639,6 +627,11 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 	}
 }
 
+//************************************************************************************************************
+//************************************************************************************************************
+//TODO - FOR BETH - THIS ENTIRE SECTION IS NOT EXACLTLY RIGHT...NEED TO CHANGE TO USE EDGES & THEN PROCESS CLUSTERS AS EDGES
+//AND NOT CORNERS
+
 //Handles all the event clustering (merges overlapping corners) 
 std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActivePlan) 
 {
@@ -646,6 +639,8 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 	//Cluster the events based on the radius
 	std::vector<bool> cornerInCluster;
 	std::vector<vector<Corner>> clusters;
+	std::vector<int> isSingle; 
+
 	for (int i = 0; i < tempActivePlan.size(); i++)
 	{
 		cornerInCluster.push_back(false);
@@ -655,6 +650,8 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 	for (int i = 0; i < tempActivePlan.size(); i++)
 	{
 		Corner temp = tempActivePlan.at(i);
+		Edge e1 = temp.getLeftEdge();
+
 		std::vector<Corner> temp2; 
 		if (cornerInCluster.at(i) == false) {
 			temp2.push_back(temp);
@@ -684,6 +681,11 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 	for (int i = 0; i < clusters.size(); i++)
 	{
 		if (DEBUG == 1) cout<<"Number of points in cluster: "<<clusters.at(i).size()<<endl;
+		//Keep track of whether there is 1 or more in the cluster for intercluster processing
+		if (clusters.at(i).size() == 1) 
+			isSingle.push_back(1);
+		else 
+			isSingle.push_back(0); 
 
 		std::vector<Corner> cluster = clusters.at(i); 
 		if (cluster.size() == 0) continue; 
@@ -744,11 +746,55 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 
 		postCluster.push_back(newCorner);
 	}
+
+
 	return postCluster;
 }
 
+//Handles the event inter clusters (allows adjacent chains to move into eachother without self intersecting)
+/*Inter-chain stage takes place between each adjacent  pair of chains, hx and hx+1 in the cyclic chain list b. Firstly,
+if any chains contain only one edge, we split that edge by inserting a corner at l, Fig. 14 (de). 
+Secondly, for each pair of adjacent chains we create a new corner at l and connect the start of the last edge in the proceeding chain, x  hmaxx , 
+and the end of the first edge in the following chain, x+1 1 , Fig. 14 (e). 
+Finally the inter-chain stage finishes by removing any unreferenced corners from the active plan.
+*/
+//std::vector<Corner> SweepPlane::processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &postCluster)
+//{
+//	
+//	for (int i = 0; i < postCluster.size() - 1; i++)
+//	{
+//		//Insert corner at l if the size of the cluster is 1 -> TODO - what is l? They say its at the center, but if there is 1...just split at center?
+//		//Leaving this for now & seeing if we get any..this may have been taking care of by bringing up the guys that weren't intersected
+//		if (clusters.at(i).size() == 1) 
+//		{
+//			cout<<"We got a single guy"<<endl;
+//		}
+//
+//		//Connect the start of the last edge in first chain with the end of the first chain in the following chain
+//		std::vector<Corner> parents;
+//		Edge left = postCluster.at(i).getLeftEdge(); 
+//		parents = postCluster.at(i).getSource(); 
+//		Edge right = postCluster.at(i + 1).getRightEdge(); 
+//		for (int j = 0; j < postCluster.at(i + 1).getSource(); j++)
+//		{
+//			parents.push_back(postCluster.at(i +1).getSource().at(j); 
+//		}
+//		Corner c = Corner(left, right, postCluster.at(i).getPt(), parents); 
+//		//postCluster.insert(c, i); 
+//
+//
+//	}
+//
+//
+//	return postCluster;
+//}
+
+//END OF TODO - FOR BETH 
+//************************************************************************************************************
+//************************************************************************************************************
 
 //Runs through the q and process the events into a new active plan stack
+
 void SweepPlane::processQueue()
 {
 	std::vector<Event> events;
@@ -795,7 +841,7 @@ void SweepPlane::processQueue()
 	//Updates the temp active plan to include its new edges 
 	updateNewPlanEdges(tempActivePlan); 
 	
-	//Process the intraclusters
+	//Process the intraclusters & the interclusters
 	thePlan = ActivePlan(processClusters(tempActivePlan));
 
 	//Clean out the queue
