@@ -121,6 +121,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			sweep->createMesh(newOutputData, returnStatus);
 			// This just copies the input value through to the output.  
 			// 
+
 			sweep->createAnchors(newAnchorPosData, newAnchorRotData, returnStatus); 
 			if (!returnStatus)
 				cout<<"UHOH! Our anchors didn't get created"<<endl;

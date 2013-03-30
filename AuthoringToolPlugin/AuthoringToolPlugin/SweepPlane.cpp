@@ -273,11 +273,8 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, MStatus& stat)
 {
 	//TODO - fill in with correct anchors...testing for now
-	MDoubleArray anchorPos; 
-	MDoubleArray anchorRot; 
-	//x, y, z
-	anchorPos.append(1.0); anchorPos.append(0.0); anchorPos.append(0.0); 
-	anchorRot.append(90.0);
+
+	//anchorPosData = (MFnData::kDoubleArray) anchorPos; 
 
 }
 
