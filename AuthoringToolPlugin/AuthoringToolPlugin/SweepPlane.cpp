@@ -271,13 +271,37 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 
 }
 
+//Creates the anchors that were calculated & sends them to the output object
 void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, MStatus& stat)
 {
 	//TODO - fill in with correct anchors...testing for now
+	 MFnDoubleArrayData posData;
+	 MDoubleArray posArray; 
+	 MFnDoubleArrayData rotData;
+	 MDoubleArray rotArray; 
 
-	//anchorPosData = (MFnData::kDoubleArray) anchorPos; 
+	 //Run the the anchors that were created & assign the position & rotations 
+	 //x, y, z position calculated for each anchor
+	 posArray.append(2.0); 
+	 posArray.append(2.0);
+	 posArray.append(2.0); 
 
+	 rotArray.append(90.0); 
+	 if (DEBUG) {
+		 for (int i = 0; i < posArray.length(); i++)
+			 cout<<"Anchor pos: "<<posArray[i]<<endl;
+		 for (int i = 0; i < rotArray.length(); i++)
+			 cout<<"Anchor rot: "<<rotArray[i]<<endl;
+	 }
+	 MObject p = posData.create(posArray, &stat);
+	 anchorPosData = p; 
+	 cout<<"Created anchor sucessfully"<<endl;
+	 //MObject r = rotData.create(rotArray, &stat);
+	 //anchorRotData = r; 
+	 cout<<"Created anchor sucessfully2"<<endl;
 }
+
+
 
 //Preprocess the correct profile edges based on the current height of the active plan
 //We just figure out what edge of the profile we are at here
@@ -508,6 +532,27 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 	}
 }
 
+void SweepPlane::fillQueueWithAnchors(float height)
+{
+	for (int i = 0; i < anchorList.size(); i++)
+	{
+		float h = anchorList.at(i).getHeight(); 
+		//If we have not yet processed the anchor, look at the profile edge its associated with and see if it is valid now
+		if (h >= height)
+		{
+			Profile p = profileList.at(anchorList.at(i).getProfileNum()); 
+			ProfileEdge e = p.getEdgeList().at(anchorList.at(i).getProfileIndex()); 
+			if (e.getStartPoint().y >= height && e.getEndPoint().y <= height)
+			{
+				//TODO - should we calc the current position here instead?  i'm just sending in dummy x,z vals bc it seems silly if we aren't 
+				//gunna use it for sure.
+				Event anchorEvent = Event(h, glm::vec3(0, h, 0), Event::ANCHOR); 
+				q.push(anchorEvent); 
+			}
+		}
+	}
+}
+
 bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection )
 {
 	cout<<"In intersection test"<<endl;
@@ -623,14 +668,14 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 		if (DEBUG == 1) {
 			cout<<"We are looping to set up the new active plan.  Finished number "<<i<<endl;
 			cout<<"Temp active plan pt "<<tempActivePlan.at(i).getPt().x<<" "<<tempActivePlan.at(i).getPt().y<<" "<<tempActivePlan.at(i).getPt().z<<" "<<endl;
+			if (tempActivePlan.at(i).getLeftEdge().edgeAnchors.size() > 0)
+				cout<<"We have propograted anchors up..the first: "<<tempActivePlan.at(i).getLeftEdge().edgeAnchors[0].getIndex();
+			if (tempActivePlan.at(i).getLeftEdge().edgeAnchors.size() > 0)
+				cout<<"We have propograted anchors up....the first: "<<tempActivePlan.at(i).getLeftEdge().edgeAnchors[0].getIndex();
 		}
 	}
 }
 
-//************************************************************************************************************
-//************************************************************************************************************
-//TODO - FOR BETH - THIS ENTIRE SECTION IS NOT EXACLTLY RIGHT...NEED TO CHANGE TO USE EDGES & THEN PROCESS CLUSTERS AS EDGES
-//AND NOT CORNERS
 
 //Handles all the event clustering (merges overlapping corners) 
 std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActivePlan) 
@@ -751,13 +796,8 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 	return postCluster;
 }
 
+//TODO for beth -> look at this...I think we are doing this already, but may need to alter
 //Handles the event inter clusters (allows adjacent chains to move into eachother without self intersecting)
-/*Inter-chain stage takes place between each adjacent  pair of chains, hx and hx+1 in the cyclic chain list b. Firstly,
-if any chains contain only one edge, we split that edge by inserting a corner at l, Fig. 14 (de). 
-Secondly, for each pair of adjacent chains we create a new corner at l and connect the start of the last edge in the proceeding chain, x  hmaxx , 
-and the end of the first edge in the following chain, x+1 1 , Fig. 14 (e). 
-Finally the inter-chain stage finishes by removing any unreferenced corners from the active plan.
-*/
 //std::vector<Corner> SweepPlane::processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &postCluster)
 //{
 //	
@@ -867,6 +907,9 @@ void SweepPlane::buildIt()
 	updateIntersectionVectors(height);
 	fillQueueWithIntersections(height);
 	fillQueueWithEdgeDirectionChanges(height);
+	fillQueueWithAnchors(height);
+
+
 	if (DEBUG == 1) {
 		cout<<"Supposedly filled with events"<<endl;
 		cout<<"The queue size is "<<q.size()<<endl;
@@ -899,6 +942,7 @@ void SweepPlane::buildIt()
 		updateIntersectionVectors(height); 
 		fillQueueWithIntersections(height);	
 		fillQueueWithEdgeDirectionChanges(height);
+	    fillQueueWithAnchors(height);
 	}
 }
 

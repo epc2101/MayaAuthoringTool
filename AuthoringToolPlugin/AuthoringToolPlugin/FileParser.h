@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <stdio.h>
 #include "Edge.h"
 #include "ProfileEdge.h"

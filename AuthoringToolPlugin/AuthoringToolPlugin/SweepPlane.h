@@ -24,15 +24,15 @@ class SweepPlane
 private:
 	FloorPlan plan;
 	std::vector<Profile> profileList;
-	std::queue<Anchor> anchorList; 
+	std::vector<Anchor> anchorList; 
 	std::stack<ActivePlan> activePlanStack;
 	std::queue<ActivePlan> activePlanQueue;
+	std::queue<Anchor> outputAnchors;
 
 	ActivePlan thePlan;
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;
 
 
-	
 public:
 	//Constructor
 	SweepPlane(void);
@@ -52,6 +52,7 @@ public:
 	//Event generation methods
 	void fillQueueWithIntersections(float height);
 	void fillQueueWithEdgeDirectionChanges(float height);
+	void fillQueueWithAnchors(float height); 
 	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
 
 	//Queue processing helper functions

@@ -18,6 +18,7 @@ public:
 	
 	Event(void);
 	Event(float h, glm::vec3 p, std::vector<Corner> source, EventType t);
+	Event(float h, glm::vec3 p, EventType t); //Used for anchors
 	float getHeight();
 	std::vector<Corner> getCorners();
 	glm::vec3 getPoint();

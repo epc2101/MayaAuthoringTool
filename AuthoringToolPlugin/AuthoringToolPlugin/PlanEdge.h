@@ -1,11 +1,15 @@
 #pragma once
 #include "Edge.h"
+#include "Anchor.h"
+#include <vector>
+
 class PlanEdge :
 	public Edge
 {
 	//These fields are specific to the kind of edge only used in floorPlans
 private:
 	int profileType;
+
 public:
 	//Various constructors
 	PlanEdge(void);
@@ -17,6 +21,8 @@ public:
 	//Getters/Setters
 	int getProfileType();
 	void setProfileType(int p);
+
+	std::vector<Anchor> edgeAnchors;
 
 	~PlanEdge(void);
 };

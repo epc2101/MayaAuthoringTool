@@ -84,15 +84,13 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			
 			std::string myFile = thefileName.asChar();
 			MGlobal::displayInfo(thefileName);
-<<<<<<< HEAD
 
-=======
 			//MString thefile = fileNameHandle.asString();
 			
 			//std::string myFile = thefile.asChar();
 			//std::cout<<"The name of the file is: "<<myFile<<std::endl;
 			std::cout<<"In Node..."<<std::endl;
->>>>>>> PluginBranch
+
 			FileParser parser = FileParser(myFile);
 			parser.parseFile();
 
@@ -128,15 +126,26 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 
 			sweep->createMesh(newOutputData, returnStatus);
 			// This just copies the input value through to the output.  
+			cout<<"Created the mesh successfully"<<endl;
 
-<<<<<<< HEAD
 			sweep->createAnchors(newAnchorPosData, newAnchorRotData, returnStatus); 
+
+	 //Run the the anchors that were created & assign the position & rotations 
+				//MDoubleArray posArray;
+				 //MFnDoubleArrayData posData;
+				 //posArray.append(2.0); 
+				 //posArray.append(2.0);
+				 //posArray.append(2.0); 
+				 //MObject newData = posData.create(posArray, &returnStatus);
+				 //newAnchorPosData = newData;
 			if (!returnStatus)
 				cout<<"UHOH! Our anchors didn't get created"<<endl;
-			
-=======
->>>>>>> PluginBranch
+			MFnDoubleArrayData test = newAnchorPosData;
+			MDoubleArray test2 = test.array(&returnStatus); 
+		    cout<<"Passed the data in OK?! "<<test2[0]<<endl;
 			outputMeshHandle.set( newOutputData );
+			outputAnchorPosHandle.set( newAnchorPosData );
+			//outputAnchorRotHandle.set( newAnchorRotData );
 			// Mark the destination plug as being clean.  This will prevent the
 			// dependency graph from repeating this calculation until an input 
 			// of this node changes.

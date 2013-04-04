@@ -165,8 +165,10 @@ void FileParser::parseFile(){
 				configFile >> lineHeader; //ProfileEdge
 				configFile >> profileEdge; 
 				configFile >> lineHeader; //#AnchorEndi
-				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge); 
+				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge, profiles); 
 				anchors.push_back(a); 
+				//Add the anchor to the floorPlanEdge Anchor list
+				plan.getEdgeList().at((int)floorPlanEdge).edgeAnchors.push_back(a);
 			}
 		}
 
