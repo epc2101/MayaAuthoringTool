@@ -153,22 +153,31 @@ void FileParser::parseFile(){
 		float floorPlanEdge, profileEdge; 
 		int profile; 
 		if (lineHeader == "#NumAnchors") {
-			cout<<"-----------------------"<<endl;
+			cout<<lineHeader<<"-----------------------"<<endl;
 		    configFile >> numAnchors;
 			cout<<"In anchors.  #: "<<numAnchors<<endl;
 			for (int i = 0; i < numAnchors; i++) {
-				configFile >> lineHeader; // #AnchorStarti
-				configFile >> lineHeader; //#FloorPlanEdge
-				configFile >> floorPlanEdge;
+				configFile >> lineHeader; /* #AnchorStarti*/ cout<<" "<<lineHeader<<" ";
+				configFile >> lineHeader; /*#FloorPlanEdge*/ cout<<" "<<lineHeader<<" ";
+				configFile >> floorPlanEdge;  
 				configFile >> lineHeader; //#Profile
 				configFile >> profile; 
 				configFile >> lineHeader; //ProfileEdge
 				configFile >> profileEdge; 
 				configFile >> lineHeader; //#AnchorEndi
-				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge, profiles); 
-				anchors.push_back(a); 
+				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge); 
+				Profile p = profiles.at(i); 
+				ProfileEdge e = p.getEdgeList().at((int) profileEdge);
+				glm::vec3 dir = e.getEndPoint() - e.getStartPoint();
+				float profilePercent = profileEdge - (int)profileEdge; 
+				a.setHeight((e.getStartPoint() + dir * profilePercent).y); 
 				//Add the anchor to the floorPlanEdge Anchor list
-				plan.getEdgeList().at((int)floorPlanEdge).edgeAnchors.push_back(a);
+				anchors.push_back(a); 
+				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
+				plan.getEdgeList().at(0).anchorsFp.push_back(a);
+				std::vector<Anchor> test = plan.getEdgeList().at((int)floorPlanEdge).getAnchors(); 
+				cout<<"Adding anchor to floorPlanEdge: "<<(int)floorPlanEdge<<endl;
+				cout<<"Just added anchor to the floorplan. The size of the anchors "<<test.size()<<endl;
 			}
 		}
 

@@ -3,15 +3,13 @@
 #include "glm/glm.hpp"
 #include <iostream>
 #include <vector>
-#include "Profile.h"
-#include "ProfileEdge.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 class Anchor
 {
 public:
 	Anchor(void);
-	Anchor(int i, float edgeNumPercent, int profile, float profileNumPercent, std::vector<Profile>profiles); 	
+	Anchor(int i, float edgeNumPercent, int profile, float profileNumPercent); 	
 	~Anchor(void);
 
 	//Getters & setters
@@ -22,7 +20,7 @@ public:
 	int getProfileNum(); 
 	int getIndex(); 
 	float getHeight();
-
+	void setHeight(float h); 
 	void setTranslation(float x, float y, float z); 
 	void setTranslation(glm::vec3 trans);
 	void setRotY(float rot); 

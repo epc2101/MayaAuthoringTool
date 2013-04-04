@@ -296,8 +296,8 @@ void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, M
 	 MObject p = posData.create(posArray, &stat);
 	 anchorPosData = p; 
 	 cout<<"Created anchor sucessfully"<<endl;
-	 //MObject r = rotData.create(rotArray, &stat);
-	 //anchorRotData = r; 
+	 MObject r = rotData.create(rotArray, &stat);
+	 anchorRotData = r; 
 	 cout<<"Created anchor sucessfully2"<<endl;
 }
 
@@ -652,7 +652,12 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			endPoint = tempActivePlan.at(0).getPt();
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
+			std::vector<Anchor> tempAnchors = myCorn.at(myCorn.size()-1).getRightEdge().getAnchors();
+			std::vector<Anchor> tempAnchors2 = myCorn.at(myCorn.size()-1).getLeftEdge().getAnchors();
+			if (tempAnchors2.size() > 0)
+				cout<<"Hmmm...what to do about this.."<<endl;
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
+			edge.setAnchors(tempAnchors); 
 			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
 			tempActivePlan.at(0).setLeftEdge(edge);
 			
@@ -661,17 +666,22 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			endPoint = tempActivePlan.at(i+1).getPt();
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
+			std::vector<Anchor> tempAnchors = myCorn.at(myCorn.size()-1).getRightEdge().getAnchors();
+			std::vector<Anchor> tempAnchors2 = myCorn.at(myCorn.size()-1).getLeftEdge().getAnchors();
+			if (tempAnchors2.size() > 0)
+				cout<<"Hmmm...what to do about this.."<<endl;
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
+			edge.setAnchors(tempAnchors); 
 			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
 			tempActivePlan.at(i+1).setLeftEdge(edge);
 		} 
 		if (DEBUG == 1) {
 			cout<<"We are looping to set up the new active plan.  Finished number "<<i<<endl;
 			cout<<"Temp active plan pt "<<tempActivePlan.at(i).getPt().x<<" "<<tempActivePlan.at(i).getPt().y<<" "<<tempActivePlan.at(i).getPt().z<<" "<<endl;
-			if (tempActivePlan.at(i).getLeftEdge().edgeAnchors.size() > 0)
-				cout<<"We have propograted anchors up..the first: "<<tempActivePlan.at(i).getLeftEdge().edgeAnchors[0].getIndex();
-			if (tempActivePlan.at(i).getLeftEdge().edgeAnchors.size() > 0)
-				cout<<"We have propograted anchors up....the first: "<<tempActivePlan.at(i).getLeftEdge().edgeAnchors[0].getIndex();
+			if (tempActivePlan.at(i).getLeftEdge().getAnchors().size() > 0)
+				cout<<"We have anchors! : "<<tempActivePlan.at(i).getLeftEdge().getAnchors()[0].getIndex();
+			if (tempActivePlan.at(i).getRightEdge().getAnchors().size() > 0)
+				cout<<"We have anchors! "<<tempActivePlan.at(i).getRightEdge().getAnchors()[0].getIndex();
 		}
 	}
 }
@@ -896,6 +906,18 @@ void SweepPlane::buildIt()
 {
 	int f = 1;
 	thePlan = ActivePlan(plan);
+	std::vector<Anchor> test = thePlan.getActivePlan().at(0).getLeftEdge().getAnchors(); 
+	if (test.size() == 0)
+		cout<<"Uhoh...not added"<<endl;
+	for (int i = 0; i < thePlan.getActivePlan().size(); i++)
+	{
+	std::vector<Anchor> test = thePlan.getActivePlan().at(i).getLeftEdge().getAnchors(); 
+	std::vector<Anchor> test2 = thePlan.getActivePlan().at(i).getRightEdge().getAnchors(); 
+	if (test.size() > 0 || test2.size() > 0)
+		cout<<"Found it!"<<endl;
+	}
+
+
 	if (DEBUG == 1) {
 		for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 			cout<<"In BUILDIT: The profile for each edge is "<<thePlan.getActivePlan().at(i).getRightEdge().getProfileType()<<endl;
@@ -907,7 +929,7 @@ void SweepPlane::buildIt()
 	updateIntersectionVectors(height);
 	fillQueueWithIntersections(height);
 	fillQueueWithEdgeDirectionChanges(height);
-	fillQueueWithAnchors(height);
+	//fillQueueWithAnchors(height);
 
 
 	if (DEBUG == 1) {
@@ -942,7 +964,7 @@ void SweepPlane::buildIt()
 		updateIntersectionVectors(height); 
 		fillQueueWithIntersections(height);	
 		fillQueueWithEdgeDirectionChanges(height);
-	    fillQueueWithAnchors(height);
+	    //fillQueueWithAnchors(height);
 	}
 }
 

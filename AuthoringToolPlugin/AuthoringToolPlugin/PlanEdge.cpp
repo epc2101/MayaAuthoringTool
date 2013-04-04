@@ -41,3 +41,18 @@ void PlanEdge::setProfileType(int p)
 {
 	profileType = p;
 }
+
+std::vector<Anchor> PlanEdge::getAnchors()
+{
+	return anchorsFp;
+}
+
+void PlanEdge::addAnchor(Anchor a)
+{
+	anchorsFp.push_back(a);
+}
+
+void PlanEdge::setAnchors(std::vector<Anchor> a)
+{
+	anchorsFp = a;
+}

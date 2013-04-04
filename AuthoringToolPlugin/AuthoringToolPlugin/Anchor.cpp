@@ -10,7 +10,7 @@ Anchor::~Anchor(void)
 {
 }
 
-Anchor::Anchor(int i, float edgeNumPercent, int profile, float profileNumPercent, std::vector<Profile>profiles)
+Anchor::Anchor(int i, float edgeNumPercent, int profile, float profileNumPercent)
 {
 	index = i; 
 	floorPlanPercent = edgeNumPercent - (int) edgeNumPercent; 
@@ -19,12 +19,6 @@ Anchor::Anchor(int i, float edgeNumPercent, int profile, float profileNumPercent
 	profilePercent = profileNumPercent - (int) profileNumPercent; 
 	profileIndex = (int) profileNumPercent;
 	profileNum = profile; 
-
-	//Calc the height from the profile
-	Profile p = profiles.at(i); 
-	ProfileEdge e = p.getEdgeList().at(profileIndex);
-	glm::vec3 dir = e.getEndPoint() - e.getStartPoint();
-	height = (e.getStartPoint() + dir * profilePercent).y; 
 
 	if (A_DEBUG == 1)
 	{
@@ -67,6 +61,11 @@ int Anchor::getProfileNum()
 float Anchor::getHeight()
 {
 	return height;
+}
+
+void Anchor::setHeight(float h)
+{
+	height = h;
 }
 
 void Anchor::setTranslation(float x, float y, float z)

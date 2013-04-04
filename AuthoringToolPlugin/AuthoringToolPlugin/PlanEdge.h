@@ -1,6 +1,6 @@
 #pragma once
 #include "Edge.h"
-#include "Anchor.h"
+
 #include <vector>
 
 class PlanEdge :
@@ -21,8 +21,9 @@ public:
 	//Getters/Setters
 	int getProfileType();
 	void setProfileType(int p);
-
-	std::vector<Anchor> edgeAnchors;
+	std::vector<Anchor> getAnchors(); 
+	void addAnchor(Anchor a);
+	void setAnchors(std::vector<Anchor> a);
 
 	~PlanEdge(void);
 };
