@@ -85,3 +85,13 @@ void Anchor::setRotY(float rot)
 {
 	rotY = rot; 
 }
+
+void Anchor::setID(int id)
+{
+	ID = id; 
+}
+
+int Anchor::getID()
+{
+	return ID;
+}

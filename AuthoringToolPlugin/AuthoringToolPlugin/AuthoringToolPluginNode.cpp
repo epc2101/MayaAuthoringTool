@@ -94,6 +94,8 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			FileParser parser = FileParser(myFile);
 			parser.parseFile();
 
+			std::cout<<"***********************************************************"<<std::endl;
+			std::cout<<"The size of the anchors in node is: "<<parser.getAnchors().size()<<std::endl;
 			SweepPlane *sweep = new SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
 
 			//Validate that the data is structured correctly -> WILL NEED TO SET THE OUTPUT VALUES CORRECTLY!

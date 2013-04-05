@@ -10,7 +10,7 @@ protected:
 	glm::vec3 endPoint;
 	glm::vec3 anchor;
 	int anchorType ;
-	
+    std::vector<Anchor> anchorsFp; //Used for the floorplan edges
 	
 public:
 	//Constructor
@@ -24,8 +24,9 @@ public:
 	glm::vec3 getStartPoint();
 	glm::vec3 getEndPoint();
 	glm::vec3 getAnchorPoint();
+
 	int getAnchorType();
 	virtual ~Edge(void);
-	std::vector<Anchor> anchorsFp; //Used for the floorplan edges
+
 };
 

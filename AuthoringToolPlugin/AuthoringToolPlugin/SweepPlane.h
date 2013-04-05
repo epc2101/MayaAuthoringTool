@@ -38,16 +38,20 @@ public:
 	SweepPlane(void);
 	SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anchor> aList);
 
-	//Aspects of the algorithm - right now these will just be stubs
+	//Final output creators
 	MObject createMesh(MObject& outData, MStatus& stat);
 	void createAnchors(MObject& anchorPosData, MObject& anchorRotData, MStatus& stat);
 
 	//Anchor processing
+	void calcAnchorTransforms(Anchor &a); 
+	void findAnchorEvents(std::vector<Event> e); 
 	std::queue<Anchor> getAnchors(); 
+	void addAnchorsToFloorPlan(); 
 
 	//Preprocessing helpers (before event generation)
 	void updateIntersectionVectors(float height);
 	std::vector<ProfileEdge> getProfileEdgesAtHeight(float height); 
+	void addEdgeIndex(); 
 	
 	//Event generation methods
 	void fillQueueWithIntersections(float height);
@@ -57,7 +61,7 @@ public:
 
 	//Queue processing helper functions
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
-	void updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
+	std::map<int, Anchor>  updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
 	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
 	//std::vector<Corner> processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &tempActivePlan);
 

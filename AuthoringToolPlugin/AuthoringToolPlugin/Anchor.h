@@ -24,9 +24,12 @@ public:
 	void setTranslation(float x, float y, float z); 
 	void setTranslation(glm::vec3 trans);
 	void setRotY(float rot); 
+	void setID(int id); 
+	int getID(); 
 	
 
 private:
+	int ID; 
 	//Taken in directly from Maya
 	float floorPlanPercent; 
 	int floorPlanIndex; 

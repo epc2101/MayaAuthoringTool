@@ -1,6 +1,7 @@
 #include "FileParser.h"
 #include "maya/MGlobal.h"
 
+
 using namespace std;
 
 FileParser::FileParser(void)
@@ -172,12 +173,12 @@ void FileParser::parseFile(){
 				float profilePercent = profileEdge - (int)profileEdge; 
 				a.setHeight((e.getStartPoint() + dir * profilePercent).y); 
 				//Add the anchor to the floorPlanEdge Anchor list
+				a.setID(i); 
 				anchors.push_back(a); 
+
+				//TODO - THIS ISN"T WORKING
 				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
-				plan.getEdgeList().at(0).anchorsFp.push_back(a);
-				std::vector<Anchor> test = plan.getEdgeList().at((int)floorPlanEdge).getAnchors(); 
-				cout<<"Adding anchor to floorPlanEdge: "<<(int)floorPlanEdge<<endl;
-				cout<<"Just added anchor to the floorplan. The size of the anchors "<<test.size()<<endl;
+
 			}
 		}
 
@@ -220,6 +221,7 @@ std::vector<Profile> FileParser::getProfiles(){
 
 std::vector<Anchor> FileParser::getAnchors()
 {
+	cout<<"The size of the anchors in file parse is: "<<anchors.size(); 
 	return anchors; 
 }
 

@@ -18,11 +18,12 @@ Event::Event(float h, glm::vec3 p, std::vector<Corner> source, EventType t)
 	eventType = t;
 }
 
-Event::Event(float h, glm::vec3 p, EventType t)
+Event::Event(float h, glm::vec3 p, EventType t, int ai)
 {
 	height = h;
 	point = p;
 	eventType = t;
+	anchorIndex = ai; 
 }
 
 float Event::getHeight()

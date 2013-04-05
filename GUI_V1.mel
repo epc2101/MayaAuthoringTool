@@ -606,8 +606,9 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     createNode AuthoringToolPlugin -n ProTrusionNode1;
     int $numPts = size($fpPoints);    
     setAttr ProTrusionNode1.numPoints $numPts;
-    setAttr -type "string" ProTrusionNode1.fileName $fileName;
-    
+    //TODO - make dynamic again
+    //setAttr -type "string" ProTrusionNode1.fileName $fileName;
+    setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionAnchors.txt";
     //For each anchor -> link data from anchor node to the transform node, link to imported obj  file
     //TODO - change when done testing to bring in 
    /* for ($i = 0; $i < size($anchorFiles); $i++)
