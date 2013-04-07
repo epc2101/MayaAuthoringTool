@@ -80,10 +80,19 @@ void Anchor::setTranslation(glm::vec3 trans)
 	translation = trans; 
 }
 
+glm::vec3 Anchor::getTranslation()
+{
+	return translation;
+}
 
 void Anchor::setRotY(float rot)
 {
 	rotY = rot; 
+}
+
+float Anchor::getRotY()
+{
+	return rotY;
 }
 
 void Anchor::setID(int id)

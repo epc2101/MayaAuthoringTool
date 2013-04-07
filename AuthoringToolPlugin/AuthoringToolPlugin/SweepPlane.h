@@ -31,6 +31,7 @@ private:
 
 	ActivePlan thePlan;
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;
+	std::priority_queue<Event, std::vector<Event>, CompareHeight> anchorQ; 
 
 
 public:

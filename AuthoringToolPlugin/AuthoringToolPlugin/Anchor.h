@@ -23,7 +23,9 @@ public:
 	void setHeight(float h); 
 	void setTranslation(float x, float y, float z); 
 	void setTranslation(glm::vec3 trans);
+	glm::vec3 getTranslation();
 	void setRotY(float rot); 
+	float getRotY(); 
 	void setID(int id); 
 	int getID(); 
 	
