@@ -752,7 +752,7 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 				cout<<"UHOH! Our anchor edge/profile links don't match!! :("<<endl;
 			ProfileEdge profileEdge = profileList.at(profileNum).getEdgeList().at(profileEdgeIndex);
 			glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
-			glm::vec3 trans = start + profileDir * it->second.getProfilePercent(); 
+			glm::vec3 trans = point + profileDir * it->second.getProfilePercent(); 
 			Anchor a = Anchor(it->second); 
 			a.setRotY(xRad);
 			a.setTranslation(trans); 
