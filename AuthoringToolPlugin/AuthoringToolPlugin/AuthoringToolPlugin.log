@@ -1,4 +1,4 @@
-﻿Build started 4/7/2013 2:59:22 PM.
+﻿Build started 4/11/2013 1:55:54 PM.
      1>Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -55,4 +55,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.92
+Time Elapsed 00:00:05.33

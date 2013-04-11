@@ -751,8 +751,19 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 			if (profileNum != ap.at(edgeIndex).getRightEdge().getProfileType())
 				cout<<"UHOH! Our anchor edge/profile links don't match!! :("<<endl;
 			ProfileEdge profileEdge = profileList.at(profileNum).getEdgeList().at(profileEdgeIndex);
+
 			glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
-			glm::vec3 trans = start + profileDir * it->second.getProfilePercent(); 
+			glm::vec3 trans = point + profileDir * it->second.getProfilePercent(); 
+
+			cout<<"*************************ANCHOR PROFILE************************************"<<endl;
+			cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<it->second.getProfilePercent()<<endl;
+			cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
+			cout<<"The calced y location of the anchor is: "<<trans.y<<" vs. the orig calc of: "<<it->second.getHeight()<<endl;
+			cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
+			cout<<"Our plan edge is: "<<it->first<<" vs the index stored in edge: "<<it->second.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
+			cout<<"The plan start edge is: "<<start.x<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<endl;
+			cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
+
 			Anchor a = Anchor(it->second); 
 			a.setRotY(xRad);
 			a.setTranslation(trans); 
