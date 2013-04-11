@@ -146,8 +146,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivePlan.h" />
+    <ClInclude Include="Anchor.h" />
+    <ClInclude Include="AnchorEvent.h" />
     <ClInclude Include="AuthoringToolPluginNode.h" />
     <ClInclude Include="CompareHeight.h" />
+    <ClInclude Include="CompareIndex.h" />
     <ClInclude Include="CompareParent.h" />
     <ClInclude Include="Corner.h" />
     <ClInclude Include="Edge.h" />
@@ -164,8 +167,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ActivePlan.cpp" />
+    <ClCompile Include="Anchor.cpp" />
+    <ClCompile Include="AnchorEvent.cpp" />
     <ClCompile Include="AuthoringToolPluginNode.cpp" />
     <ClCompile Include="CompareHeight.cpp" />
+    <ClCompile Include="CompareIndex.cpp" />
     <ClCompile Include="CompareParent.cpp" />
     <ClCompile Include="Corner.cpp" />
     <ClCompile Include="Edge.cpp" />

@@ -41,3 +41,39 @@ void PlanEdge::setProfileType(int p)
 {
 	profileType = p;
 }
+
+
+std::vector<Anchor> PlanEdge::getAnchors()
+{
+	std::cout<<"Getting anchor list of size: "<<anchorsFp.size()<<std::endl;
+	return anchorsFp;
+}
+
+void PlanEdge::addAnchor(Anchor &a)
+{
+	anchorsFp.push_back(a);
+	std::cout<<"Pushing back anchor. New size: "<<anchorsFp.size()<<std::endl;
+}
+
+void PlanEdge::setAnchors(std::vector<Anchor> a)
+{
+	std::cout<<"In setting anchors"<<std::endl;
+	anchorsFp = a;
+}
+
+void PlanEdge::setIndex(int i)
+{
+	index = i; 
+}
+
+int PlanEdge::getIndex()
+{
+	return index; 
+}
+
+//bool PlanEdge::operator()( PlanEdge const& lhs, PlanEdge const& rhs ) const
+//{
+//	
+//	if (lhs.getIndex() < rhs.getIndex())
+//		return true; 
+//}

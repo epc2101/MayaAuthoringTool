@@ -1,6 +1,7 @@
 #include "FileParser.h"
 #include "maya/MGlobal.h"
 
+
 using namespace std;
 
 FileParser::FileParser(void)
@@ -146,6 +147,41 @@ void FileParser::parseFile(){
 			cout<<"Number of profiles formatted incorrectly"<<endl;
 			return;
 		}
+
+		//******Beths code start...I'm on a boat....
+		configFile >> lineHeader;
+		int numAnchors = 0; 
+		float floorPlanEdge, profileEdge; 
+		int profile; 
+		if (lineHeader == "#NumAnchors") {
+			cout<<lineHeader<<"-----------------------"<<endl;
+		    configFile >> numAnchors;
+			cout<<"In anchors.  #: "<<numAnchors<<endl;
+			for (int i = 0; i < numAnchors; i++) {
+				configFile >> lineHeader; /* #AnchorStarti*/ cout<<" "<<lineHeader<<" ";
+				configFile >> lineHeader; /*#FloorPlanEdge*/ cout<<" "<<lineHeader<<" ";
+				configFile >> floorPlanEdge;  
+				configFile >> lineHeader; //#Profile
+				configFile >> profile; 
+				configFile >> lineHeader; //ProfileEdge
+				configFile >> profileEdge; 
+				configFile >> lineHeader; //#AnchorEndi
+				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge); 
+				Profile p = profiles.at(i); 
+				ProfileEdge e = p.getEdgeList().at((int) profileEdge);
+				glm::vec3 dir = e.getEndPoint() - e.getStartPoint();
+				float profilePercent = profileEdge - (int)profileEdge; 
+				a.setHeight((e.getStartPoint() + dir * profilePercent).y); 
+				//Add the anchor to the floorPlanEdge Anchor list
+				a.setID(i); 
+				anchors.push_back(a); 
+
+				//TODO - THIS ISN"T WORKING
+				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
+
+			}
+		}
+
 	}
 	configFile.close();
 }
@@ -155,15 +191,19 @@ bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
 	int testNum = 0;
 	for(int i = 0; i<currentPlan.size(); i++){
 		PlanEdge tempEdge = currentPlan.at(i);
-		int xNum = tempEdge.getEndPoint().x- tempEdge.getStartPoint().x;
-		int zNum = tempEdge.getEndPoint().z- tempEdge.getStartPoint().z;
+		int xNum = tempEdge.getEndPoint().x + tempEdge.getStartPoint().x;
+		int zNum = tempEdge.getEndPoint().z - tempEdge.getStartPoint().z;
 		testNum += (xNum*zNum);
 	}
-	if(testNum <= 0){
+	if(testNum < 0){
 		cout<<"IS COUNTER CLOCKWISE"<<endl;
 		return false;
 	}
 	else {
+		if (testNum == 0) {
+			//Try running around the edges and seeing whether the cross product is pos/neg
+			cout<<"Uhoh! We got 0"<<endl;
+		}
 		cout<<"IS CLOCKWISE"<<endl;
 		return true;
 	}
@@ -179,6 +219,11 @@ std::vector<Profile> FileParser::getProfiles(){
 	return profiles;
 }
 
+std::vector<Anchor> FileParser::getAnchors()
+{
+	cout<<"The size of the anchors in file parse is: "<<anchors.size(); 
+	return anchors; 
+}
 
 FileParser::~FileParser(void)
 {

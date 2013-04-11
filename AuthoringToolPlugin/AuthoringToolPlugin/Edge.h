@@ -1,6 +1,8 @@
 #pragma once
 
 #include "glm/glm.hpp"
+#include "Anchor.h"
+#include <vector>
 class Edge
 {
 protected:
@@ -8,10 +10,8 @@ protected:
 	glm::vec3 endPoint;
 	glm::vec3 anchor;
 	int anchorType ;
+    std::vector<Anchor> anchorsFp; //Used for the floorplan edges
 	
-	
-
-
 public:
 	//Constructor
 	Edge(void);
@@ -24,7 +24,9 @@ public:
 	glm::vec3 getStartPoint();
 	glm::vec3 getEndPoint();
 	glm::vec3 getAnchorPoint();
+
 	int getAnchorType();
 	virtual ~Edge(void);
+
 };
 

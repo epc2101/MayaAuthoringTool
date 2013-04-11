@@ -41,6 +41,8 @@ public:
 	 static MObject numberOfPoints;
 	
 	 static MObject fileName;
+	 static MObject anchorPositions;
+	 static MObject anchorRotations; 
 
 	
 

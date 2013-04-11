@@ -47,4 +47,3 @@ int Edge::getAnchorType(){
 	return anchorType;
 }
 
-

@@ -15,9 +15,7 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 		e.setProfileType(thePlan.getProfileList().at(i));
 
 
-
-
-		std::cout<<"The profile index is "<<e.getProfileType()<<std::endl;
+		//std::cout<<"The profile index is "<<e.getProfileType()<<std::endl;
 		glm::vec3 pt = e.getStartPoint();
 		PlanEdge previousEdge, nextEdge;
 
@@ -30,13 +28,13 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 			previousEdge.setProfileType(thePlan.getProfileList().at(i-1));
 			nextEdge = e;
 		}
-		std::cout<<"Before adding edges to corner..."<<std::endl;
-		std::cout<<"Previous edge index is "<<previousEdge.getProfileType()<<std::endl;
-		std::cout<<"Next edge index is "<<nextEdge.getProfileType()<<std::endl;
+		//std::cout<<"Before adding edges to corner..."<<std::endl;
+		//std::cout<<"Previous edge index is "<<previousEdge.getProfileType()<<std::endl;
+		//std::cout<<"Next edge index is "<<nextEdge.getProfileType()<<std::endl;
 
 
 		Corner c = Corner(previousEdge, nextEdge, pt); 
-		std::cout<<"The corner has the edge profile type of: "<<c.getLeftEdge().getProfileType()<<std::endl;
+		//std::cout<<"The corner has the edge profile type of: "<<c.getLeftEdge().getProfileType()<<std::endl;
 
 		c.setIndex(i);
 		activePlan.push_back(c);
@@ -89,4 +87,14 @@ ActivePlan::ActivePlan(std::vector<Corner> cornerPlan){
 void ActivePlan::cleanIntersectionVectors()
 {
 	intersectionVectors.clear();
+}
+
+std::vector<PlanEdge> ActivePlan::getEdgeList()
+{
+	std::vector<PlanEdge> edgeList;
+	for (int i = 0; i < activePlan.size(); i++)
+	{
+		edgeList.push_back(activePlan.at(i).getRightEdge()); 
+	}
+	return edgeList;
 }

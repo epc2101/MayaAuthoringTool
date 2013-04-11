@@ -1,0 +1,32 @@
+#FloorPlanStart
+ 
+#FloorPointStart -9.927113703 5.247813411  #FloorPointEnd -10.01457726 -3.935860058 #Profile 1 #Anchor 0
+ 
+#FloorPointStart -10.01457726 -3.935860058  #FloorPointEnd 8.002915452 -3.848396501 #Profile 0 #Anchor 0
+ 
+#FloorPointStart 8.002915452 -3.848396501  #FloorPointEnd 8 2 #Profile 1 #Anchor 0
+ 
+#FloorPointStart 8 2  #FloorPointEnd -6 2 #Profile 0 #Anchor 0
+ 
+#FloorPointStart -6 2  #FloorPointEnd -6 5 #Profile 1 #Anchor 0
+ 
+#FloorPointStart -6 5  #FloorPointEnd -9.927113703 5.247813411 #Profile 1 #Anchor 0
+ 
+#FloorPlanEnd 
+
+ 
+
+#Profiles 2
+
+#ProfileStart0
+#ProfilePointStart 11.898017 0.1274787535 #ProfilePointEnd 0 -3.848396501 #Anchor 0
+ 
+#ProfileEnd
+0 
+
+#ProfileStart1
+#ProfilePointStart 0 5.481586402 #ProfilePointEnd 0 2 #Anchor 0
+ 
+#ProfilePointStart 0 2 #ProfilePointEnd 9.093484419 0.4674220963 #Anchor 0
+ 
+#ProfileEnd1
