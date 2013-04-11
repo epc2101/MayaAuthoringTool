@@ -754,7 +754,6 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 
 			glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
 			glm::vec3 trans = point + profileDir * it->second.getProfilePercent(); 
-
 			cout<<"*************************ANCHOR PROFILE************************************"<<endl;
 			cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<it->second.getProfilePercent()<<endl;
 			cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
