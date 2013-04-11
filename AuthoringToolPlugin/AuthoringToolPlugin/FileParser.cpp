@@ -148,6 +148,7 @@ void FileParser::parseFile(){
 			return;
 		}
 
+		cout<<"GOT HERE??!!"<<endl;
 		//******Beths code start...I'm on a boat....
 		configFile >> lineHeader;
 		int numAnchors = 0; 

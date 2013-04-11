@@ -28,11 +28,12 @@ private:
 	std::stack<ActivePlan> activePlanStack;
 	std::queue<ActivePlan> activePlanQueue;
 	std::queue<Anchor> outputAnchors;
+	bool killTheSweep;
 
 	ActivePlan thePlan;
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;
 	std::priority_queue<Event, std::vector<Event>, CompareHeight> anchorQ; 
-
+	float theLastHeight; 
 
 public:
 	//Constructor

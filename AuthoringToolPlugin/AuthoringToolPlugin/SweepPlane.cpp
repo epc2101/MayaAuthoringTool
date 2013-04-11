@@ -6,8 +6,13 @@
 
 using namespace std;
 float EPSILON = 0.0001;
-float RADIUS =  0.000001;;
+float RADIUS =  0.000001;
+
+
 int DEBUG = 0; 
+int DEBUG_ANCHOR = 0; 
+int DEBUG_PROFILE = 0; 
+int DEBUG_FLOORPLAN = 0; 
 
 SweepPlane::SweepPlane(void)
 {
@@ -18,6 +23,8 @@ SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anch
 	plan = p;
 	profileList = pList;
 	anchorList = aList; 
+	killTheSweep = false;
+	theLastHeight = -1.0;
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
@@ -336,9 +343,15 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 
 			cout<<"The current height is "<<height<<" and it's being compared to "<<edge.getEndPoint().y<<endl;
 			/*if (height >= edge.getEndPoint().y){
-				continue;
+			continue;
 			}*/
-
+			if (edge.getIsTop() == true){
+				if (height >= edge.getEndPoint().y){
+					currentProfileFromHeight.push_back(edge);
+					break;
+				}
+			} 
+			
 			if (height >= edge.getStartPoint().y && height < (edge.getEndPoint().y)){
 
 				currentProfileFromHeight.push_back(edge);
@@ -354,14 +367,47 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 void SweepPlane::updateIntersectionVectors(float height)
 {
 	std::vector<ProfileEdge> currentProfileFromHeight = getProfileEdgesAtHeight(height);
+	std::vector<bool> aboveTheProfile;
+	for(int i = 0; i<currentProfileFromHeight.size(); i++){
+		if (height > currentProfileFromHeight.at(i).getEndPoint().y){
+			aboveTheProfile.push_back(true);
+		}
+		else {
+			aboveTheProfile.push_back(false);
+		}
+	}
+	bool isItTooHigh = true;
+	for (int i = 0; i<aboveTheProfile.size(); i++){
+		if (aboveTheProfile.at(i) == false){
+			isItTooHigh = false;
+			break;
+		}
+	}
+	if (isItTooHigh){
+		killTheSweep = true;
+		return;
+	}
 
 	//Iterate through the active plan and calculate the varying vectors based on the different edge plans.
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
+		if (thePlan.getActivePlan().size() == 1){
+			killTheSweep = true;
+			break;
+		}
+		
+
 		//At cach corner we need the current vector associated
 		Corner corner = thePlan.getActivePlan().at(i);
 		PlanEdge firstEdge = corner.getLeftEdge();
 		PlanEdge secondEdge = corner.getRightEdge();		
 		ProfileEdge firstProfileEdge = currentProfileFromHeight.at(firstEdge.getProfileType());
+
+		//Next we test whether the edge are the same!
+		if (glm::length(firstEdge.getStartPoint() - secondEdge.getStartPoint()) < EPSILON && glm::length(firstEdge.getEndPoint() - secondEdge.getEndPoint()) < EPSILON)
+		{
+			killTheSweep = true; 
+			break; 
+		}
 
 		if (DEBUG ==1 ) {
 			cout<<"Current profile from height : "<<currentProfileFromHeight.size()<<endl;
@@ -451,6 +497,7 @@ Goes through the active plan and figures out the intersection events.  It then s
 */
 void SweepPlane::fillQueueWithIntersections(float height)
 {
+	bool foundIntersections = false; 
 	//This is where the intersection method should really start
 	if (DEBUG == 1) { 
 		cout<<"Active plan size: "<<thePlan.getActivePlan().size()<<endl;
@@ -490,11 +537,10 @@ void SweepPlane::fillQueueWithIntersections(float height)
 			firstTopPoint = firstStartPoint + (firstVec*t);
 			secondTopPoint = secondStartPoint + (secondVec*t);
 
-			//cout<<"in loop: "<<i<< " "<<j<<endl;
-
 			if (intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint)){
 				//This is the code to create the intersection event and push it onto the queue
 				//intersectionPoint.y+=firstCorner.getPt().y;
+				foundIntersections = true;
 				std::vector<Corner> source;
 				source.push_back(firstCorner);
 				source.push_back(secondCorner);
@@ -504,6 +550,7 @@ void SweepPlane::fillQueueWithIntersections(float height)
 				if (DEBUG == 1) {
 					cout<<"The size of the queue is "<<q.size()<<endl;
 				}
+
 			}
 			else {
 				if (DEBUG == 1) {
@@ -513,8 +560,10 @@ void SweepPlane::fillQueueWithIntersections(float height)
 			}
 		//}
 	}
-	//cout<<"After intersection..."<<endl;
 	}
+	//if (foundIntersections == false) {
+	//	killTheSweep = true; 
+	//}
 }
 
 void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
@@ -546,7 +595,8 @@ void SweepPlane::fillQueueWithAnchors(float height)
 	for (int i = 0; i < anchorList.size(); i++)
 	{
 		float h = anchorList.at(i).getHeight(); 
-		cout<<"****CHECKING ANCHOR EVENT****** at height"<<h<<endl;
+		if (DEBUG_ANCHOR) 
+			cout<<"****CHECKING ANCHOR EVENT****** at height"<<h<<endl;
 		//TODO - should we calc the current position here instead?  i'm just sending in dummy x,z vals bc it seems silly if we aren't 
 		//gunna use it for sure.
 		if (h >= height) {
@@ -570,7 +620,7 @@ bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 
 
 	float s = glm::dot(glm::cross(dc,db),glm::cross(da,db))/norm;
 	//cout<<"The s value is "<<s<<endl;
-	if (s >= 0.0 && s <= 1.0){
+	if (s >= -.9990 && s <= 1.0001){
 
 		intersection = line1S + da*s;
 		return true;
@@ -662,9 +712,10 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 std::map<int, Anchor> SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan) 
 {
 	std::map<int, Anchor> tempMap; 
-	cout<<"The current map size is : "<<thePlan.edgeAnchorMap.size()<<endl; 
-	cout<<"The size: "<<tempActivePlan.size()<<endl;
-
+	if(DEBUG_ANCHOR) {
+		cout<<"The current map size is : "<<thePlan.edgeAnchorMap.size()<<endl; 
+		cout<<"The size: "<<tempActivePlan.size()<<endl;
+	}
 
 	for(int i = 0; i < tempActivePlan.size(); i++){
 		glm::vec3 startPoint, endPoint;
@@ -687,7 +738,9 @@ std::map<int, Anchor> SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempAc
 				//TODO - replace anchor insert w/a proper search
 				if (tempMap.find(i) == tempMap.end()) {
 					tempMap.insert(std::pair<int, Anchor>(i, anchorList.at(0)));
-					cout<<"Found an anchor! at"<<edgeIndex<<endl;
+					if (DEBUG_ANCHOR) {
+						cout<<"Found an anchor! at"<<edgeIndex<<endl;
+					}
 				}
 			}
 
@@ -727,10 +780,11 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	std::deque<Corner> ap = thePlan.getActivePlan();
 	float height = a.getHeight(); 
 	int id = a.getID(); 
-
-	cout<<thePlan.edgeAnchorMap.size()<<" Trying to find height: "<<height<<" and id "<<id<<endl;
+	if (DEBUG_ANCHOR) {
+		cout<<thePlan.edgeAnchorMap.size()<<" Trying to find height: "<<height<<" and id "<<id<<endl;
+	}
 	for(map<int,Anchor>::iterator it =  thePlan.edgeAnchorMap.begin(); it !=  thePlan.edgeAnchorMap.end(); ++it) {
-		cout<<"Checking: "<<it->second.getHeight()<<" and id: "<<it->second.getID()<<endl;
+
 		if (it->second.getHeight() == height && it->second.getID() == id)
 		{
 			int edgeIndex = it->first; 
@@ -743,7 +797,10 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 			//TODO - is there a better way to do this...not sure if it will always work
 			glm::vec3 pointOnX(point.x, point.y, 0); 
 			glm::vec3 angle = glm::atan(pointOnX / point); 
-			cout<<"ROT ANGLE = "<<angle.x<< " " <<angle.y<<" "<<angle.z<<endl; 
+			if (DEBUG_ANCHOR) {
+				cout<<"Checking: "<<it->second.getHeight()<<" and id: "<<it->second.getID()<<endl;
+				cout<<"ROT ANGLE = "<<angle.x<< " " <<angle.y<<" "<<angle.z<<endl; 
+			}
 			float xRad = angle.x * 180.0 / 3.14159265359;
 		
 			int profileNum = it->second.getProfileNum(); 
@@ -754,15 +811,16 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 
 			glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
 			glm::vec3 trans = point + profileDir * it->second.getProfilePercent(); 
-			cout<<"*************************ANCHOR PROFILE************************************"<<endl;
-			cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<it->second.getProfilePercent()<<endl;
-			cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
-			cout<<"The calced y location of the anchor is: "<<trans.y<<" vs. the orig calc of: "<<it->second.getHeight()<<endl;
-			cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
-			cout<<"Our plan edge is: "<<it->first<<" vs the index stored in edge: "<<it->second.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
-			cout<<"The plan start edge is: "<<start.x<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<endl;
-			cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
-
+			if (DEBUG_ANCHOR) {
+				cout<<"*************************ANCHOR PROFILE************************************"<<endl;
+				cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<it->second.getProfilePercent()<<endl;
+				cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
+				cout<<"The calced y location of the anchor is: "<<trans.y<<" vs. the orig calc of: "<<it->second.getHeight()<<endl;
+				cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
+				cout<<"Our plan edge is: "<<it->first<<" vs the index stored in edge: "<<it->second.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
+				cout<<"The plan start edge is: "<<start.x<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<endl;
+				cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
+			}
 			Anchor a = Anchor(it->second); 
 			a.setRotY(xRad);
 			a.setTranslation(trans); 
@@ -774,13 +832,17 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 //Looks for anchor events to process
 void SweepPlane::findAnchorEvents(std::vector<Event> e)
 {
-	cout<<"Finding anchor event in list size: "<<e.size()<<endl;
+	if (DEBUG_ANCHOR) 
+		cout<<"Finding anchor event in list size: "<<e.size()<<endl;
 	for (int i = 0; i < e.size(); i++)
 	{
+		int index = e.at(i).getAnchorIndex(); 
+		if (DEBUG_ANCHOR) {
 			cout<<"FOUND ANCHOR EVENT!!! We are at height: "<<e.at(i).getHeight()<<endl;
-			int index = e.at(i).getAnchorIndex(); 
 			cout<<"The index is : "<<index<<endl;
-			calcAnchorTransforms(anchorList.at(index));
+		}
+
+		calcAnchorTransforms(anchorList.at(index));
 	}
 }
 
@@ -904,45 +966,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 	return postCluster;
 }
 
-//TODO for beth -> look at this...I think we are doing this already, but may need to alter
-//Handles the event inter clusters (allows adjacent chains to move into eachother without self intersecting)
-//std::vector<Corner> SweepPlane::processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &postCluster)
-//{
-//	
-//	for (int i = 0; i < postCluster.size() - 1; i++)
-//	{
-//		//Insert corner at l if the size of the cluster is 1 -> TODO - what is l? They say its at the center, but if there is 1...just split at center?
-//		//Leaving this for now & seeing if we get any..this may have been taking care of by bringing up the guys that weren't intersected
-//		if (clusters.at(i).size() == 1) 
-//		{
-//			cout<<"We got a single guy"<<endl;
-//		}
-//
-//		//Connect the start of the last edge in first chain with the end of the first chain in the following chain
-//		std::vector<Corner> parents;
-//		Edge left = postCluster.at(i).getLeftEdge(); 
-//		parents = postCluster.at(i).getSource(); 
-//		Edge right = postCluster.at(i + 1).getRightEdge(); 
-//		for (int j = 0; j < postCluster.at(i + 1).getSource(); j++)
-//		{
-//			parents.push_back(postCluster.at(i +1).getSource().at(j); 
-//		}
-//		Corner c = Corner(left, right, postCluster.at(i).getPt(), parents); 
-//		//postCluster.insert(c, i); 
-//
-//
-//	}
-//
-//
-//	return postCluster;
-//}
-
-//END OF TODO - FOR BETH 
-//************************************************************************************************************
-//************************************************************************************************************
-
 //Runs through the q and process the events into a new active plan stack
-
 void SweepPlane::processQueue()
 {
 	std::vector<Event> events;
@@ -952,9 +976,16 @@ void SweepPlane::processQueue()
 	std::vector<Corner> tempActivePlan;
 
 	Event firstEvent = q.top();
+	if (firstEvent.getHeight() - theLastHeight < EPSILON) {
+		killTheSweep = true;
+		return;
+	}
+	theLastHeight = firstEvent.getHeight(); 
 	q.pop();
 	events.push_back(firstEvent);
-	
+
+
+
 	//Get all anchor events less than the first event height
 	bool hasAnchor = false;
 	bool updateAnchorMap = false; 
@@ -1041,6 +1072,7 @@ void SweepPlane::buildIt()
 {
 	int f = 1;
 	thePlan = ActivePlan(plan);
+
 	addAnchorsToFloorPlan();
 	if (DEBUG == 0) {
 		cout<<"THE CURRENT SIZE OF THE ANCHORS ARE: "<<thePlan.edgeAnchorMap.size()<<endl;
@@ -1076,10 +1108,10 @@ void SweepPlane::buildIt()
 		}
 
 		 height = thePlan.getActivePlan().at(0).getPt().y;
-
-		//This is an arbitrary height for testing
-		if (thePlan.getActivePlan().size() <= 2 || f == 4)
-			break;
+		
+		////This is an arbitrary height for testing
+		//if (thePlan.getActivePlan().size() <= 2 || f == 4)
+		//	break;
 
 		//Clear out the current plan's vectors and recalculate them.
 		thePlan.cleanIntersectionVectors();
@@ -1088,9 +1120,13 @@ void SweepPlane::buildIt()
 			cout<<"The new height of the active plan is: "<<height<<endl;
 		}
 		updateIntersectionVectors(height); 
-		fillQueueWithIntersections(height);	
-		fillQueueWithEdgeDirectionChanges(height);
-	    fillQueueWithAnchors(height);
+		if (killTheSweep == false) {
+			fillQueueWithIntersections(height);	
+			fillQueueWithEdgeDirectionChanges(height);
+			fillQueueWithAnchors(height);
+		} else {
+			break;
+		}
 	}
 }
 
