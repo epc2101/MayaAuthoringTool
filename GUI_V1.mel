@@ -624,8 +624,8 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
  
  getAttr ProTrusionNode1.anchorRotations;
  getAttr ProTrusionNode1.anchorPosition;
-   float $r[] = `getAttr ProTrusionNode1.anchorRotations `;
-   float $trans[] = `getAttr ProTrusionNode1.anchorPosition `;
+   float $r[] = `getAttr ProTrusionNode1.anchorRotations`;
+   float $trans[] = `getAttr ProTrusionNode1.anchorPosition`;
    print ("Size of trans: " + string(size($trans)) + " Size of rot "+ string(size($r))+"\n");
     for ($i = 0; $i < size($trans); $i+=3)
     { 
@@ -639,10 +639,18 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
        string $anchorNamespace = ("anchor" + string($i)); 
        file -import -type "OBJ" -ra true -mergeNamespacesOnClash false -namespace $anchorNamespace -options "mo=1"  -pr -loadReferenceDepth "all" $anchorFiles[$i];
        select -r ($anchorNamespace+ ":*");
-       setAttr ($anchorNamespace + ":default1.rotateY") $r[$i]; 
-       setAttr ($anchorNamespace + ":default1.translateX") $xx[$i];
-       setAttr ($anchorNamespace + ":default1.translateY") $yy[$i];
-       setAttr ($anchorNamespace + ":default1.translateZ") $zz[$i];
+       string $select[] = `ls -sl`;
+       string $newAnchorNameSpace = $select[3];
+       print ("NAME SPACE : " + $newAnchorNameSpace+ " \n");
+       int $testI = 0; 
+       for ($estI = 0; $testI < size($select) ; $testI++)
+       {
+           print ("THE NAME IS: " + $select[$testI] + "\n");
+       }
+       setAttr ($newAnchorNameSpace + ".rotateY") $r[$i]; 
+       setAttr ($newAnchorNameSpace + ".translateX") $xx[$i];
+       setAttr ($newAnchorNameSpace + ".translateY") $yy[$i];
+       setAttr ($newAnchorNameSpace + ".translateZ") $zz[$i];
     }
     
 testUpdateAnchor();
@@ -680,10 +688,12 @@ global proc testUpdateAnchor()
        string $anchorNamespace = ("anchor" + string($i)); 
        //file -import -type "OBJ" -ra true -mergeNamespacesOnClash false -namespace $anchorNamespace -options "mo=1"  -pr -loadReferenceDepth "all" $anchorFiles[$i];
        select -r ($anchorNamespace+ ":*");
-       setAttr ($anchorNamespace + ":default1.rotateY") $r[$i]; 
-       setAttr ($anchorNamespace + ":default1.translateX") $xx[$i];
-       setAttr ($anchorNamespace + ":default1.translateY") $yy[$i];
-       setAttr ($anchorNamespace + ":default1.translateZ") $zz[$i];
+       string $select[] = `ls -sl`;
+       $anchorNamespace = $select[3];
+       setAttr ($anchorNamespace + ".rotateY") $r[$i]; 
+       setAttr ($anchorNamespace + ".translateX") $xx[$i];
+       setAttr ($anchorNamespace + ".translateY") $yy[$i];
+       setAttr ($anchorNamespace + ".translateZ") $zz[$i];
     }
     
 }
