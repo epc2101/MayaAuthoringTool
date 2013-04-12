@@ -104,3 +104,8 @@ int Anchor::getID()
 {
 	return ID;
 }
+
+void Anchor::setFloorPlanPercent(float p)
+{
+	floorPlanPercent = p;
+}

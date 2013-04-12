@@ -15,6 +15,7 @@ public:
 	//Getters & setters
 	float getFloorPlanPercent();
 	float getProfilePercent();
+	void setFloorPlanPercent(float p); 
 	int getFloorPlanIndex();
 	int getProfileIndex();
 	int getProfileNum(); 

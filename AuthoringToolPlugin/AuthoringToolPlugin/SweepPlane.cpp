@@ -10,7 +10,7 @@ float RADIUS =  0.000001;
 
 
 int DEBUG = 0; 
-int DEBUG_ANCHOR = 0; 
+int DEBUG_ANCHOR = 1; 
 int DEBUG_PROFILE = 0; 
 int DEBUG_FLOORPLAN = 0; 
 
@@ -303,12 +303,11 @@ void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, M
 	 //posArray.append(2);
 	 //rotArray.append(90);
 
-	 if (DEBUG) {
-		 for (int i = 0; i < posArray.length(); i++)
-			 cout<<"Anchor pos: "<<posArray[i]<<endl;
-		 for (int i = 0; i < rotArray.length(); i++)
-			 cout<<"Anchor rot: "<<rotArray[i]<<endl;
-	 }
+	cout<<"The lenght of the positions array is: "<<posArray.length()<<endl;
+	for (int i = 0; i < posArray.length(); i++)
+		cout<<"Anchor pos: "<<posArray[i]<<endl;
+	for (int i = 0; i < rotArray.length(); i++)
+		cout<<"Anchor rot: "<<rotArray[i]<<endl;
 	 MObject p = posData.create(posArray, &stat);
 	 anchorPosData = p; 
 	 cout<<"Created anchor sucessfully"<<endl;
@@ -801,7 +800,7 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 				cout<<"Checking: "<<it->second.getHeight()<<" and id: "<<it->second.getID()<<endl;
 				cout<<"ROT ANGLE = "<<angle.x<< " " <<angle.y<<" "<<angle.z<<endl; 
 			}
-			float xRad = angle.x * 180.0 / 3.14159265359;
+			float xDeg = angle.x * 180.0 / 3.14159265359;
 		
 			int profileNum = it->second.getProfileNum(); 
 			int profileEdgeIndex = it->second.getProfileIndex();
@@ -812,17 +811,22 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 			glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
 			glm::vec3 trans = point + profileDir * it->second.getProfilePercent(); 
 			if (DEBUG_ANCHOR) {
+				cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
+				cout<<"Our plan edge is: "<<it->first<<" vs the index stored in edge: "<<it->second.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
+				cout<<"The plan start edge is: "<<start.x<<" "<<start.y<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<" "<<end.z<<endl;
+				cout<<"The starting point along the edge is: "<<point.x<<" "<<point.y<<" "<<point.z<<endl;
+				cout<<"The direction of the edge is: "<<dir.x<<" "<<dir.y<<" "<<dir.z<<endl;
+				cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
+
 				cout<<"*************************ANCHOR PROFILE************************************"<<endl;
 				cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<it->second.getProfilePercent()<<endl;
 				cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
 				cout<<"The calced y location of the anchor is: "<<trans.y<<" vs. the orig calc of: "<<it->second.getHeight()<<endl;
-				cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
-				cout<<"Our plan edge is: "<<it->first<<" vs the index stored in edge: "<<it->second.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
-				cout<<"The plan start edge is: "<<start.x<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<endl;
-				cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
+				cout<<"The direction of the profile is: "<<profileDir.x<<" "<<profileDir.y<<" "<<profileDir.z<<endl;
+
 			}
 			Anchor a = Anchor(it->second); 
-			a.setRotY(xRad);
+			a.setRotY(xDeg);
 			a.setTranslation(trans); 
 			outputAnchors.push(a);
 		}
@@ -1015,6 +1019,8 @@ void SweepPlane::processQueue()
 	}
 
 	//TODO- check if we need to filter invalid events (last section in intersection part of paper)
+	//Generate the anchors if there are any on this level
+	if (hasAnchor) 	findAnchorEvents(anchorEvents);  
 	//Generate the new priority q of the next active plan, sorted by the right-most parent index (ensures correct edge ordering) 
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> cornerQ;
 	cornerQ = preprocessNewPlanQ(events); 
@@ -1040,7 +1046,7 @@ void SweepPlane::processQueue()
 	} else {
 		thePlan.edgeAnchorMap = temp2; 
 	}
-	if (hasAnchor) 	findAnchorEvents(anchorEvents);  
+
 
 	//Clean out the queue
 	while (!q.empty()){

@@ -27,7 +27,7 @@ void FileParser::parseFile(){
 	std::vector<int> FloorPlanProfile;
 
 	cout<<"Name "<<fileName<<endl;
-
+	bool orderIsCW = false; 
 	ifstream configFile (fileName);
 	if (configFile.is_open())
 	{
@@ -60,7 +60,9 @@ void FileParser::parseFile(){
 			//In this section we determine if the floorplan has been arranged clockwise or counter.  Is counter we reverse the edges and floorPlan profileVector
 
 			//Test the ordering of the plan edges - if CW we are good, otherweise we need to flip
-			if (testOrder(FloorPlanEdges)){
+			orderIsCW = testOrder(FloorPlanEdges);
+			cout<<"IS counter clockwise: "<<orderIsCW<<endl;
+			if (orderIsCW){
 				plan = FloorPlan(FloorPlanEdges, FloorPlanEdges.size(), FloorPlanProfile);
 			}
 			else {
@@ -179,6 +181,14 @@ void FileParser::parseFile(){
 
 				//TODO - THIS ISN"T WORKING
 				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
+
+			}
+			if(!orderIsCW) {
+				for (int i = 0; i < anchors.size(); i++)
+				{
+					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
+					anchors.at(i).setFloorPlanPercent(1.f - anchors.at(i).getFloorPlanPercent());
+				}
 
 			}
 		}
