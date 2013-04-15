@@ -15,6 +15,9 @@ Profile::Profile(std::vector<ProfileEdge> e, int length){
 	
 	
 	edgeList = normalizeProfile(e);
+	for(int i = 0; i<length; i++){
+		edgesUsed.push_back(false);
+	}
 	numPoints = length;
 }
 
@@ -24,6 +27,10 @@ std::vector<ProfileEdge> Profile::getEdgeList(){
 }
 int Profile::getNumPoints(){
 	return numPoints;
+}
+
+std::vector<bool> Profile::getEdgesUsed(){
+	return edgesUsed;
 }
 
 /*
