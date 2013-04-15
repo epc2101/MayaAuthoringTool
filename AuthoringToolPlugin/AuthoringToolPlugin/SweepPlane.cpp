@@ -347,13 +347,26 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 			if (edge.getIsTop() == true){
 				if (height >= edge.getEndPoint().y){
 					currentProfileFromHeight.push_back(edge);
+					prof.getEdgesUsed().at(j) = true;
 					break;
 				}
 			} 
 			
 			if (height >= edge.getStartPoint().y && height < (edge.getEndPoint().y)){
+				//We test the current edge and see if the one below it has been taken if it is horizontal.
+				if(prof.getEdgesUsed().at(j)==false && j > 0){
+					//We can see if we skipped over the previous edge 
+					if (prof.getEdgesUsed().at(j-1) == false && edge.isHorizontal()){
+						Edge horizEdge = prof.getEdgeList().at(j-1);
+						currentProfileFromHeight.push_back(horizEdge);
+						prof.getEdgesUsed().at(j-1) = true;
+						break;
+					}
 
+				}
+				
 				currentProfileFromHeight.push_back(edge);
+				prof.getEdgesUsed().at(j) = true;
 				break;
 			}	
 		}

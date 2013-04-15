@@ -7,6 +7,7 @@ class Profile
 {
 private:
 	std::vector<ProfileEdge> edgeList;
+	std::vector<bool> edgesUsed;
 	int numPoints;
 
 public:
@@ -16,6 +17,7 @@ public:
 
 	//Getters - Don't expect to be modifying these fields in the future
 	std::vector<ProfileEdge> getEdgeList();
+	std::vector<bool> getEdgesUsed();
 	int getNumPoints();
 	
 	//During profile creation, this shifts the points over
