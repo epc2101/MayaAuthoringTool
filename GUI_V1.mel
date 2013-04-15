@@ -666,8 +666,8 @@ testUpdateAnchor();
 
 global proc testUpdateAnchor()
 {
-        global string $anchorFiles[];
-       float $xx[];
+   global string $anchorFiles[];
+   float $xx[];
    float $yy[];
    float $zz[];
  
@@ -784,7 +784,9 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
          CreateMesh($fpPoints, $filePath);
    } else {
        int $numPts = size($fpPoints); 
+       //TODO - call procedure that figures out if any of the anchors has been moved & interpolates their position
        setAttr ProTrusionNode1.numPoints $numPts;
+       testUpdateAnchor();
    }
         
 }
