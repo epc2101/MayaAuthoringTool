@@ -1,6 +1,6 @@
 #include "Profile.h"
 #include <iostream>
-float DIFF = 0.001;
+float DIFF = 0.0001;
 
 Profile::Profile(void)
 {
@@ -72,7 +72,7 @@ std::vector<ProfileEdge> Profile::normalizeProfile(std::vector<ProfileEdge> e)
 			isTop = false;
 		}
 
-		if((startPoint.y - endPoint.y) < DIFF){
+		if(abs(startPoint.y - endPoint.y) < DIFF){
 			isHorizontal = true;
 		}
 		else{

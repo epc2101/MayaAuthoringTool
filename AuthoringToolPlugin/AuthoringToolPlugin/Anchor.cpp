@@ -48,6 +48,11 @@ int Anchor::getFloorPlanIndex()
 	return floorPlanIndex; 
 }
 
+void Anchor::setFloorPlanIndex(int ind)
+{
+	floorPlanIndex = ind; 
+}
+
 int Anchor::getProfileIndex()
 {
 	return profileIndex; 

@@ -17,6 +17,7 @@ public:
 	float getProfilePercent();
 	void setFloorPlanPercent(float p); 
 	int getFloorPlanIndex();
+	void setFloorPlanIndex(int ind); 
 	int getProfileIndex();
 	int getProfileNum(); 
 	int getIndex(); 

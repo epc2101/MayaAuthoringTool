@@ -61,8 +61,8 @@ void FileParser::parseFile(){
 
 			//Test the ordering of the plan edges - if CW we are good, otherweise we need to flip
 			orderIsCW = testOrder(FloorPlanEdges);
-			cout<<"IS counter clockwise: "<<orderIsCW<<endl;
-			if (orderIsCW){
+			cout<<"IS clockwise: "<<orderIsCW<<endl;
+			if (testOrder(FloorPlanEdges)){
 				plan = FloorPlan(FloorPlanEdges, FloorPlanEdges.size(), FloorPlanProfile);
 			}
 			else {
@@ -169,18 +169,18 @@ void FileParser::parseFile(){
 				configFile >> lineHeader; //ProfileEdge
 				configFile >> profileEdge; 
 				configFile >> lineHeader; //#AnchorEndi
+
+				std::cout<<"BEFOORRRE CREATING ANCHOR: "<<i<<std::endl;
 				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge); 
-				Profile p = profiles.at(i); 
+				Profile p = profiles.at(profile); 
 				ProfileEdge e = p.getEdgeList().at((int) profileEdge);
 				glm::vec3 dir = e.getEndPoint() - e.getStartPoint();
 				float profilePercent = profileEdge - (int)profileEdge; 
 				a.setHeight((e.getStartPoint() + dir * profilePercent).y); 
 				//Add the anchor to the floorPlanEdge Anchor list
 				a.setID(i); 
-				anchors.push_back(a); 
-
-				//TODO - THIS ISN"T WORKING
-				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
+				anchors.push_back(a);
+				std::cout<<"In file parser.  Got anchor: "<<a.getID()<<" "<<a.getFloorPlanIndex()<<std::endl;
 
 			}
 			if(!orderIsCW) {
@@ -188,6 +188,8 @@ void FileParser::parseFile(){
 				{
 					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
 					anchors.at(i).setFloorPlanPercent(1.f - anchors.at(i).getFloorPlanPercent());
+					if (anchors.at(i).getFloorPlanIndex() != 0) 
+						anchors.at(i).setFloorPlanIndex(plan.getEdgeList().size() - anchors.at(i).getFloorPlanIndex()); 
 				}
 
 			}
@@ -202,8 +204,8 @@ bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
 	int testNum = 0;
 	for(int i = 0; i<currentPlan.size(); i++){
 		PlanEdge tempEdge = currentPlan.at(i);
-		int xNum = tempEdge.getEndPoint().x + tempEdge.getStartPoint().x;
-		int zNum = tempEdge.getEndPoint().z - tempEdge.getStartPoint().z;
+		int xNum = tempEdge.getEndPoint().x - tempEdge.getStartPoint().x;
+		int zNum = tempEdge.getEndPoint().z + tempEdge.getStartPoint().z;
 		testNum += (xNum*zNum);
 	}
 	if(testNum < 0){

@@ -550,6 +550,13 @@ global proc CurveAsProfile()
    {
       $pAnchorPoints[$initialNumProfilePts + $i] = 0;
    }
+   
+   print ("*****************TESTING PROFILE POINTS**********************************\n");
+   for ($i = 0; $i < size($pPoints); $i++)
+   {
+       vector $testPt = $pPoints[$i];
+       print ("X: "+ $testPt.x + " " + $testPt.y+ " " + $testPt.z +"\n");
+   }
 }
 
 
@@ -607,8 +614,8 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     int $numPts = size($fpPoints);    
     setAttr ProTrusionNode1.numPoints $numPts;
     //TODO - make dynamic again
-    //setAttr -type "string" ProTrusionNode1.fileName $fileName;
-    setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionAnchors.txt";
+    setAttr -type "string" ProTrusionNode1.fileName $fileName;
+    //setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionAnchors.txt";
     connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
     //For each anchor -> link data from anchor node to the transform node, link to imported obj  file
     //TODO - change when done testing to bring in
@@ -638,19 +645,21 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     {
        string $anchorNamespace = ("anchor" + string($i)); 
        file -import -type "OBJ" -ra true -mergeNamespacesOnClash false -namespace $anchorNamespace -options "mo=1"  -pr -loadReferenceDepth "all" $anchorFiles[$i];
-       select -r ($anchorNamespace+ ":*");
-       string $select[] = `ls -sl`;
-       string $newAnchorNameSpace = $select[3];
-       print ("NAME SPACE : " + $newAnchorNameSpace+ " \n");
-       int $testI = 0; 
-       for ($estI = 0; $testI < size($select) ; $testI++)
-       {
-           print ("THE NAME IS: " + $select[$testI] + "\n");
+       select ($anchorNamespace+ ":*");
+       string $select[] = `ls -as`;
+       int $ss;
+       int $nsSize = size($anchorNamespace); 
+       string $newAnchorNamespace;
+       for ( $ss= 0; $ss < size($select); $ss++) { 
+           //print ("The name is: " + $select[$ss] + "\n");
+           if (substring($select[$ss], 1, $nsSize) == $anchorNamespace)
+               $newAnchorNamespace = $select[$ss];
        }
-       setAttr ($newAnchorNameSpace + ".rotateY") $r[$i]; 
-       setAttr ($newAnchorNameSpace + ".translateX") $xx[$i];
-       setAttr ($newAnchorNameSpace + ".translateY") $yy[$i];
-       setAttr ($newAnchorNameSpace + ".translateZ") $zz[$i];
+       print ("TRYING TO FIND ANCHOR: " + $newAnchorNamespace +"\n");
+       setAttr ($newAnchorNamespace + ".rotateY") $r[$i]; 
+       setAttr ($newAnchorNamespace + ".translateX") $xx[$i];
+       setAttr ($newAnchorNamespace + ".translateY") $yy[$i];
+       setAttr ($newAnchorNamespace + ".translateZ") $zz[$i];
     }
     
 testUpdateAnchor();
@@ -671,29 +680,37 @@ global proc testUpdateAnchor()
    float $yy[];
    float $zz[];
  
- getAttr ProTrusionNode1.anchorRotations;
- getAttr ProTrusionNode1.anchorPosition;
    float $r[] = `getAttr ProTrusionNode1.anchorRotations `;
    float $trans[] = `getAttr ProTrusionNode1.anchorPosition `;
    print ("Size of trans: " + string(size($trans)) + " Size of rot "+ string(size($r))+"\n");
+   int $kk = 0;
     for ($i = 0; $i < size($trans); $i+=3)
     { 
-       $xx[$i] = $trans[$i];
-       $yy[$i] = $trans[$i+1];
-       $zz[$i] = $trans[$i+2];
-       print ("Setting x: " + string($xx[$i]) + " Setting y: " + string($yy[$i]) + " setting z: " + string($zz[$i]));
+       $xx[$kk] = $trans[$i];
+       $yy[$kk] = $trans[$i+1];
+       $zz[$kk] = $trans[$i+2];
+       $kk++;
+       print ("Setting x: " + string($xx[$i]) + " Setting y: " + string($yy[$i]) + " setting z: " + string($zz[$i]) +"\n");
     }
     for ($i = 0; $i < size($anchorFiles); $i++)
     {
        string $anchorNamespace = ("anchor" + string($i)); 
+       select ($anchorNamespace+ ":*");
+       string $select[] = `ls -as`;
+       int $ss;
+       int $nsSize = size($anchorNamespace); 
+       string $newAnchorNamespace;
+       for ( $ss= 0; $ss < size($select); $ss++) { 
+           if (substring($select[$ss], 1, $nsSize) == $anchorNamespace)
+               $newAnchorNamespace = $select[$ss];
+       }
        //file -import -type "OBJ" -ra true -mergeNamespacesOnClash false -namespace $anchorNamespace -options "mo=1"  -pr -loadReferenceDepth "all" $anchorFiles[$i];
-       select -r ($anchorNamespace+ ":*");
-       string $select[] = `ls -sl`;
-       $anchorNamespace = $select[3];
-       setAttr ($anchorNamespace + ".rotateY") $r[$i]; 
-       setAttr ($anchorNamespace + ".translateX") $xx[$i];
-       setAttr ($anchorNamespace + ".translateY") $yy[$i];
-       setAttr ($anchorNamespace + ".translateZ") $zz[$i];
+       select -r ($newAnchorNamespace);
+       print ("\nSetting new anchor rotate: "+ $newAnchorNamespace + " " + string($xx[$i])+" " + string($yy[$i])+" "+string($zz[$i])+" ");
+       setAttr ($newAnchorNamespace + ".rotateY") $r[$i]; 
+       setAttr ($newAnchorNamespace + ".translateX") $xx[$i];
+       setAttr ($newAnchorNamespace + ".translateY") $yy[$i];
+       setAttr ($newAnchorNamespace + ".translateZ") $zz[$i];
     }
     
 }
@@ -757,13 +774,20 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
         for ($k = 0; $k < $numPtsInProfile[$i]-1; $k++)
         {
             vector $pt = $pPoints[$i+$k];
-            fprint $fileId (" #ProfilePointStart " + string($pt.y) + " " + string($pt.z) + " ");
-            $pt = $fpPoints[$i+$k+1];
-            fprint $fileId ("#ProfilePointEnd " + string($pt.y) + " " + string($pt.z) + " ");  
+            fprint $fileId (" #ProfilePointStart " + string(-$pt.z) + " " + string($pt.y) + " ");
+            $pt = $pPoints[$i+$k+1];        
+            fprint $fileId ("#ProfilePointEnd " + string(-$pt.z) + " " + string($pt.y) + " ");  
             fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\r\n");      
         }  
         fprint $fileId (" #ProfileEnd" + string($i) +"\r\n");      
     }
+    
+       print ("*****************TESTING PROFILE POINTS IN GENERATE TEXT**********************************\n");
+   for ($i = 0; $i < size($pPoints); $i++)
+   {
+       vector $testPt = $pPoints[$i];
+       print ("X: "+ $testPt.x + " " + $testPt.y+ " " + $testPt.z +"\n");
+   }
     
     //***************************************************************************************************
     //Start of anchor parse

@@ -34,6 +34,7 @@ private:
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;
 	std::priority_queue<Event, std::vector<Event>, CompareHeight> anchorQ; 
 	float theLastHeight; 
+	int sameHeightCount;
 
 public:
 	//Constructor
@@ -63,7 +64,8 @@ public:
 
 	//Queue processing helper functions
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
-	std::map<int, Anchor>  updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
+	//std::map<int, Anchor>  updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
+	void updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
 	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
 	//std::vector<Corner> processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &tempActivePlan);
 
