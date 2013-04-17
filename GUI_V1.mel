@@ -815,6 +815,44 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
         
 }
 
+global proc ClearAll()
+{
+
+//Curve names
+global string $floorPlanCurve;
+global string $profileCurves[];
+clear($profileCurves);
+
+//Profile info
+global int $fpEdgeToProfile[]; 
+clear($fpEdgeToProfile);
+global int $numPtsInProfile[]; 
+clear($numPtsInProfile);
+global vector $pPoints[];
+clear($pPoints);
+
+//Anchor info
+global int $fpHasAnchor[];
+clear($fpHasAnchor );
+global int $pHasAnchor[];  //TODO - maybe get rid of these guys
+clear($pHasAnchor ); 
+//Each of these anchors are linked to a specific fp & profile edge (indices match for each anchor)
+global string $anchorFiles[];
+clear( $anchorFiles);
+global float $anchorFPEdge[]; //edge#.percentInbetween
+clear($anchorFPEdge);
+global int $anchorProfileNum[]; //the profile the anchor is linked to 
+clear($anchorProfileNum );
+global float $anchorProfileEdge[]; //edge#.percentInbetween
+clear($anchorProfileEdge);
+
+ string $all[] =  `ls -geometry`;
+ for ($node in $all)
+ {
+     delete $node; 
+ }
+}
+
 
 //****************************************************************************************************************
 // GUI LAYOUT 
@@ -906,6 +944,9 @@ menuBarLayout popUpMenu;
          menuItem
          -label "Update building via text file"
          -command "GenerateText($fpPoints, 1)";
+         menuItem
+         -label "Clear all"
+         -command "ClearAll()";
      menu -label "Help";
          menuItem
          -label "Help"

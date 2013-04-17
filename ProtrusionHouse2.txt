@@ -13,6 +13,7 @@
 
 #ProfileStart0
 #ProfilePointStart 0 0  #ProfilePointEnd -1 5 #Anchor 0
+#ProfilePointStart -1 5  #ProfilePointEnd -3 6 #Anchor 0
 #ProfileEnd0
 
 #ProfileStart1

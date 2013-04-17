@@ -13,7 +13,7 @@ int DEBUG = 0;
 
 int DEBUG_ANCHOR = 0; 
 int DEBUG_PROFILE = 0; 
-int DEBUG_FLOORPLAN = 1; 
+int DEBUG_FLOORPLAN = 0; 
 int DEBUG_INT_VECTS = 0; 
 
 SweepPlane::SweepPlane(void)
@@ -797,14 +797,19 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	glm::vec3 dir = glm::normalize(end - start); 
 	glm::vec3 point = start + percentEdge * dir * glm::distance(start, end);  
 	//TODO - is there a better way to do this...not sure if it will always work
-	glm::vec3 pointOnX(point.x, point.y, 0); 
-	glm::vec3 angle = glm::atan(pointOnX / point); 
+	//glm::vec3 pointOnX(point.x, point.y, 0); 
+	//glm::vec3 angle = glm::atan(pointOnX / point); 
+	glm::vec3 endOnZ0 = glm::vec3(end.x, end.y, 0); 
+	float distEnd = glm::distance(endOnZ0, end); 
+	float lenOnZ0 = glm::length(endOnZ0); 
+	float xDeg = distEnd / (lenOnZ0 + 1.e-100) *180.0f / 3.14159265359f ; 
+		
+	//float xDeg = angle.x * 180.0 / 3.14159265359;
 	if (DEBUG_ANCHOR) {
 		cout<<"Checking: "<<a.getHeight()<<" and id: "<<a.getID()<<endl;
-		cout<<"ROT ANGLE = "<<angle.x<< " " <<angle.y<<" "<<angle.z<<endl; 
+		//cout<<"Xstart: "<<point.x<<" Ystart: "<<point.y<<" Angle x: "<<angle.x<<endl;
+		cout<<"ROT ANGLE = "<<xDeg<<endl; 
 	}
-	float xDeg = angle.x * 180.0 / 3.14159265359;
-
 	int profileNum = a.getProfileNum(); 
 	int profileEdgeIndex = a.getProfileIndex();
 	if (profileNum != ap.at(edgeIndex).getRightEdge().getProfileType())

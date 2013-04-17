@@ -16,14 +16,14 @@
 #ProfileEnd0
 
 
-#NumAnchors 0
+#NumAnchors 2
 
 #AnchorStart0
-#FloorPlanEdge 0.5 #ProfileNum 0 #ProfileEdge 0.5
+#FloorPlanEdge 0.2 #ProfileNum 0 #ProfileEdge 0.01
 #AnchorEnd0
 
 #AnchorStart1
-#FloorPlanEdge 0.5 #ProfileNum 0 #ProfileEdge 0.5
+#FloorPlanEdge 2.5 #ProfileNum 0 #ProfileEdge 0.5
 #AnchorEnd1
 
 
