@@ -597,6 +597,7 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 		float difference = profEdge.getEndPoint().y - tempCorner.getPt().y;
 		float multiply = difference/(cornerVec.y+pow(10.0,-6.0));
 		glm::vec3 newPoint = tempCorner.getPt()+(cornerVec*multiply);
+		newPoint.y = abs(newPoint.y);
 		
 		std::vector<Corner> parentCorner;
 		parentCorner.push_back(tempCorner);
@@ -703,6 +704,7 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 		 }
 		 else if (e.getType() == Event::PROFILE){
 			 //This should only have 1 parent 
+
 			 Corner corner = Corner(e.getPoint(), e.getCorners());
 			 Corner parent = corner.getSource().at(0);
 			 if (flagPlan.at(parent.getIndex())==true){
