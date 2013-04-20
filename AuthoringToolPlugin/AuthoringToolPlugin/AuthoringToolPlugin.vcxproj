@@ -100,7 +100,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2012|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\Maya2012\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\Maya2013\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(ConfigurationName)/AuthoringToolPlugin.pch</PrecompiledHeaderOutputFile>
@@ -110,12 +110,15 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\Maya2012\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\Maya2013\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(ConfigurationName)\AuthoringToolPlugin.mll</OutputFile>
       <ImportLibrary>$(ConfigurationName)/AuthoringToolPlugin.lib</ImportLibrary>
       <ProgramDatabaseFile>$(ConfigurationName)/AuthoringToolPlugin.pdb</ProgramDatabaseFile>
       <AdditionalOptions>/subsystem:windows /incremental:no /export:initializePlugin /export:uninitializePlugin %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <BuildLog>
+      <Path>C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin.log</Path>
+    </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2012|x64'">
     <ClCompile>
@@ -164,6 +167,7 @@
     <ClInclude Include="ProfileEdge.h" />
     <ClInclude Include="ProfileOffsetEvent.h" />
     <ClInclude Include="SweepPlane.h" />
+    <ClInclude Include="TestingFramework.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ActivePlan.cpp" />
@@ -186,6 +190,7 @@
     <ClCompile Include="ProfileEdge.cpp" />
     <ClCompile Include="ProfileOffsetEvent.cpp" />
     <ClCompile Include="SweepPlane.cpp" />
+    <ClCompile Include="TestingFramework.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

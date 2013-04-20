@@ -356,8 +356,9 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 				//We test the current edge and see if the one below it has been taken if it is horizontal.
 				if(prof.getEdgesUsed().at(j)==false && j > 0){
 					//We can see if we skipped over the previous edge 
-					if (prof.getEdgesUsed().at(j-1) == false && edge.isHorizontal()){
-						Edge horizEdge = prof.getEdgeList().at(j-1);
+					if (prof.getEdgesUsed().at(j-1) == false && edge.getIsHorizontal()){
+						cout<<"The lower edge is horizontal!!!!"<<endl;
+						ProfileEdge horizEdge = prof.getEdgeList().at(j-1);
 						currentProfileFromHeight.push_back(horizEdge);
 						prof.getEdgesUsed().at(j-1) = true;
 						break;
@@ -473,7 +474,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 		newVector = glm::vec3(rotVec);
 		newVector = glm::normalize(newVector);
 
-		cout<<"New Vector 2 is "<<newVector.x<<" "<<newVector.y<<" "<<newVector.z<<endl;
+		cout<<"New Vector Of Second Edge is is "<<newVector.x<<" "<<newVector.y<<" "<<newVector.z<<endl;
 
 		profVec2 = glm::vec3(newVector.x*profVec2.x,profVec2.y,newVector.z*profVec2.x);
 
@@ -499,6 +500,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 		
 
 		finalVector = glm::normalize(finalVector);
+		finalVector.y = abs(finalVector.y);
 
 		thePlan.setIntersectionVector(finalVector);
 	}
@@ -588,11 +590,41 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 
 		PlanEdge edge1 = tempCorner.getRightEdge();
 		ProfileEdge profEdge = currentEdges.at(edge1.getProfileType());
+		if (profEdge.getIsHorizontal()){
+			continue;
+		}
 		
 		float difference = profEdge.getEndPoint().y - tempCorner.getPt().y;
 		float multiply = difference/(cornerVec.y+pow(10.0,-6.0));
 		glm::vec3 newPoint = tempCorner.getPt()+(cornerVec*multiply);
+		
+		std::vector<Corner> parentCorner;
+		parentCorner.push_back(tempCorner);
 
+		//We are still going to do this for each of the corners for each of the edges they are associated with
+		Event edgeChange = Event(profEdge.getEndPoint().y,newPoint,parentCorner,Event::PROFILE);
+		q.push(edgeChange);
+	}
+}
+
+void SweepPlane::fillQueueWithHorizontalChanges(float height){
+	std::vector<ProfileEdge> currentEdges = getProfileEdgesAtHeight(height); 
+	
+	//We will prevent overlaps by only useing the right edge
+	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
+		Corner tempCorner = thePlan.getActivePlan().at(i);
+		glm::vec3 cornerVec = thePlan.getIntersectionVectors().at(i);
+
+		PlanEdge edge1 = tempCorner.getRightEdge();
+		ProfileEdge profEdge = currentEdges.at(edge1.getProfileType());
+		if (!profEdge.getIsHorizontal()){
+			continue;
+		}
+		
+		float difference = profEdge.getEndPoint().y - tempCorner.getPt().y;
+		float multiply = difference/(cornerVec.y+pow(10.0,-6.0));
+		glm::vec3 newPoint = tempCorner.getPt()+(cornerVec*multiply);
+		
 		std::vector<Corner> parentCorner;
 		parentCorner.push_back(tempCorner);
 
@@ -968,7 +1000,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 					for(int g = 0; g<indexToShift; g++){
 						improvedVector.push_back(newCorner.getSource().at(g));
 					}
-
+					std::sort(improvedVector.begin(), improvedVector.end(), CompareParent());
 					newCorner = Corner(newCorner.getLeftEdge(), newCorner.getRightEdge(), newCorner.getPt(),improvedVector);
 				}
 			}	
@@ -1151,4 +1183,14 @@ void SweepPlane::buildIt()
 
 SweepPlane::~SweepPlane(void)
 {
+}
+
+ActivePlan SweepPlane::getThePlan()
+{
+	return thePlan;
+}
+
+void SweepPlane::setThePlan(FloorPlan plan)
+{
+	thePlan = ActivePlan(plan);
 }

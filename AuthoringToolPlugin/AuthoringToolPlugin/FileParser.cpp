@@ -202,8 +202,8 @@ bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
 	int testNum = 0;
 	for(int i = 0; i<currentPlan.size(); i++){
 		PlanEdge tempEdge = currentPlan.at(i);
-		int xNum = tempEdge.getEndPoint().x + tempEdge.getStartPoint().x;
-		int zNum = tempEdge.getEndPoint().z - tempEdge.getStartPoint().z;
+		int xNum = tempEdge.getEndPoint().x - tempEdge.getStartPoint().x;
+		int zNum = tempEdge.getEndPoint().z + tempEdge.getStartPoint().z;
 		testNum += (xNum*zNum);
 	}
 	if(testNum < 0){

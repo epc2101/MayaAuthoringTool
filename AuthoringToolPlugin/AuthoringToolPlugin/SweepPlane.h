@@ -59,6 +59,7 @@ public:
 	void fillQueueWithIntersections(float height);
 	void fillQueueWithEdgeDirectionChanges(float height);
 	void fillQueueWithAnchors(float height); 
+	void fillQueueWithHorizontalChanges(float height);
 	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
 
 	//Queue processing helper functions
@@ -73,6 +74,10 @@ public:
 
 	//Logging and output info
 	void validateData();
+
+	//For testing
+	ActivePlan getThePlan();
+	void setThePlan(FloorPlan plan);
 
 	~SweepPlane(void);
 };

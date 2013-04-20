@@ -10,6 +10,7 @@
 //
 
 #include "AuthoringToolPluginNode.h"
+#include "TestingFramework.h"
 #include "SweepPlane.h"
 #include "Edge.h"
 #include "FloorPlan.h"
@@ -78,6 +79,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		//This section is a lot longer than I would like.  I'll look at refactoring this and moving it to other methods.
 		else
 		{
+			int TESTING = 1;
 			//These values will be used to construct the FloorPlan object
 			int numberOfPoints = numberOfPointsHandle.asInt();
 			MString thefileName = fileNameHandle.asString();
@@ -87,6 +89,12 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 
 			//MString thefile = fileNameHandle.asString();
 			
+			//We will run the tests first
+			if (TESTING == 1){
+			TestingFramework tester = TestingFramework();
+			tester.runTests();
+			}
+			else {
 			//std::string myFile = thefile.asChar();
 			//std::cout<<"The name of the file is: "<<myFile<<std::endl;
 			std::cout<<"In Node..."<<std::endl;
@@ -139,7 +147,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			outputAnchorPosHandle.set( newAnchorPosData );
 			outputMeshHandle.set( newOutputData );
 			outputAnchorRotHandle.set( newAnchorRotData );
-
+			}
 			// Mark the destination plug as being clean.  This will prevent the
 			// dependency graph from repeating this calculation until an input 
 			// of this node changes.
