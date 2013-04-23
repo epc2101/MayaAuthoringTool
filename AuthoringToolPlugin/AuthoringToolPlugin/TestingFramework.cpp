@@ -62,13 +62,14 @@ void TestingFramework::runTests(){
 	testVectorsSquareOneLevel();
 	cout<<endl;
 
-	cout<<"**************Ending run of tests*********************"<<endl<<endl;
+	cout<<"\n**************Ending run of tests*********************"<<endl<<endl;
 
 }
 
 void TestingFramework::testParseCC()
 {
-	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCC.txt");
+	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCC.txt");
+	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCC.txt");
 	parser.parseFile();
 	cout<<"From Clockwise File: ";
 	if (parser.testOrder(parser.getFloorPlan().getEdgeList())){
@@ -124,7 +125,8 @@ void TestingFramework::testParseCC()
 }
 void TestingFramework::testParseCCW()
 {
-	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCCW.txt");
+	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCCW.txt");
+	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCCW.txt");
 	parser.parseFile();
 
 	//Testing whether CCW is converted to clockwise
@@ -182,7 +184,8 @@ void TestingFramework::testVectorsSquareOneLevel()
 //Test getting profile edges
 void TestingFramework::testSingleProfileEdge()
 {
-	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testGetSingleProfile.txt");
+	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testGetSingleProfile.txt");
+	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testGetSingleProfile.txt");
 	parser.parseFile();
 	SweepPlane plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
 
@@ -205,4 +208,12 @@ void TestingFramework::testSingleProfileEdge()
 	} else {
 		cout<<"FAILED"<<endl;
 	}
+}
+
+
+//Test anchor rotations
+void TestingFramework::testAnchorRotate()
+{
+
+
 }

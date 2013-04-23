@@ -232,7 +232,7 @@ std::vector<Profile> FileParser::getProfiles(){
 
 std::vector<Anchor> FileParser::getAnchors()
 {
-	cout<<"The size of the anchors in file parse is: "<<anchors.size(); 
+	cout<<"The size of the anchors in file parse is: "<<anchors.size()<<endl; 
 	return anchors; 
 }
 

@@ -23,10 +23,13 @@ public:
 	//Test getting profile edges
 	void testSingleProfileEdge();
 
-
 	//Test that a horizontal edge was grabbed from a profile at a certain height
 
-	//Test that anchors are correctly rotates
+	//Test that anchors are correctly rotated 
+	void testAnchorRotate();
+
+	//Test that anchors are correctly translated
+	void testAnchorTranslate(); 
 	
 };
 

@@ -754,15 +754,10 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 	return cornerQ;
 }
 
-//Updates the temp active plan with the newly caclulated edges
-std::map<int, Anchor> SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan) 
-{
-	std::map<int, Anchor> tempMap; 
-	if(DEBUG_ANCHOR) {
-		cout<<"The current map size is : "<<thePlan.edgeAnchorMap.size()<<endl; 
-		cout<<"The size: "<<tempActivePlan.size()<<endl;
-	}
 
+//Updates the temp active plan with the newly caclulated edges
+void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan) 
+{
 	for(int i = 0; i < tempActivePlan.size(); i++){
 		glm::vec3 startPoint, endPoint;
 		int profile;
@@ -776,110 +771,92 @@ std::map<int, Anchor> SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempAc
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
 			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
 			tempActivePlan.at(0).setLeftEdge(edge);
-			//Check anchors
-			int edgeIndex = myCorn.at(myCorn.size()-1).getIndex();
-			cout<<"The parent's corner index is: "<<edgeIndex; 
-			if (thePlan.edgeAnchorMap.find(edgeIndex) != thePlan.edgeAnchorMap.end())
-			{				
-				//TODO - replace anchor insert w/a proper search
-				if (tempMap.find(i) == tempMap.end()) {
-					tempMap.insert(std::pair<int, Anchor>(i, anchorList.at(0)));
-					if (DEBUG_ANCHOR) {
-						cout<<"Found an anchor! at"<<edgeIndex<<endl;
-					}
-				}
-			}
-
+			//TODO - Deleted map update here...maybe add back?
 		} else {
 			startPoint = tempActivePlan.at(i).getPt();
-			endPoint = tempActivePlan.at(i+1).getPt();
+			endPoint= tempActivePlan.at(i+1).getPt();
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);			
 			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
 			tempActivePlan.at(i+1).setLeftEdge(edge);
-			//Update edgeAnchorMap for new active plan
-			int cornerIndex = myCorn.at(myCorn.size()-1).getIndex();
-			cout<<"The parent's corner index is: "<<cornerIndex; 
-			int edgeIndex = myCorn.at(myCorn.size()-1).getRightEdge().getIndex(); //TODO - check why this isn't working orjust delete
-			if (thePlan.edgeAnchorMap.find(cornerIndex) != thePlan.edgeAnchorMap.end())
-			{
-				cout<<"Found an anchor at parent index "<<edgeIndex<<" Corresponding with new index"<<i<<endl;
-				//TODO - replace anchor insert w/a proper search
-				//Make sure we ignore dups in case multiple edges have the same rents
-				if (tempMap.find(i) == tempMap.end()) {
-					tempMap.insert(std::pair<int, Anchor>(i, anchorList.at(0)));
-				}
-			}
+			//TODO - Deleted map update here...maybe add back?
 		} 
 		if (DEBUG == 1) {
 			cout<<"We are looping to set up the new active plan.  Finished number "<<i<<endl;
 			cout<<"Temp active plan pt "<<tempActivePlan.at(i).getPt().x<<" "<<tempActivePlan.at(i).getPt().y<<" "<<tempActivePlan.at(i).getPt().z<<" "<<endl;
 		}
 	}
-	return tempMap;
 }
 
 //Finds the anchor translation and rotation based on the current activeplan
 void SweepPlane::calcAnchorTransforms(Anchor &a)
 {
+	if (DEBUG_ANCHOR) {
+		cout<<"*************************IN CALC ANCHOR TRANSFORMS************************************"<<endl;
+		cout<<"*************************************************************"<<endl;
+		cout<<"*************************************************************"<<endl;
+	}
 	std::deque<Corner> ap = thePlan.getActivePlan();
 	float height = a.getHeight(); 
 	int id = a.getID(); 
 	if (DEBUG_ANCHOR) {
-		cout<<thePlan.edgeAnchorMap.size()<<" Trying to find height: "<<height<<" and id "<<id<<endl;
-	}
-	for(map<int,Anchor>::iterator it =  thePlan.edgeAnchorMap.begin(); it !=  thePlan.edgeAnchorMap.end(); ++it) {
-
-		if (it->second.getHeight() == height && it->second.getID() == id)
-		{
-			int edgeIndex = it->first; 
-			float percentEdge = it->second.getFloorPlanPercent();
-			//get the edge from the active plan and calc the angle from the point to the origin
-			glm::vec3 start = ap.at(edgeIndex).getRightEdge().getStartPoint();
-			glm::vec3 end = ap.at(edgeIndex).getRightEdge().getEndPoint();
-			glm::vec3 dir = glm::normalize(end - start); 
-			glm::vec3 point = start + percentEdge * dir;  
-			//TODO - is there a better way to do this...not sure if it will always work
-			glm::vec3 pointOnX(point.x, point.y, 0); 
-			glm::vec3 angle = glm::atan(pointOnX / point); 
-			if (DEBUG_ANCHOR) {
-				cout<<"Checking: "<<it->second.getHeight()<<" and id: "<<it->second.getID()<<endl;
-				cout<<"ROT ANGLE = "<<angle.x<< " " <<angle.y<<" "<<angle.z<<endl; 
-			}
-			float xDeg = angle.x * 180.0 / 3.14159265359;
-		
-			int profileNum = it->second.getProfileNum(); 
-			int profileEdgeIndex = it->second.getProfileIndex();
-			if (profileNum != ap.at(edgeIndex).getRightEdge().getProfileType())
-				cout<<"UHOH! Our anchor edge/profile links don't match!! :("<<endl;
-			ProfileEdge profileEdge = profileList.at(profileNum).getEdgeList().at(profileEdgeIndex);
-
-			glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
-			glm::vec3 trans = point + profileDir * it->second.getProfilePercent(); 
-			if (DEBUG_ANCHOR) {
-				cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
-				cout<<"Our plan edge is: "<<it->first<<" vs the index stored in edge: "<<it->second.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
-				cout<<"The plan start edge is: "<<start.x<<" "<<start.y<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<" "<<end.z<<endl;
-				cout<<"The starting point along the edge is: "<<point.x<<" "<<point.y<<" "<<point.z<<endl;
-				cout<<"The direction of the edge is: "<<dir.x<<" "<<dir.y<<" "<<dir.z<<endl;
-				cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
-
-				cout<<"*************************ANCHOR PROFILE************************************"<<endl;
-				cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<it->second.getProfilePercent()<<endl;
-				cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
-				cout<<"The calced y location of the anchor is: "<<trans.y<<" vs. the orig calc of: "<<it->second.getHeight()<<endl;
-				cout<<"The direction of the profile is: "<<profileDir.x<<" "<<profileDir.y<<" "<<profileDir.z<<endl;
-
-			}
-			Anchor a = Anchor(it->second); 
-			a.setRotY(xDeg);
-			a.setTranslation(trans); 
-			outputAnchors.push(a);
+		cout<<"Checking map of height "<< a.getHeight()<< " and id " <<a.getID()<<" and plan edge index: "<<a.getFloorPlanIndex()<<endl; 
+		cout<<"PRINTING the plan edges: "<<endl;
+		for (int i = 0; i < ap.size(); i++) {
+			cout<<"Index: "<<ap.at(i).getIndex()<<endl;
+			cout<<"Start: "<<ap.at(i).getRightEdge().getStartPoint().x<<" "<<ap.at(i).getRightEdge().getStartPoint().z<<" End: "<<ap.at(i).getRightEdge().getEndPoint().x<<" "<<ap.at(i).getRightEdge().getEndPoint().z<<endl;
 		}
 	}
-}
+	int edgeIndex = a.getFloorPlanIndex(); 
+	float percentEdge = a.getFloorPlanPercent();
+	//get the edge from the active plan and calc the angle from the point to the origin
+	glm::vec3 start = ap.at(edgeIndex).getRightEdge().getStartPoint();
+	glm::vec3 end = ap.at(edgeIndex).getRightEdge().getEndPoint();
+	glm::vec3 dir = glm::normalize(end - start); 
+	glm::vec3 point = start + percentEdge * dir * glm::distance(start, end);  
+	//TODO - is there a better way to do this...not sure if it will always work
+	//glm::vec3 pointOnX(point.x, point.y, 0); 
+	//glm::vec3 angle = glm::atan(pointOnX / point); 
+	glm::vec3 endOnZ0 = glm::vec3(end.x, end.y, 0); 
+	float distEnd = glm::distance(endOnZ0, end); 
+	float lenOnZ0 = glm::length(endOnZ0); 
+	float xDeg = distEnd / (lenOnZ0 + 1.e-100) *180.0f / 3.14159265359f ; 
 
+	//float xDeg = angle.x * 180.0 / 3.14159265359;
+	if (DEBUG_ANCHOR) {
+		cout<<"Checking: "<<a.getHeight()<<" and id: "<<a.getID()<<endl;
+		//cout<<"Xstart: "<<point.x<<" Ystart: "<<point.y<<" Angle x: "<<angle.x<<endl;
+		cout<<"ROT ANGLE = "<<xDeg<<endl; 
+	}
+	int profileNum = a.getProfileNum(); 
+	int profileEdgeIndex = a.getProfileIndex();
+	if (profileNum != ap.at(edgeIndex).getRightEdge().getProfileType())
+		cout<<"UHOH! Our anchor edge/profile links don't match!! :("<<endl;
+	ProfileEdge profileEdge = profileList.at(profileNum).getEdgeList().at(profileEdgeIndex);
+
+	glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
+	glm::vec3 trans = point + profileDir * (a.getProfilePercent() * glm::distance(profileEdge.getEndPoint(), profileEdge.getStartPoint())); 
+	if (DEBUG_ANCHOR) {
+		cout<<"*************************ANCHOR PLAN EDGE************************************"<<endl;
+		cout<<"vs the index stored in edge: "<<a.getFloorPlanIndex()<<" and percent "<<percentEdge<<endl;
+		cout<<"The plan start edge is: "<<start.x<<" "<<start.y<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<" "<<end.z<<endl;
+		cout<<"The starting point along the edge is: "<<point.x<<" "<<point.y<<" "<<point.z<<endl;
+		cout<<"The direction of the edge is: "<<dir.x<<" "<<dir.y<<" "<<dir.z<<endl;
+		cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
+
+		cout<<"*************************ANCHOR PROFILE************************************"<<endl;
+		cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<a.getProfilePercent()<<endl;
+		cout<<"Profile edge start y: "<<profileEdge.getStartPoint().y<<" End: "<<profileEdge.getEndPoint().y<<endl;
+		cout<<"The calced y location of the anchor is: "<<trans.y<<" vs. the orig calc of: "<<a.getHeight()<<endl;
+		cout<<"The direction of the profile is: "<<profileDir.x<<" "<<profileDir.y<<" "<<profileDir.z<<endl;
+	}
+	trans.y = a.getHeight(); 
+	Anchor a2 = Anchor(a); 
+	a2.setRotY(xDeg);
+	a2.setTranslation(trans); 
+	outputAnchors.push(a2);	
+}
 //Looks for anchor events to process
 void SweepPlane::findAnchorEvents(std::vector<Event> e)
 {
@@ -1020,6 +997,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 //Runs through the q and process the events into a new active plan stack
 void SweepPlane::processQueue()
 {
+	cout<<"IN THE BEGINNING OF PROCESS Q"<<endl;
 	std::vector<Event> events;
 	std::vector<Event> anchorEvents;
 
@@ -1028,33 +1006,32 @@ void SweepPlane::processQueue()
 
 	Event firstEvent = q.top();
 	if (firstEvent.getHeight() - theLastHeight < EPSILON) {
-		killTheSweep = true;
-		return;
+		cout<<"KILLING - killed because we are not finding any new heights"<<endl;
+		//sameHeightCount++; 
+		//if (sameHeightCount > 10) {
+			killTheSweep = true;
+			return;
+		//}
 	}
 	theLastHeight = firstEvent.getHeight(); 
 	q.pop();
 	events.push_back(firstEvent);
 
-
-
 	//Get all anchor events less than the first event height
 	bool hasAnchor = false;
-	bool updateAnchorMap = false; 
 	Event firstAnchorEvent;
 	if (anchorQ.size() > 0) {
 		cout<<"Our anchor queue is now size: "<<anchorQ.size()<<endl;
 		firstAnchorEvent = anchorQ.top();
 		anchorQ.pop(); 
 		anchorEvents.push_back(firstAnchorEvent); 
-		if (firstAnchorEvent.getHeight() < firstEvent.getHeight()) hasAnchor = true; 
-		if (firstAnchorEvent.getHeight() - firstEvent.getHeight() < EPSILON) updateAnchorMap = true; 
-		while ((anchorQ.top().getHeight() - firstAnchorEvent.getHeight() < EPSILON) && !anchorQ.empty())
+		if (firstAnchorEvent.getHeight() <= firstEvent.getHeight()) hasAnchor = true; 
+		while ((firstAnchorEvent.getHeight() <= firstEvent.getHeight()) && !anchorQ.empty())
 		{	
 			anchorEvents.push_back(anchorQ.top()); 
 			anchorQ.pop(); 
 		}
 	}
-
 
 	//Get list of all events at the same height 
 	while ((q.top().getHeight() - firstEvent.getHeight() < EPSILON) && !q.empty())
@@ -1082,23 +1059,15 @@ void SweepPlane::processQueue()
 	}
 
 	//Updates the temp active plan to include its new edges 
-	std::map<int, Anchor> temp = updateNewPlanEdges(tempActivePlan); 
-	std::map<int, Anchor> temp2 = thePlan.edgeAnchorMap;
+	updateNewPlanEdges(tempActivePlan); 
 	//Process the intraclusters & the interclusters
 	thePlan = ActivePlan(processClusters(tempActivePlan));
-
-	if (updateAnchorMap) {
-		thePlan.edgeAnchorMap.clear(); 
-		thePlan.edgeAnchorMap = temp;
-	} else {
-		thePlan.edgeAnchorMap = temp2; 
-	}
-
 
 	//Clean out the queue
 	while (!q.empty()){
 		q.pop();
 	}
+	cout<<"AT THE END OF PROCESS Q"<<endl;
 }
 
 void SweepPlane::addAnchorsToFloorPlan()

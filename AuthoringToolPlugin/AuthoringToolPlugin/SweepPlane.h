@@ -64,7 +64,7 @@ public:
 
 	//Queue processing helper functions
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
-	std::map<int, Anchor>  updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
+	void  updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
 	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
 	//std::vector<Corner> processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &tempActivePlan);
 
