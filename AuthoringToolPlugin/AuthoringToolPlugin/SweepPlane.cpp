@@ -298,10 +298,10 @@ void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, M
 		posArray.append(a.getTranslation().z);
 		rotArray.append(a.getRotY()); 
 	}
-	 //posArray.append(10);
-	 //posArray.append(4);
-	 //posArray.append(2);
-	 //rotArray.append(90);
+
+	//Ghetto fix!!
+	if (posArray.length() == 0) posArray.append(0);
+	if (rotArray.length() == 0) rotArray.append(0); 
 
 	cout<<"The lenght of the positions array is: "<<posArray.length()<<endl;
 	for (int i = 0; i < posArray.length(); i++)
@@ -501,7 +501,18 @@ void SweepPlane::updateIntersectionVectors(float height)
 
 		finalVector = glm::normalize(finalVector);
 		finalVector.y = abs(finalVector.y);
+		glm::vec3 finalVector1, finalVector2;
 
+		finalVector1 = glm::cross(normal1,normal2);
+		finalVector2 = glm::cross(normal2,normal1);
+
+		if (finalVector1.y > 0){
+			thePlan.setIntersectionVector(glm::normalize(finalVector1));
+		}
+		else {
+			thePlan.setIntersectionVector(glm::normalize(finalVector2));
+		}
+ 
 		thePlan.setIntersectionVector(finalVector);
 	}
 }
@@ -789,7 +800,6 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 	}
 }
 
-//Finds the anchor translation and rotation based on the current activeplan
 void SweepPlane::calcAnchorTransforms(Anchor &a)
 {
 	if (DEBUG_ANCHOR) {
@@ -801,7 +811,6 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	float height = a.getHeight(); 
 	int id = a.getID(); 
 	if (DEBUG_ANCHOR) {
-		cout<<"Checking map of height "<< a.getHeight()<< " and id " <<a.getID()<<" and plan edge index: "<<a.getFloorPlanIndex()<<endl; 
 		cout<<"PRINTING the plan edges: "<<endl;
 		for (int i = 0; i < ap.size(); i++) {
 			cout<<"Index: "<<ap.at(i).getIndex()<<endl;
@@ -815,20 +824,21 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	glm::vec3 end = ap.at(edgeIndex).getRightEdge().getEndPoint();
 	glm::vec3 dir = glm::normalize(end - start); 
 	glm::vec3 point = start + percentEdge * dir * glm::distance(start, end);  
-	//TODO - is there a better way to do this...not sure if it will always work
-	//glm::vec3 pointOnX(point.x, point.y, 0); 
-	//glm::vec3 angle = glm::atan(pointOnX / point); 
-	glm::vec3 endOnZ0 = glm::vec3(end.x, end.y, 0); 
-	float distEnd = glm::distance(endOnZ0, end); 
-	float lenOnZ0 = glm::length(endOnZ0); 
-	float xDeg = distEnd / (lenOnZ0 + 1.e-100) *180.0f / 3.14159265359f ; 
-
-	//float xDeg = angle.x * 180.0 / 3.14159265359;
-	if (DEBUG_ANCHOR) {
-		cout<<"Checking: "<<a.getHeight()<<" and id: "<<a.getID()<<endl;
-		//cout<<"Xstart: "<<point.x<<" Ystart: "<<point.y<<" Angle x: "<<angle.x<<endl;
-		cout<<"ROT ANGLE = "<<xDeg<<endl; 
+	
+	//Translate the edge to the origin & find the angle from the end to the vector created by projecting the end to z = 0
+	glm::vec3 translatedEdge = end - start; 
+	float angle = (float)atan2(translatedEdge.z, (translatedEdge.y + 1e-15f)) * 180.f / 3.14f;
+	//Handle edge cases where we get 0
+	if (translatedEdge.z == 0)
+	{
+		if (translatedEdge.x < 0) angle = 180; 
 	}
+	if (translatedEdge.x == 0)
+	{
+		if (translatedEdge.z < 0) angle = 90;
+		else angle = -90; 
+	}
+
 	int profileNum = a.getProfileNum(); 
 	int profileEdgeIndex = a.getProfileIndex();
 	if (profileNum != ap.at(edgeIndex).getRightEdge().getProfileType())
@@ -843,7 +853,8 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 		cout<<"The plan start edge is: "<<start.x<<" "<<start.y<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<" "<<end.z<<endl;
 		cout<<"The starting point along the edge is: "<<point.x<<" "<<point.y<<" "<<point.z<<endl;
 		cout<<"The direction of the edge is: "<<dir.x<<" "<<dir.y<<" "<<dir.z<<endl;
-		cout<<"The calced x,z loca of the anchor is: "<<trans.x<<" "<<trans.z<<endl;
+		cout<<"The ROTATION of the edge is: "<<angle<<endl;
+		cout<<"The calced x,y,z loca of the anchor is: "<<trans.x<<" "<<trans.y<<" " <<trans.z<<endl;
 
 		cout<<"*************************ANCHOR PROFILE************************************"<<endl;
 		cout<<"Our profile edge index is: "<<profileEdgeIndex<<" and percent is: "<<a.getProfilePercent()<<endl;
@@ -853,10 +864,11 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	}
 	trans.y = a.getHeight(); 
 	Anchor a2 = Anchor(a); 
-	a2.setRotY(xDeg);
+	a2.setRotY(angle);
 	a2.setTranslation(trans); 
 	outputAnchors.push(a2);	
 }
+
 //Looks for anchor events to process
 void SweepPlane::findAnchorEvents(std::vector<Event> e)
 {

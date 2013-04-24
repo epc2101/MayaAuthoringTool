@@ -78,7 +78,8 @@ public:
 	//For testing
 	ActivePlan getThePlan();
 	void setThePlan(FloorPlan plan);
-
+	std::queue<Anchor> getOutputAnchors() {return outputAnchors;}
+	void popOutputAnchors() { outputAnchors.pop(); }
 	~SweepPlane(void);
 };
 
