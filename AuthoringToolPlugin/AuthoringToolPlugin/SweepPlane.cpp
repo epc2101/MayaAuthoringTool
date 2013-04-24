@@ -757,7 +757,10 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	
 	//Translate the edge to the origin & find the angle from the end to the vector created by projecting the end to z = 0
 	glm::vec3 translatedEdge = end - start; 
-	float angle = (float)atan2(translatedEdge.z, (translatedEdge.y + 1e-15f)) * 180.f / 3.14f;
+	float angle = (float)atan2(translatedEdge.x, -translatedEdge.z) * 180.f / 3.14f;
+	cout<<"FIRST"<<endl;
+			cout<<"The translated x, y, z "<<translatedEdge.x<<" "<<translatedEdge.y<<" "<<translatedEdge.z<<endl;
+		cout<<"The ROTATION of the edge is: "<<angle<<endl;
 	//Handle edge cases where we get 0
 	if (translatedEdge.z == 0)
 	{
@@ -768,6 +771,9 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 		if (translatedEdge.z < 0) angle = 90;
 		else angle = -90; 
 	}
+		cout<<"SECOND - after updates"<<endl;
+		cout<<"The translated x, y, z "<<translatedEdge.x<<" "<<translatedEdge.y<<" "<<translatedEdge.z<<endl;
+		cout<<"The ROTATION of the edge is: "<<angle<<endl;
 
 	int profileNum = a.getProfileNum(); 
 	int profileEdgeIndex = a.getProfileIndex();
@@ -783,6 +789,7 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 		cout<<"The plan start edge is: "<<start.x<<" "<<start.y<<" "<<start.z<<" and the end is "<<end.x<<" "<<end.y<<" "<<end.z<<endl;
 		cout<<"The starting point along the edge is: "<<point.x<<" "<<point.y<<" "<<point.z<<endl;
 		cout<<"The direction of the edge is: "<<dir.x<<" "<<dir.y<<" "<<dir.z<<endl;
+		cout<<"The translated x, y, z "<<translatedEdge.x<<" "<<translatedEdge.y<<" "<<translatedEdge.z<<endl;
 		cout<<"The ROTATION of the edge is: "<<angle<<endl;
 		cout<<"The calced x,y,z loca of the anchor is: "<<trans.x<<" "<<trans.y<<" " <<trans.z<<endl;
 

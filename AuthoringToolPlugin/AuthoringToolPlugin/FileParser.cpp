@@ -186,6 +186,7 @@ void FileParser::parseFile(){
 				{
 					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
 					anchors.at(i).setFloorPlanPercent(1.f - anchors.at(i).getFloorPlanPercent());
+					anchors.at(i).setFloorPlanIndex(plan.getEdgeList().size() - anchors.at(i).getFloorPlanIndex()); 
 				}
 
 			}
