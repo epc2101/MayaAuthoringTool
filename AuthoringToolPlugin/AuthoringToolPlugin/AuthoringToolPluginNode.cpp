@@ -26,7 +26,7 @@
 
 #include <maya/MGlobal.h>
 
-int TESTING = 0;
+int TESTING = 1;
 // You MUST change this to a unique value!!!  The id is a 32bit value used
 // to identify this type of node in the binary file format.  
 //

@@ -74,7 +74,7 @@ void TestingFramework::runTests(){
 	testAnchorRotateSimple();
 	cout<<endl;
 	testAnchorRotateComplex();
->>>>>>> 664535adddc788b280fb8e8274703eecf8d9c25e
+
 	cout<<endl;
 
 	cout<<"\n**************Ending run of tests*********************"<<endl<<endl;
@@ -83,8 +83,8 @@ void TestingFramework::runTests(){
 
 void TestingFramework::testParseCC()
 {
-	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCC.txt");
-	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCC.txt");
+	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCC.txt");
+	//FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCC.txt");
 	parser.parseFile();
 	cout<<"From Clockwise File: ";
 	if (!parser.testOrder(parser.getFloorPlan().getEdgeList())){
@@ -140,8 +140,8 @@ void TestingFramework::testParseCC()
 }
 void TestingFramework::testParseCCW()
 {
-	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCCW.txt");
-	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCCW.txt");
+	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testCCW.txt");
+	//FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCCW.txt");
 	parser.parseFile();
 
 	//Testing whether CCW is converted to clockwise
@@ -177,8 +177,8 @@ void TestingFramework::testParseCCW()
 
 void TestingFramework::testVectorsSquareOneLevel()
 {
-	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testSingleLevelVectors.txt");
-	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\testSingleLevelVectors.txt");
+	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testSingleLevelVectors.txt");
+	//FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\testSingleLevelVectors.txt");
 	parser.parseFile();
 	SweepPlane plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
 	plane.setThePlan(parser.getFloorPlan());

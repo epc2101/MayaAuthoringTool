@@ -435,101 +435,15 @@ void SweepPlane::updateIntersectionVectors(float height)
 		}
 		ProfileEdge secondProfileEdge = currentProfileFromHeight.at(secondEdge.getProfileType());
 
-		//Calculate the normal of the first edge.
-		glm::vec3 normal1, normal2, finalVector;
+		
 
 		glm::vec3 edgeVec1 = firstEdge.getEndPoint()-firstEdge.getStartPoint();
 		glm::vec3 profVec1 = firstProfileEdge.getEndPoint()-firstProfileEdge.getStartPoint();
-		
-		glm::mat4 tempMat = glm::mat4(1.0);
-		glm::mat4 firstRot = glm::rotate(tempMat,-90.0f,glm::vec3(0,1,0));
-
-		glm::vec4 rotVec = glm::vec4(edgeVec1,1.0);
-		rotVec = firstRot * rotVec;
-
-		glm::vec3 newVector = glm::vec3(rotVec);
-		newVector = glm::normalize(newVector);
-		profVec1 = glm::vec3(newVector.x*profVec1.x,profVec1.y,newVector.z*profVec1.x);
-		
-		normal1 = glm::cross(edgeVec1, profVec1);
-		normal1 = glm::normalize(normal1);
-		
-		if (DEBUG == 1) {
-			cout<<endl;
-			cout<<"New Vector 1 is "<<newVector.x<<" "<<newVector.y<<" "<<newVector.z<<endl;
-			cout<<"First FloorPlan Edge Vector is "<<edgeVec1.x<<" "<<edgeVec1.y<<" "<<edgeVec1.z<<endl;
-			cout<<"First Profile Edge Vectpr is "<<profVec1.x<<" "<<profVec1.y<<" "<<profVec1.z<<endl;
-			cout<<"First Normal is "<<normal1.x<<" "<<normal1.y<<" "<<normal1.z<<endl;
-			cout<<endl;
-		}
-
-		//Calculate normal of the second edge
+			
 		glm::vec3 edgeVec2 = secondEdge.getEndPoint()-secondEdge.getStartPoint();
 		glm::vec3 profVec2 = secondProfileEdge.getEndPoint()-secondProfileEdge.getStartPoint();
-
-		firstRot = glm::rotate(tempMat,-90.0f,glm::vec3(0,1,0));
-		rotVec = glm::vec4(edgeVec2,1.0);
-		rotVec = firstRot * rotVec;
-
-		newVector = glm::vec3(rotVec);
-		newVector = glm::normalize(newVector);
-
-		cout<<"New Vector Of Second Edge is is "<<newVector.x<<" "<<newVector.y<<" "<<newVector.z<<endl;
-
-		profVec2 = glm::vec3(newVector.x*profVec2.x,profVec2.y,newVector.z*profVec2.x);
-
-		normal2 = glm::cross(edgeVec2, profVec2);
-		normal2 = glm::normalize(normal2);
-
-		//What if the normals were reversed?  Or at least one of them
-		
-		//This snippet of code should handle making sure the final normal always points up
-		
-
-
-		//finalVector = glm::cross(normal1,normal2);
-		
-
-
-		if (DEBUG == 1) {
-			cout<<endl;
-			cout<<"Second FloorPlan Edge Vector is "<<edgeVec2.x<<" "<<edgeVec2.y<<" "<<edgeVec2.z<<endl;
-			cout<<"Second Profile Edge Vectpr is "<<profVec2.x<<" "<<profVec2.y<<" "<<profVec2.z<<endl;
-			cout<<"Second Normal is "<<normal2.x<<" "<<normal2.y<<" "<<normal2.z<<endl;
-			cout<<"Final vector is "<<finalVector.x<<" "<<finalVector.y<<" "<<finalVector.z<<endl;
-			cout<<endl;
-		}
-		//This is a hack that I'm going to attemp
-		
-
-
-
-		glm::vec3 finalVector1, finalVector2;
-
-		finalVector1 = glm::cross(normal1,normal2);
-		finalVector2 = glm::cross(normal2,normal1);
-
-
-		if (finalVector1.y > 0){
-			 thePlan.setIntersectionVector(glm::normalize(finalVector1));
-			
-		}
-		else {
-			thePlan.setIntersectionVector(glm::normalize(finalVector2));
-		}
-
-		//thePlan.setIntersectionVector(finalVector);
-=======
-
-		if (finalVector1.y > 0){
-			thePlan.setIntersectionVector(glm::normalize(finalVector1));
-		}
-		else {
-			thePlan.setIntersectionVector(glm::normalize(finalVector2));
-		}
  
-		thePlan.setIntersectionVector(finalVector);
->>>>>>> 664535adddc788b280fb8e8274703eecf8d9c25e
+		thePlan.setIntersectionVector(generateIntersection(edgeVec1,edgeVec2,profVec1,profVec2));
 	}
 }
 
