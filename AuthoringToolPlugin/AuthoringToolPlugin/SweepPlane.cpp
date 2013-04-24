@@ -483,8 +483,11 @@ void SweepPlane::updateIntersectionVectors(float height)
 
 		//What if the normals were reversed?  Or at least one of them
 		
+		//This snippet of code should handle making sure the final normal always points up
+		
 
-		finalVector = glm::cross(normal1,normal2);
+
+		//finalVector = glm::cross(normal1,normal2);
 		
 
 
@@ -499,10 +502,25 @@ void SweepPlane::updateIntersectionVectors(float height)
 		//This is a hack that I'm going to attemp
 		
 
-		finalVector = glm::normalize(finalVector);
-		finalVector.y = abs(finalVector.y);
+		//finalVector = glm::normalize(finalVector);
+		//finalVector.y = abs(finalVector.y);
 
-		thePlan.setIntersectionVector(finalVector);
+
+
+		glm::vec3 finalVector1, finalVector2;
+
+		finalVector1 = glm::cross(normal1,normal2);
+		finalVector2 = glm::cross(normal2,normal1);
+
+		if (finalVector1.y > 0){
+			 thePlan.setIntersectionVector(glm::normalize(finalVector1));
+			
+		}
+		else {
+			thePlan.setIntersectionVector(glm::normalize(finalVector2));
+		}
+
+		//thePlan.setIntersectionVector(finalVector);
 	}
 }
 
@@ -1164,4 +1182,45 @@ ActivePlan SweepPlane::getThePlan()
 void SweepPlane::setThePlan(FloorPlan plan)
 {
 	thePlan = ActivePlan(plan);
+}
+
+glm::vec3 SweepPlane::rotateVector(glm::vec3 testVec)
+{
+	glm::mat4 tempMat = glm::mat4(1.0);
+	glm::mat4 firstRot = glm::rotate(tempMat,-90.0f,glm::vec3(0,1,0));
+
+	glm::vec4 rotVec = glm::vec4(testVec,1.0);
+	rotVec = firstRot * rotVec;
+
+	glm::vec3 newVector = glm::vec3(rotVec);
+	newVector = glm::normalize(newVector);
+
+	//cout<<"The new rotated vector is "<<newVector.x<<" "<<newVector.y<<" "<<newVector.z<<endl;
+
+	return newVector;
+}
+
+glm::vec3 SweepPlane::generateIntersection(glm::vec3 planEdge1, glm::vec3 planEdge2, glm::vec3 profileEdge1, glm::vec3 profileEdge2)
+{
+	//Get the perpendicular edge of each edge on the corner
+	glm::vec3 edgeRot1 = rotateVector(planEdge1);
+	glm::vec3 edgeRot2 = rotateVector(planEdge2);
+
+	//Now apply both rotations to profiles
+	glm::vec3 newProf1(edgeRot1.x * profileEdge1.x, profileEdge1.y, edgeRot1.z*profileEdge1.x);
+	glm::vec3 newProf2(edgeRot2.x * profileEdge2.x, profileEdge2.y, edgeRot2.z*profileEdge2.x);
+
+	//Get the normal of both
+	glm::vec3 normal1 = glm::cross(planEdge1,newProf1);
+	glm::vec3 normal2 = glm::cross(planEdge2,newProf2);
+
+	glm::vec3 final1 = glm::cross(normal1,normal2);
+	glm::vec3 final2 = glm::cross(normal2,normal1);
+
+	if (final1.y > 0){
+		return glm::normalize(final1);
+	}
+	else {
+		return glm::normalize(final2);
+	}
 }

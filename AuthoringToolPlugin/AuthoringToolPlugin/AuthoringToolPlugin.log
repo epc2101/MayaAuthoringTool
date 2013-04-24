@@ -1,9 +1,9 @@
-﻿Build started 4/23/2013 2:55:43 PM.
-     1>Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
+﻿Build started 4/24/2013 3:29:21 PM.
+     1>Project "C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Touching "AuthoringToolPlugin.unsuccessfulbuild".
+         Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt SweepPlane.cpp /GR /GS /EHsc /I "."  /c 
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt SweepPlane.cpp TestingFramework.cpp /GR /GS /EHsc /I "."  /c 
          SweepPlane.cpp
      1>SweepPlane.cpp(8): warning C4305: 'initializing' : truncation from 'double' to 'float'
      1>SweepPlane.cpp(9): warning C4305: 'initializing' : truncation from 'double' to 'float'
@@ -18,11 +18,14 @@
      1>SweepPlane.cpp(307): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(309): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(325): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(598): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(626): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(740): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(824): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+     1>SweepPlane.cpp(616): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(644): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(758): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(842): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+         TestingFramework.cpp
+     1>TestingFramework.cpp(3): warning C4305: 'initializing' : truncation from 'double' to 'float'
+         Generating Code...
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"Release_2012\AuthoringToolPlugin.mll" /NOLOGO /LIBPATH:"C:\Program Files\Autodesk\Maya2013\lib" Foundation.lib OpenMaya.lib OpenMayaUI.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"AuthoringToolPlugin.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"Release_2012/AuthoringToolPlugin.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Release_2012/AuthoringToolPlugin.lib" /MACHINE:X64 /DLL ActivePlan.obj
@@ -47,14 +50,14 @@
          SweepPlane.obj
          TestingFramework.obj /subsystem:windows /incremental:no /export:initializePlugin /export:uninitializePlugin 
             Creating library Release_2012/AuthoringToolPlugin.lib and object Release_2012/AuthoringToolPlugin.exp
-         AuthoringToolPlugin.vcxproj -> C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll
+         AuthoringToolPlugin.vcxproj -> C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll
        Manifest:
          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"Release_2012\AuthoringToolPlugin.mll;#2" /manifest AuthoringToolPlugin.dll.intermediate.manifest
        FinalizeBuildStatus:
          Deleting file "AuthoringToolPlugin.unsuccessfulbuild".
          Touching "AuthoringToolPlugin.lastbuildstate".
-     1>Done Building Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:03.92
+Time Elapsed 00:00:06.84

@@ -58,6 +58,10 @@ void TestingFramework::runTests(){
 	testSingleProfileEdge();
 	cout<<endl;
 
+	testVectorRotation();
+	cout<<"Testing arbitrary corner intersection vectors"<<endl;
+	testArbitraryCornerVector();
+
 	cout<<"Testing Intersection Vectors"<<endl;
 	testVectorsSquareOneLevel();
 	cout<<endl;
@@ -72,7 +76,7 @@ void TestingFramework::testParseCC()
 	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testCC.txt");
 	parser.parseFile();
 	cout<<"From Clockwise File: ";
-	if (parser.testOrder(parser.getFloorPlan().getEdgeList())){
+	if (!parser.testOrder(parser.getFloorPlan().getEdgeList())){
 		cout<<"PASSED"<<endl;
 	}
 	else{
@@ -131,7 +135,7 @@ void TestingFramework::testParseCCW()
 
 	//Testing whether CCW is converted to clockwise
 	cout<<"Testing CCW File That Should be Converted to CW: ";
-	if (parser.testOrder(parser.getFloorPlan().getEdgeList())){
+	if (!parser.testOrder(parser.getFloorPlan().getEdgeList())){
 		cout<<"PASSED"<<endl;
 	}
 	else {
@@ -179,13 +183,77 @@ void TestingFramework::testVectorsSquareOneLevel()
 	} else {
 		cout<<"FAILED"<<endl;
 	}
+
+	cout<<"Testing Second Level Vectors (ANGLED): ";
+	plane.updateIntersectionVectors(2.0);
+	
 }
+
+//Test rotating vectors
+void TestingFramework::testVectorRotation()
+{
+	cout<<endl<<"Testing vector rotations"<<endl<<endl;
+	SweepPlane plane = SweepPlane();
+	glm::vec3 testVec1(1,0,0);
+	glm::vec3 correctVec1(0,0,1);
+	glm::vec3 newVec1 = plane.rotateVector(testVec1);
+	
+	cout<<"Testing CCW Rotation of 2D Vector 1,0: "<<endl;
+	if (assertVectorEquals(newVec1,correctVec1)){
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+	}
+
+	cout<<"Testing CCW Rotation of 2D Vector 1,1: "<<endl;
+
+	glm::vec3 testVec2(1,0,1);
+	glm::vec3 correctVec2(-.707,0,.707);
+	glm::vec3 newVec2 = plane.rotateVector(testVec2);
+
+	if (assertVectorEquals(newVec2,correctVec2)){
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+	}
+
+	cout<<endl;
+
+}
+
+void TestingFramework::testArbitraryCornerVector()
+{
+	//Start with a simpler case - the 1x1 square with 2 sided vector
+	SweepPlane plane;
+	glm::vec3 edge1(1,0,0), edge2(0,0,-1), prof1(1,5,0), prof2(2,3,0);
+
+	cout<<endl<<"Testing 1 corner of  1x1 square with same profile: ";
+	glm::vec3 testVec1 = plane.generateIntersection(edge1, edge2, prof1, prof1);
+	glm::vec3 compareVec1(0.19245,0.96225,0.19245);
+	if (assertVectorEquals(testVec1,compareVec1)){
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+	}
+	cout<<endl;
+
+	cout<<"Testing 1 corner of 1x1 square with 2 different profiles: ";
+	glm::vec3 testVec2 = plane.generateIntersection(edge1, edge2, prof1, prof2);
+	glm::vec3 compareVec2(0.547126,0.820763,0.164153);
+	if (assertVectorEquals(testVec2,compareVec2)){
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+	}
+	cout<<endl;
+}
+
 
 //Test getting profile edges
 void TestingFramework::testSingleProfileEdge()
 {
-	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testGetSingleProfile.txt");
-	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testGetSingleProfile.txt");
+	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testGetSingleProfile.txt");
+	//FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testGetSingleProfile.txt");
 	parser.parseFile();
 	SweepPlane plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
 

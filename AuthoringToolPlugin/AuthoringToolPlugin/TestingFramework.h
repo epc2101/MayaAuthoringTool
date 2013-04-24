@@ -18,7 +18,9 @@ public:
 
 	//Test the "intersection vectors generated at each corner
 	void testVectorsSquareOneLevel();
-
+	void testVectorRotation();
+	void testRotatedProfile();
+	void testArbitraryCornerVector();
 
 	//Test getting profile edges
 	void testSingleProfileEdge();

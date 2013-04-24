@@ -62,7 +62,7 @@ void FileParser::parseFile(){
 			//Test the ordering of the plan edges - if CW we are good, otherweise we need to flip
 			orderIsCW = testOrder(FloorPlanEdges);
 			cout<<"IS counter clockwise: "<<orderIsCW<<endl;
-			if (orderIsCW){
+			if (!orderIsCW){
 				plan = FloorPlan(FloorPlanEdges, FloorPlanEdges.size(), FloorPlanProfile);
 			}
 			else {
@@ -183,7 +183,7 @@ void FileParser::parseFile(){
 				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
 
 			}
-			if(!orderIsCW) {
+			if(orderIsCW) {
 				for (int i = 0; i < anchors.size(); i++)
 				{
 					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
@@ -214,6 +214,7 @@ bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
 		if (testNum == 0) {
 			//Try running around the edges and seeing whether the cross product is pos/neg
 			cout<<"Uhoh! We got 0"<<endl;
+			return false;
 		}
 		cout<<"IS CLOCKWISE"<<endl;
 		return true;

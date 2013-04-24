@@ -78,6 +78,8 @@ public:
 	//For testing
 	ActivePlan getThePlan();
 	void setThePlan(FloorPlan plan);
+	glm::vec3 rotateVector(glm::vec3 testVec);
+	glm::vec3 generateIntersection(glm::vec3 planEdge1, glm::vec3 planEdge2, glm::vec3 profileEdge1, glm::vec3 profileEdge2);
 
 	~SweepPlane(void);
 };
