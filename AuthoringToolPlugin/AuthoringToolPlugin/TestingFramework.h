@@ -28,7 +28,8 @@ public:
 	//Test that a horizontal edge was grabbed from a profile at a certain height
 
 	//Test that anchors are correctly rotated 
-	void testAnchorRotate();
+	void testAnchorRotateSimple();
+	void testAnchorRotateComplex();
 
 	//Test that anchors are correctly translated
 	void testAnchorTranslate(); 

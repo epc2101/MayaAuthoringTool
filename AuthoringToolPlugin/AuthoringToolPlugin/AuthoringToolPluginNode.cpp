@@ -26,6 +26,7 @@
 
 #include <maya/MGlobal.h>
 
+int TESTING = 0;
 // You MUST change this to a unique value!!!  The id is a 32bit value used
 // to identify this type of node in the binary file format.  
 //
@@ -79,7 +80,7 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 		//This section is a lot longer than I would like.  I'll look at refactoring this and moving it to other methods.
 		else
 		{
-			int TESTING = 1;
+
 			//These values will be used to construct the FloorPlan object
 			int numberOfPoints = numberOfPointsHandle.asInt();
 			MString thefileName = fileNameHandle.asString();

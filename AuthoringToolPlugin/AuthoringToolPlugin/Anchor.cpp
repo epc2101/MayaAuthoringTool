@@ -1,6 +1,6 @@
 #include "Anchor.h"
 
-int A_DEBUG = 1;
+int A_DEBUG = 0;
 Anchor::Anchor(void)
 {
 }

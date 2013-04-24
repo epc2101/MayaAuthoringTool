@@ -58,12 +58,23 @@ void TestingFramework::runTests(){
 	testSingleProfileEdge();
 	cout<<endl;
 
+
 	testVectorRotation();
 	cout<<"Testing arbitrary corner intersection vectors"<<endl;
 	testArbitraryCornerVector();
 
 	cout<<"Testing Intersection Vectors"<<endl;
 	testVectorsSquareOneLevel();
+
+	//cout<<"Testing Intersection Vectors"<<endl;
+	//testVectorsSquareOneLevel();
+	//cout<<endl;
+
+	cout<<"Testing anchor rotations"<<endl;
+	testAnchorRotateSimple();
+	cout<<endl;
+	testAnchorRotateComplex();
+>>>>>>> 664535adddc788b280fb8e8274703eecf8d9c25e
 	cout<<endl;
 
 	cout<<"\n**************Ending run of tests*********************"<<endl<<endl;
@@ -166,7 +177,8 @@ void TestingFramework::testParseCCW()
 
 void TestingFramework::testVectorsSquareOneLevel()
 {
-	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testSingleLevelVectors.txt");
+	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testSingleLevelVectors.txt");
+	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\testSingleLevelVectors.txt");
 	parser.parseFile();
 	SweepPlane plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
 	plane.setThePlan(parser.getFloorPlan());
@@ -252,6 +264,9 @@ void TestingFramework::testArbitraryCornerVector()
 //Test getting profile edges
 void TestingFramework::testSingleProfileEdge()
 {
+
+	
+
 	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testGetSingleProfile.txt");
 	//FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\MayaAuthoringTool\\testGetSingleProfile.txt");
 	parser.parseFile();
@@ -280,8 +295,197 @@ void TestingFramework::testSingleProfileEdge()
 
 
 //Test anchor rotations
-void TestingFramework::testAnchorRotate()
+void TestingFramework::testAnchorRotateSimple()
 {
+	cout<<"#1:  4 anchors on cube.  CounterClockwise."<<endl;
+	FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testAnchorsSquareRotations.txt");
+	//FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\testAnchorsSquareRotations.txt");
 
+	parser.parseFile();
+	SweepPlane plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
+	plane.setThePlan(parser.getFloorPlan());
+	plane.calcAnchorTransforms(parser.getAnchors().at(0)); 
+	//*********************************
+	//EDGE 1
+	cout<<"\t----Testing edge index 0---- "<<endl;
+	Anchor a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors();  
+	if (a.getFloorPlanIndex() == 0) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 0, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == -90) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected -90, but got "<<a.getRotY()<<endl;
+	}
+	//*********************************
+	//EDGE 2
+	plane.calcAnchorTransforms(parser.getAnchors().at(1)); 
+	cout<<"\t----Testing edge index 1---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors(); 
+	cout<<"THE SIZE OF THE OUTPUT ANCHORS: "<<plane.getOutputAnchors().size()<<endl;
+	if (a.getFloorPlanIndex() == 1) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 1, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == 0) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 0, but got "<<a.getRotY()<<endl;
+	}
+
+	//*********************************
+	//EDGE 3
+	plane.calcAnchorTransforms(parser.getAnchors().at(2)); 
+	cout<<"\t----Testing edge index 2---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors(); 
+	cout<<"THE SIZE OF THE OUTPUT ANCHORS: "<<plane.getOutputAnchors().size()<<endl;
+	if (a.getFloorPlanIndex() == 2) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 2, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == 90) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 90, but got "<<a.getRotY()<<endl;
+	}
+
+	//*********************************
+	//EDGE 4
+	plane.calcAnchorTransforms(parser.getAnchors().at(3)); 
+	cout<<"\t----Testing edge index 3---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors();  
+	cout<<"THE SIZE OF THE OUTPUT ANCHORS: "<<plane.getOutputAnchors().size()<<endl;
+	if (a.getFloorPlanIndex() == 3) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 3, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == 180) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 0, but got "<<a.getRotY()<<endl;
+	}
+
+	//***************************************************************************************
+	cout<<"#2:  4 anchors on cube.  Clockwise."<<endl;
+	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testAnchorsSquareRotations.txt");
+	parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\testAnchorsSquareRotationsClockwise.txt");
+	parser.parseFile();
+	plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
+	plane.setThePlan(parser.getFloorPlan());
+	plane.calcAnchorTransforms(parser.getAnchors().at(0)); 
+	//*********************************
+	//EDGE 1
+	cout<<"\t----Testing edge index 0---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors();  
+	if (a.getFloorPlanIndex() == 0) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 0, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == 0) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 0, but got "<<a.getRotY()<<endl;
+	}
+	//*********************************
+	//EDGE 2
+	plane.calcAnchorTransforms(parser.getAnchors().at(1)); 
+	cout<<"\t----Testing edge index 1---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors(); 
+	cout<<"THE SIZE OF THE OUTPUT ANCHORS: "<<plane.getOutputAnchors().size()<<endl;
+	if (a.getFloorPlanIndex() == 1) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 1, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == 90) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 90, but got "<<a.getRotY()<<endl;
+	}
+
+	//*********************************
+	//EDGE 3
+	plane.calcAnchorTransforms(parser.getAnchors().at(2)); 
+	cout<<"\t----Testing edge index 2---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors(); 
+	cout<<"THE SIZE OF THE OUTPUT ANCHORS: "<<plane.getOutputAnchors().size()<<endl;
+	if (a.getFloorPlanIndex() == 2) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 2, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == 180) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 180, but got "<<a.getRotY()<<endl;
+	}
+
+	//*********************************
+	//EDGE 4
+	plane.calcAnchorTransforms(parser.getAnchors().at(3)); 
+	cout<<"\t----Testing edge index 3---- "<<endl;
+	a = plane.getOutputAnchors().front(); 
+	plane.popOutputAnchors();  
+	cout<<"THE SIZE OF THE OUTPUT ANCHORS: "<<plane.getOutputAnchors().size()<<endl;
+	if (a.getFloorPlanIndex() == 3) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected 3, but got "<<a.getFloorPlanIndex()<<endl;
+	}
+	cout<<"\tTesting rotation"<<endl;
+	if (a.getRotY() == -90) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected -90, but got "<<a.getRotY()<<endl;
+	}
+}
+
+void TestingFramework::testAnchorRotateComplex() 
+{
+	cout<<"***TESTING MORE COMPLEX ANCHOR ROTATIONS***"<<endl;
+	cout<<"#3:  4 anchors on cube.  CounterClockwise."<<endl;
+	//FileParser parser = FileParser("C:\\Users\\Greg\\Documents\\GitHub\\MayaAuthoringTool\\testAnchorsSquareRotations.txt");
+	FileParser parser = FileParser("C:\\Users\\Beth\\MayaAuthoringTool\\testAnchorsSquareRotations.txt");
+	parser.parseFile();
+	SweepPlane plane = SweepPlane(parser.getFloorPlan(), parser.getProfiles(), parser.getAnchors());
+	plane.setThePlan(parser.getFloorPlan());
+	plane.calcAnchorTransforms(parser.getAnchors().at(0)); 
+	//*********************************
 
 }
