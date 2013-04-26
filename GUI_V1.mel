@@ -614,8 +614,8 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     int $numPts = size($fpPoints);    
     setAttr ProTrusionNode1.numPoints $numPts;
     //TODO - make dynamic again
-    setAttr -type "string" ProTrusionNode1.fileName $fileName;
-    //setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionAnchors.txt";
+    //setAttr -type "string" ProTrusionNode1.fileName $fileName;
+    setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionAnchors.txt";
     connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
     //For each anchor -> link data from anchor node to the transform node, link to imported obj  file
     //TODO - change when done testing to bring in
@@ -670,7 +670,9 @@ testUpdateAnchor();
     connectAttr ProTrusionNode1.outputMesh $fpHasAnchor;*/
     
  
-    //Draw mesh
+    //Make sure all normals are facing out
+    select -r transformNode;
+    polyNormal -normalMode 2 -userNormalMode 0 -ch 1 transformNode;
 }
 
 global proc testUpdateAnchor()

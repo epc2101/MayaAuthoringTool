@@ -10,7 +10,7 @@ float RADIUS =  0.000001;
 
 
 int DEBUG = 0; 
-int DEBUG_ANCHOR = 1; 
+int DEBUG_ANCHOR = 0; 
 int DEBUG_PROFILE = 0; 
 int DEBUG_FLOORPLAN = 0; 
 
@@ -744,41 +744,36 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 		cout<<"PRINTING the plan edges: "<<endl;
 		for (int i = 0; i < ap.size(); i++) {
 			cout<<"Index: "<<ap.at(i).getIndex()<<endl;
-			cout<<"Start: "<<ap.at(i).getRightEdge().getStartPoint().x<<" "<<ap.at(i).getRightEdge().getStartPoint().z<<" End: "<<ap.at(i).getRightEdge().getEndPoint().x<<" "<<ap.at(i).getRightEdge().getEndPoint().z<<endl;
+			//cout<<"Start: "<<ap.at(i).getRightEdge().getStartPoint().x<<" "<<ap.at(i).getRightEdge().getStartPoint().z<<" End: "<<ap.at(i).getRightEdge().getEndPoint().x<<" "<<ap.at(i).getRightEdge().getEndPoint().z<<endl;
+			cout<<"LEFT - Start: "<<ap.at(i).getLeftEdge().getStartPoint().x<<" "<<ap.at(i).getLeftEdge().getStartPoint().z<<" End: "<<ap.at(i).getLeftEdge().getEndPoint().x<<" "<<ap.at(i).getLeftEdge().getEndPoint().z<<endl;
+
 		}
 	}
 	int edgeIndex = a.getFloorPlanIndex(); 
 	float percentEdge = a.getFloorPlanPercent();
 	//get the edge from the active plan and calc the angle from the point to the origin
-	glm::vec3 start = ap.at(edgeIndex).getRightEdge().getStartPoint();
-	glm::vec3 end = ap.at(edgeIndex).getRightEdge().getEndPoint();
+	glm::vec3 start = ap.at(edgeIndex).getLeftEdge().getStartPoint();
+	glm::vec3 end = ap.at(edgeIndex).getLeftEdge().getEndPoint();
 	glm::vec3 dir = glm::normalize(end - start); 
 	glm::vec3 point = start + percentEdge * dir * glm::distance(start, end);  
 	
 	//Translate the edge to the origin & find the angle from the end to the vector created by projecting the end to z = 0
-	glm::vec3 translatedEdge = end - start; 
-	float angle = (float)atan2(translatedEdge.x, -translatedEdge.z) * 180.f / 3.14f;
-	cout<<"FIRST"<<endl;
-			cout<<"The translated x, y, z "<<translatedEdge.x<<" "<<translatedEdge.y<<" "<<translatedEdge.z<<endl;
-		cout<<"The ROTATION of the edge is: "<<angle<<endl;
-	//Handle edge cases where we get 0
-	if (translatedEdge.z == 0)
-	{
-		if (translatedEdge.x < 0) angle = 180; 
-	}
-	if (translatedEdge.x == 0)
-	{
-		if (translatedEdge.z < 0) angle = 90;
-		else angle = -90; 
-	}
-		cout<<"SECOND - after updates"<<endl;
-		cout<<"The translated x, y, z "<<translatedEdge.x<<" "<<translatedEdge.y<<" "<<translatedEdge.z<<endl;
-		cout<<"The ROTATION of the edge is: "<<angle<<endl;
+	glm::vec3 translatedEdge = glm::normalize(end - start); 
+	glm::vec3 anchorDirO(1, 0, 0); 
+	float theta = glm::dot(translatedEdge, anchorDirO) / (glm::length(translatedEdge) * glm::length(anchorDirO));
+	float angle; 
+	angle = acos(theta) * 180.0f / 3.14159265359f;
 
+	/*Since the anchors are always facing in pos z direction, 
+	we must adjust the angle based on the direction of the edge so it faces outward*/
+	//TODO - this will need to be changed if we start considering cw/ccw based on maya's system (looking from top view we are act going clockwise now)
+	if (translatedEdge.x == 1) angle = 180;
+	else if (translatedEdge.x == -1) angle = 0; 
+	else if (translatedEdge.z < 0 ) angle -= 180; 
+	else if (translatedEdge.z > 0 ) angle = -1.f * angle + 180;
+	
 	int profileNum = a.getProfileNum(); 
 	int profileEdgeIndex = a.getProfileIndex();
-	if (profileNum != ap.at(edgeIndex).getRightEdge().getProfileType())
-		cout<<"UHOH! Our anchor edge/profile links don't match!! :("<<endl;
 	ProfileEdge profileEdge = profileList.at(profileNum).getEdgeList().at(profileEdgeIndex);
 
 	glm::vec3 profileDir = glm::normalize(profileEdge.getEndPoint() - profileEdge.getStartPoint()); 
@@ -1045,13 +1040,6 @@ void SweepPlane::buildIt()
 	thePlan = ActivePlan(plan);
 
 	addAnchorsToFloorPlan();
-	if (DEBUG == 0) {
-		cout<<"THE CURRENT SIZE OF THE ANCHORS ARE: "<<thePlan.edgeAnchorMap.size()<<endl;
-		cout<<"The value of the key should be: "<<thePlan.edgeAnchorMap.at(0).getFloorPlanIndex()<<endl;
-		//for(int i = 0; i<thePlan.getActivePlan().size(); i++){
-		//	cout<<"In START OF BUILDIT: The index for each edge is "<<thePlan.getActivePlan().at(i).getIndex()<<endl;
-		//}
-	}
 	activePlanStack.push(thePlan);
 	activePlanQueue.push(thePlan);
 	float height = thePlan.getActivePlan().at(0).getPt().y;;
@@ -1060,6 +1048,7 @@ void SweepPlane::buildIt()
 	fillQueueWithEdgeDirectionChanges(height);
 	fillQueueWithAnchors(height);
 
+	cout<<"AFTER 1st run"<<endl;
 	if (DEBUG == 1) {
 		cout<<"Supposedly filled with events"<<endl;
 		cout<<"The queue size is "<<q.size()<<endl;

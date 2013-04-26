@@ -69,11 +69,24 @@ void FileParser::parseFile(){
 				std::vector<PlanEdge> tempPlanEdge;
 				std::vector<int> tempProfileList;
 
+				int j = 0; 
 				while(!FloorPlanEdges.empty()){
-					PlanEdge temp = FloorPlanEdges.back();
-					FloorPlanEdges.pop_back();
-					int tempNum = FloorPlanProfile.back();
-					FloorPlanProfile.pop_back();
+					PlanEdge temp;
+					int tempNum; 
+					if (j == 0) {
+						temp = FloorPlanEdges.front(); 	
+					    FloorPlanEdges.erase(FloorPlanEdges.begin());
+						tempNum = FloorPlanProfile.front();
+						FloorPlanProfile.erase(FloorPlanProfile.begin()); 
+					} else {
+						temp = FloorPlanEdges.back();
+						FloorPlanEdges.pop_back();
+						tempNum = FloorPlanProfile.back();
+						FloorPlanProfile.pop_back();
+					}
+					j++;
+					//cout<<"First edge to be popped: "<<temp2.getStartPoint().x<<" "<<temp2.getStartPoint().z<<" End: "<<temp2.getEndPoint().x<<" "<<temp2.getEndPoint().z<<endl;
+
 
 					glm::vec3 newStart, newEnd;
 					newStart = temp.getEndPoint();
@@ -184,9 +197,12 @@ void FileParser::parseFile(){
 			if(orderIsCW) {
 				for (int i = 0; i < anchors.size(); i++)
 				{
-					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
+					//cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
 					anchors.at(i).setFloorPlanPercent(1.f - anchors.at(i).getFloorPlanPercent());
-					anchors.at(i).setFloorPlanIndex(plan.getEdgeList().size() - anchors.at(i).getFloorPlanIndex()); 
+					//cout<<"The old index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
+					if (anchors.at(i).getFloorPlanIndex() != 0) 
+						anchors.at(i).setFloorPlanIndex(plan.getEdgeList().size() - anchors.at(i).getFloorPlanIndex()); 
+					//cout<<"The new index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
 				}
 
 			}

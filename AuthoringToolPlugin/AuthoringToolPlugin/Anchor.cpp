@@ -35,7 +35,7 @@ int Anchor::getIndex()
 
 void Anchor::setFloorPlanIndex(int i)
 {
-	index = i; 
+	floorPlanIndex = i; 
 }
 float Anchor::getFloorPlanPercent()
 {
