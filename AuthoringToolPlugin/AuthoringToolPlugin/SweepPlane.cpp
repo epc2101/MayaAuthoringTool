@@ -349,7 +349,7 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 					currentProfileFromHeight.push_back(edge);
 					prof.getEdgesUsed().at(j) = true;
 					break;
-				}
+				} 
 			} 
 			
 			if (height >= edge.getStartPoint().y && height < (edge.getEndPoint().y)){
@@ -381,6 +381,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 {
 	std::vector<ProfileEdge> currentProfileFromHeight = getProfileEdgesAtHeight(height);
 	std::vector<bool> aboveTheProfile;
+	aboveTheProfile.resize(0);
 	for(int i = 0; i<currentProfileFromHeight.size(); i++){
 		if (height > currentProfileFromHeight.at(i).getEndPoint().y){
 			aboveTheProfile.push_back(true);
@@ -461,6 +462,9 @@ void SweepPlane::fillQueueWithIntersections(float height)
 	//Compare each corner to all the other ones and determine the possible intersection events
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 		for (int j = 1; j < thePlan.getActivePlan().size(); j++) {
+
+			//We skip if the vector is being compared to itself
+			if (i == j) {continue;}
 			glm::vec3 firstVec, secondVec;
 			Corner firstCorner, secondCorner;
 			//We will calculate the intersection with the corner and its next neighbor - need to handle the end
@@ -535,10 +539,10 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 			continue;
 		}
 		
-		float difference = profEdge.getEndPoint().y - tempCorner.getPt().y;
+		float difference = abs(profEdge.getEndPoint().y - tempCorner.getPt().y);
 		float multiply = difference/(cornerVec.y+pow(10.0,-6.0));
 		glm::vec3 newPoint = tempCorner.getPt()+(cornerVec*multiply);
-		newPoint.y = abs(newPoint.y);
+		//newPoint.y = abs(newPoint.y);
 		
 		std::vector<Corner> parentCorner;
 		parentCorner.push_back(tempCorner);
@@ -670,13 +674,16 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 				Corner parentCorner = thePlan.getActivePlan().at(i);
 				cout<<"Got rents "<<parentCorner.getIndex()<<endl;
 				float newActivePlanHeight;
-				if (cornerQ.size() > 0)
+				if (cornerQ.size() > 0) {
 					newActivePlanHeight = cornerQ.top().getPt().y;
-				else 
+					//newActivePlanHeight = events.at(0).getHeight();
+				}
+				else  {
 					newActivePlanHeight = events.at(0).getHeight();
+				}
 				cout<<"New height " <<newActivePlanHeight<<endl;
 
-				float difference = newActivePlanHeight - parentCorner.getPt().y;
+				float difference = abs(newActivePlanHeight - parentCorner.getPt().y);
 				cout<<"Dif: "<<difference<<endl;
 				float multiply = difference/(vec.y+pow(10.0,-6.0));
 				cout<<"Mult: "<<multiply<<endl;
@@ -710,8 +717,8 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
-			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
-			tempActivePlan.at(0).setLeftEdge(edge);
+			tempActivePlan.at(0).setRightEdge(edge); //TODO setRightEdge
+			tempActivePlan.at(i).setLeftEdge(edge);
 			//TODO - Deleted map update here...maybe add back?
 		} else {
 			startPoint = tempActivePlan.at(i).getPt();
@@ -719,8 +726,8 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);			
-			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
-			tempActivePlan.at(i+1).setLeftEdge(edge);
+			tempActivePlan.at(i+1).setRightEdge(edge); //TODO setRightEdge
+			tempActivePlan.at(i).setLeftEdge(edge);
 			//TODO - Deleted map update here...maybe add back?
 		} 
 		if (DEBUG == 1) {
@@ -949,14 +956,15 @@ void SweepPlane::processQueue()
 	std::vector<Corner> tempActivePlan;
 
 	Event firstEvent = q.top();
-	if (firstEvent.getHeight() - theLastHeight < EPSILON) {
-		cout<<"KILLING - killed because we are not finding any new heights"<<endl;
-		//sameHeightCount++; 
-		//if (sameHeightCount > 10) {
-			killTheSweep = true;
-			return;
-		//}
-	}
+	//if (firstEvent.getHeight() - theLastHeight < EPSILON) {
+	//	cout<<"KILLING - killed because we are not finding any new heights"<<endl;
+	//	//sameHeightCount++; 
+	//	//if (sameHeightCount > 10) {
+	//		killTheSweep = true;
+	//		return;
+	//	//}
+	//}
+
 	theLastHeight = firstEvent.getHeight(); 
 	q.pop();
 	events.push_back(firstEvent);
