@@ -16,7 +16,7 @@
 #ProfileEnd0
 
 
-#NumAnchors 1
+#NumAnchors 6
 
 #AnchorStart0
 #FloorPlanEdge 0.5 #ProfileNum 0 #ProfileEdge 0.1
@@ -26,4 +26,18 @@
 #FloorPlanEdge 1.8 #ProfileNum 0 #ProfileEdge 0.5
 #AnchorEnd1
 
+#AnchorStart2
+#FloorPlanEdge 2.5 #ProfileNum 0 #ProfileEdge 0.0
+#AnchorEnd2
 
+#AnchorStart3
+#FloorPlanEdge 3.8 #ProfileNum 0 #ProfileEdge 0.5
+#AnchorEnd3
+
+#AnchorStart4
+#FloorPlanEdge 4.5 #ProfileNum 0 #ProfileEdge 0.0
+#AnchorEnd4
+
+#AnchorStart5
+#FloorPlanEdge 5.5 #ProfileNum 0 #ProfileEdge 0.0
+#AnchorEnd5

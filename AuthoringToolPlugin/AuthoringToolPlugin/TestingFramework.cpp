@@ -60,21 +60,25 @@ void TestingFramework::runTests(){
 	//cout<<endl;
 
 
-	testVectorRotation();
-	cout<<"Testing arbitrary corner intersection vectors"<<endl;
-	testArbitraryCornerVector();
+	//testVectorRotation();
+	//cout<<"Testing arbitrary corner intersection vectors"<<endl;
+	//testArbitraryCornerVector();
 
-	cout<<"Testing Intersection Vectors"<<endl;
-	testVectorsSquareOneLevel();
+	//cout<<"Testing Intersection Vectors"<<endl;
+	//testVectorsSquareOneLevel();
 
-	cout<<"Testing Intersection Vectors"<<endl;
-	testVectorsSquareOneLevel();
+	//cout<<"Testing Intersection Vectors"<<endl;
+	//testVectorsSquareOneLevel();
+	//cout<<endl;
+
+	cout<<"Testing intersections test for two vectors"<<endl;
+	testIntesections();
 	cout<<endl;
 
-	cout<<"Testing anchor rotations"<<endl;
-	testAnchorRotateSimple();
-	cout<<endl;
-	testAnchorRotateComplex();
+	//cout<<"Testing anchor rotations"<<endl;
+	//testAnchorRotateSimple();
+	//cout<<endl;
+	//testAnchorRotateComplex();
 
 	cout<<endl;
 
@@ -294,6 +298,70 @@ void TestingFramework::testSingleProfileEdge()
 	}
 }
 
+//Testing intersection points found
+
+void TestingFramework::testIntesections()
+{
+	cout<<"1.  Testing no intersection"<<endl;
+	SweepPlane plane;
+	glm::vec3 start1(0, 0, 0); 
+	glm::vec3 end1(0, 1, 0); 
+	glm::vec3 start2(0, 0, 1); 
+	glm::vec3 end2(0, 1, 1); 
+	glm::vec3 intersect; 
+	if (plane.intersectionTest(start1, end1, start2, end2, intersect) == false) {
+		cout<<"PASSED"<<endl;
+	} else {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected no intersection, but found intersection "<<intersect.x<<" "<<intersect.y<<" "<<intersect.z<<endl;
+	}
+
+	cout<<"2. Testing intersection"<<endl;
+	start1 = glm::vec3(1, 0, 0); 
+	start2 = glm::vec3(0, 5, 5); 
+	end1 = glm::vec3(5, 6, 2); 
+	end2 = glm::vec3(5, 6, 2); 
+	if (plane.intersectionTest(start1, end1, start2, end2, intersect) == false) {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected an intersection, but found none!"<<endl;
+	} else {
+		if (intersect.x == 5 && intersect.y == 6 && intersect.z == 2) {
+			cout<<"PASSED!!"<<endl; 
+		} else {
+			cout<<"FAILED!!"<<endl;
+			cout<<"Found intersection at: "<<intersect.x<<" "<<intersect.y<<" "<<intersect.z<<endl;
+		}
+	}
+
+	cout<<"3. Testing intersection"<<endl;
+	start1 = glm::vec3(6, 8, 4); 
+	start2 = glm::vec3(6, 8, 2); 
+	end1 = glm::vec3(12, 15, 4); 
+	end2 = glm::vec3(12, 15, 6); 
+	if (plane.intersectionTest(start1, end1, start2, end2, intersect) == false) {
+		cout<<"FAILED"<<endl;
+		cout<<"Expected an intersection, but found none!"<<endl;
+	} else {
+		if (intersect.x == 9 && intersect.y == 23.0/2.0 && intersect.z == 4) {
+			cout<<"PASSED!!"<<endl; 
+		} else {
+			cout<<"FAILED!!"<<endl;
+			cout<<"Found intersection at: "<<intersect.x<<" "<<intersect.y<<" "<<intersect.z<<endl;
+		}
+	}
+
+	cout<<"4. Testing no intersection"<<endl;
+	start1 = glm::vec3(0, 0, 0); 
+	start2 = glm::vec3(1, 0, 0); 
+	end1 = glm::vec3(-2, 2, 0); 
+	end2 = glm::vec3(3, 2, 0); 
+	if (plane.intersectionTest(start1, end1, start2, end2, intersect) == false) {
+		cout<<"PASSED"<<endl;
+	} else {
+			cout<<"FAILED!!"<<endl;
+			cout<<"Did it find neg intersection? Found intersection at: "<<intersect.x<<" "<<intersect.y<<" "<<intersect.z<<endl;
+	}	
+}
 
 //Test anchor rotations
 void TestingFramework::testAnchorRotateSimple()

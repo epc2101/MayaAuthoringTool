@@ -34,7 +34,7 @@ private:
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;
 	std::priority_queue<Event, std::vector<Event>, CompareHeight> anchorQ; 
 	float theLastHeight; 
-
+	int sameHeightCount; 
 public:
 	//Constructor
 	SweepPlane(void);

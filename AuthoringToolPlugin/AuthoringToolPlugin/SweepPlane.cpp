@@ -9,9 +9,9 @@ float EPSILON = 0.0001;
 float RADIUS =  0.000001;
 
 
-int DEBUG = 0; 
+int DEBUG = 1; 
 int DEBUG_ANCHOR = 0; 
-int DEBUG_PROFILE = 0; 
+int DEBUG_PROFILE = 1; 
 int DEBUG_FLOORPLAN = 0; 
 
 SweepPlane::SweepPlane(void)
@@ -322,7 +322,7 @@ void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, M
 //We just figure out what edge of the profile we are at here
 std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 {
-	float HEIGHTTEST = 0.01;
+	float HEIGHTTEST = 0.0001;
 	height += HEIGHTTEST;
 	if (DEBUG == 1){
 		cout<<endl;
@@ -340,12 +340,16 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 				cout<<"The height of the end point 0 "<<edge.getEndPoint().y<<endl;
 			}
 
-			cout<<"The current height is "<<height<<" and it's being compared to "<<edge.getEndPoint().y<<endl;
+			cout<<"The current height is "<<height<<" and it's being compared to profile end pt "<<edge.getEndPoint().y<<" and start pt "<<edge.getStartPoint().y<<endl;
 			/*if (height >= edge.getEndPoint().y){
 			continue;
 			}*/
+
 			if (edge.getIsTop() == true){
-				if (height >= edge.getEndPoint().y){
+				cout<<"Found top edge at height: "<<edge.getEndPoint().y<<endl;
+				if (edge.getEndPoint().y != theLastHeight) cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
+				if (height >= edge.getEndPoint().y && edge.getEndPoint().y != theLastHeight){
+					cout<<"Adding the last edge height"<<endl;
 					currentProfileFromHeight.push_back(edge);
 					prof.getEdgesUsed().at(j) = true;
 					break;
@@ -365,7 +369,7 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 					}
 
 				}
-				
+				cout<<"Adding general profile change event"<<endl;
 				currentProfileFromHeight.push_back(edge);
 				prof.getEdgesUsed().at(j) = true;
 				break;
@@ -398,6 +402,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 		}
 	}
 	if (isItTooHigh){
+		cout<<"Killing because its too high"<<endl;
 		killTheSweep = true;
 		return;
 	}
@@ -931,7 +936,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 		Corner newCorner = Corner(endEdge, startEdge, cluster.at(0).getPt(), parents);
 		if(DEBUG == 1){
 			cout<<"***********************"<<endl;
-			cout<<"Parent indices at cluster"<<endl;
+			cout<<"Parent indices at cluster.  The size of the sources are: "<<newCorner.getSource().size()<<endl;
 			for(int f = 0; f<newCorner.getSource().size(); f++){
 				cout<<newCorner.getSource().at(f).getIndex()<<endl;
 			}
@@ -940,24 +945,24 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 		//Need to deal with the case where 0 is involved and the numbers are mixed up.  This is a hack fix and could be improved by a priority queue???? 
 		int indexToShift,previousIndex;
 		for(int f = 0; f<newCorner.getSource().size(); f++){
-
 			int currentIndex = newCorner.getSource().at(f).getIndex();
 			if (f >= 1){
 				previousIndex = newCorner.getSource().at(f-1).getIndex();
 				if (currentIndex-previousIndex != 1){
 					indexToShift = f;
-
 					std::vector<Corner> improvedVector;
 					//Push the mismatched ones onto the new corner - realize that this only works if almost sorted
 					for(int g = indexToShift; g<newCorner.getSource().size(); g++){
 						improvedVector.push_back(newCorner.getSource().at(g));
 					}
-
 					for(int g = 0; g<indexToShift; g++){
 						improvedVector.push_back(newCorner.getSource().at(g));
 					}
+					cout<<"The size of the improved vector is: "<<improvedVector.size()<<endl;
 					std::sort(improvedVector.begin(), improvedVector.end(), CompareParent());
+					cout<<"after sorting?"<<endl;
 					newCorner = Corner(newCorner.getLeftEdge(), newCorner.getRightEdge(), newCorner.getPt(),improvedVector);
+					cout<<"After last for loop."<<endl;
 				}
 			}	
 		}
@@ -967,6 +972,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 		postCluster.push_back(newCorner);
 	}
 
+	if (DEBUG == 1) cout<<"Got to end of process clusters."<<endl;
 
 	return postCluster;
 }
@@ -982,16 +988,22 @@ void SweepPlane::processQueue()
 	std::vector<Corner> tempActivePlan;
 
 	Event firstEvent = q.top();
-	//if (firstEvent.getHeight() - theLastHeight < EPSILON) {
-	//	cout<<"KILLING - killed because we are not finding any new heights"<<endl;
-	//	//sameHeightCount++; 
-	//	//if (sameHeightCount > 10) {
+	//if (fabs(firstEvent.getHeight() - theLastHeight) < EPSILON) {
+	//	sameHeightCount++; 
+	//	if (sameHeightCount > 100000) {
+	//		cout<<"KILLING - killed because we are not finding any new heights"<<endl;
 	//		killTheSweep = true;
 	//		return;
-	//	//}
+	//	}
 	//}
 
 	theLastHeight = firstEvent.getHeight(); 
+	cout<<"The first event type is: ";
+	if (firstEvent.getType() == Event::ANCHOR) cout<<"anchor";
+	else if (firstEvent.getType() == Event::INTERSECTION) cout<<"intersection";
+	else if (firstEvent.getType() == Event::PROFILE) cout<<"Profile change";
+	cout<<" and its height is: "<<firstEvent.getHeight()<<endl; 
+
 	q.pop();
 	events.push_back(firstEvent);
 
@@ -1072,6 +1084,7 @@ void SweepPlane::buildIt()
 {
 	int f = 1;
 	thePlan = ActivePlan(plan);
+	sameHeightCount = 0; 
 
 	addAnchorsToFloorPlan();
 	activePlanStack.push(thePlan);
@@ -1118,6 +1131,11 @@ void SweepPlane::buildIt()
 			fillQueueWithIntersections(height);	
 			fillQueueWithEdgeDirectionChanges(height);
 			fillQueueWithAnchors(height);
+
+			std::deque<Corner> p = thePlan.getActivePlan(); 
+			//for (int i = 0; i < thePlan.getActivePlan().size(); i++) {
+			//	cout<<"The corner is at: "<<p.at(i).getLeftEdge().getEndPoint().x<<" "<<p.at(i).getLeftEdge().getEndPoint().y<<" "<<p.at(i).getLeftEdge().getEndPoint().z<<endl;
+			//}
 		} else {
 			break;
 		}

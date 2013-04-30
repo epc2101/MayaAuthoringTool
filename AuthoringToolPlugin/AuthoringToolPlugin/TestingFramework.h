@@ -27,6 +27,9 @@ public:
 
 	//Test that a horizontal edge was grabbed from a profile at a certain height
 
+	//Test intersection calculations
+	void testIntesections(); 
+
 	//Test that anchors are correctly rotated 
 	void testAnchorRotateSimple();
 	void testAnchorRotateComplex();
