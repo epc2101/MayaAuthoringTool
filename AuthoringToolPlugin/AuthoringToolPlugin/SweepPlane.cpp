@@ -169,17 +169,18 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 
 					//We are in a pyramid situation and everything is a triangle
 					for(int i = 0; i<bottomPlan.getActivePlan().size(); i++){
+						cout<<"Size of the bottom plan is: "<<bottomPlan.getActivePlan().size();
 						Corner c = topPlan.getActivePlan().at(0);
-
+						cout<<"This is the number of times through the pyramid section"<<endl;
 						//int pIndex1 = c.getSource().at(i).getIndex(), pIndex2 = c.getSource().at(i+1).getIndex();
 								
-								index1 = c.getMeshIndex();
+						index1 = c.getMeshIndex();
 								
 								//index2 = bottomPlan.getActivePlan().at(pIndex1).getMeshIndex();
 								//index3 = bottomPlan.getActivePlan().at(pIndex2).getMeshIndex();
 
 
-						if(i = bottomPlan.getActivePlan().size()-1){
+						if(i == bottomPlan.getActivePlan().size()-1){
 							index2 = bottomPlan.getActivePlan().at(i).getMeshIndex();
 							index3 = bottomPlan.getActivePlan().at(0).getMeshIndex();
 						}
@@ -187,6 +188,8 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							index2 = bottomPlan.getActivePlan().at(i).getMeshIndex();
 							index3 = bottomPlan.getActivePlan().at(i+1).getMeshIndex();
 						}
+
+						cout<<"The 3 indices are: "<<index1<<" "<<index2<<" "<<index3<<endl;
 
 						faceCounts.append(3);
 						faceConnects.append(index1);
@@ -238,7 +241,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							//cout<<topPlan.getActivePlan().at(i).getLeftEdge().getLeftCornerIndex()<<" IS THE LEFT CORNER INDEX "<<topPlan.getActivePlan().at(i).getLeftEdge().getRightCornerIndex()<<" is the right"<<endl;
 
 							if(!topPlan.getActivePlan().at(i).getLeftMesh()){
-								
+								cout<<"Creating left mesh"<<endl;
 								cout<<"The indices of the top left edge are: "<<topPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<topPlan.getLeftEdgeRightIndex(i)<<endl;
 								cout<<"The indices of the bottom left edge are: "<<bottomPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<bottomPlan.getLeftEdgeRightIndex(i)<<endl;
 								
@@ -272,7 +275,8 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								//Need to set the other one as well!
 							}
 
-							if(!c.getRightMesh()){
+							if(!topPlan.getActivePlan().at(i).getRightMesh()){
+								cout<<"Creating the right edge mesh"<<endl;
 								//First, find the edges attached to the critical points
 								//PlanEdge right = c.getRightEdge();
 								//PlanEdge bottomRight = bottomPlan.getActivePlan().at(leftParentPlanIndex).getRightEdge();
