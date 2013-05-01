@@ -1,5 +1,6 @@
 #pragma once
 #include "PlanEdge.h"
+#include "Corner.h"
 #include <vector>
 
 
@@ -12,6 +13,8 @@ private:
 	int numPoints;
 	//TODO: Will replace this with a pointer to a profile object when that class is complete
 	std::vector<int> profileList;
+
+	
 	
 
 public:

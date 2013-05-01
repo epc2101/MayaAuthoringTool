@@ -17,8 +17,26 @@ PlanEdge::PlanEdge(glm::vec3 _startPoint, glm::vec3 _endPoint, int _profileType)
 	endPoint = _endPoint;
 	profileType = _profileType;
 	anchorType = -1;
+	leftCornerIndex  = -1;
+	rightCornerIndex = -1;
+}
 
+int PlanEdge::getLeftCornerIndex()
+{
+	return leftCornerIndex;
+}
+int PlanEdge::getRightCornerIndex()
+{
+	return rightCornerIndex;
 
+}
+void PlanEdge::setLeftCornerIndex(int l)
+{
+	leftCornerIndex = l;
+}
+void PlanEdge::setRightCornerIndex(int r)
+{
+	rightCornerIndex = r;
 }
 
 	//Note - this is likely the one that we will always use in this case

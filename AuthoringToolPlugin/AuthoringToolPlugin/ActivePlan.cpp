@@ -43,6 +43,37 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 }
 
 /*
+Goes through the active plan and updates the edges for what corners they point to
+*/
+void ActivePlan::updateEdges()
+{
+	for(int i=0; i<activePlan.size(); i++){
+		activePlan.at(i).setLeftEdgeIndex(i);
+		activePlan.at(i).setRightEdgeIndex(i);
+
+		std::cout<<"The right corner index for the left edge is: "<<activePlan.at(i).getLeftEdge().getRightCornerIndex()<<std::endl;
+		std::cout<<"The left corner index for the right edge is "<<activePlan.at(i).getRightEdge().getLeftCornerIndex()<<std::endl;
+	}
+}
+
+int ActivePlan::getLeftEdgeLeftIndex(int index)
+{
+	return activePlan.at(index).getLeftEdge().getLeftCornerIndex();
+}
+int ActivePlan::getLeftEdgeRightIndex(int index)
+{
+	return activePlan.at(index).getLeftEdge().getRightCornerIndex();
+}
+
+int ActivePlan::getRightEdgeLeftIndex(int index)
+{
+	return activePlan.at(index).getRightEdge().getLeftCornerIndex();
+}
+int ActivePlan::getRightEdgeRightIndex(int index)
+{
+	return activePlan.at(index).getRightEdge().getRightCornerIndex();
+}
+/*
 Updates the active plan by passing in the newly created plan.  
 */
 ActivePlan::ActivePlan(std::deque<Corner> newPlan)
@@ -50,10 +81,26 @@ ActivePlan::ActivePlan(std::deque<Corner> newPlan)
 	activePlan = newPlan;
 }
 
+void ActivePlan::setCornerMeshIndex(int cornerIndex, int meshIndex)
+{
+	activePlan.at(cornerIndex).setMeshIndex(meshIndex);
+}
+
+void ActivePlan::setCornerIndex(int i)
+{
+	activePlan.at(i).setIndex(i);
+}
+
 ActivePlan::~ActivePlan(void)
 {
 
 }
+void ActivePlan::updateCornerIndices(){
+	for(int i =0; i<activePlan.size(); i++){
+		setCornerIndex(i);
+	}
+}
+
 
 std::deque<Corner> ActivePlan::getActivePlan()
 {
@@ -80,7 +127,13 @@ void ActivePlan::setIndexNums()
 ActivePlan::ActivePlan(std::vector<Corner> cornerPlan){
 	for(int i = 0; i < cornerPlan.size(); i++){
 		cornerPlan.at(i).setIndex(i);
-		activePlan.push_back(cornerPlan.at(i));
+		PlanEdge leftEdge = cornerPlan.at(i).getLeftEdge();
+		PlanEdge rightEdge = cornerPlan.at(i).getRightEdge();
+		leftEdge.setRightCornerIndex(cornerPlan.at(i).getIndex());
+		rightEdge.setLeftCornerIndex(cornerPlan.at(i).getIndex());
+
+		Corner c = Corner(leftEdge,rightEdge,cornerPlan.at(i).getPt(),cornerPlan.at(i).getSource());
+		activePlan.push_back(c);
 	}
 }
 
@@ -97,4 +150,13 @@ std::vector<PlanEdge> ActivePlan::getEdgeList()
 		edgeList.push_back(activePlan.at(i).getRightEdge()); 
 	}
 	return edgeList;
+}
+
+void ActivePlan::setCornerLeft(int index, bool value)
+{
+	activePlan.at(index).setLeftMesh(value);
+}
+void ActivePlan::setCornerRight(int index, bool value)
+{
+	activePlan.at(index).setRightMesh(value);
 }

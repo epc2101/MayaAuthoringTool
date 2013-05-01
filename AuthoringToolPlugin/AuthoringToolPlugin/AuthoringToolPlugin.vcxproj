@@ -143,6 +143,7 @@
     </BuildLog>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="MeshCreationDump.txt" />
     <None Include="Options.txt" />
     <None Include="PluginDataOriginalDump.txt" />
     <None Include="ReadMe.txt" />

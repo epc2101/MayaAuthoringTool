@@ -24,6 +24,9 @@
     <None Include="PluginDataOriginalDump.txt">
       <Filter>Miscellaneous Files</Filter>
     </None>
+    <None Include="MeshCreationDump.txt">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AuthoringToolPluginNode.h">
