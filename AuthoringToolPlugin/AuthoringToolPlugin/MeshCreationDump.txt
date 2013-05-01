@@ -1,0 +1,127 @@
+
+			//This is going to be just a pyrimid
+			else if (temp.getActivePlan().size() == 1){
+				int currentPosition = 0,positionBelow = 0;
+
+				for (int i = 0; i<stackLevel; i++){
+					currentPosition+=indexingHolder.at(i);
+				}
+				positionBelow = currentPosition-indexingHolder.at(stackLevel-1);
+				Corner corner = temp.getActivePlan().at(0);
+				int index1, index2,index3,index4;
+				for (int k = 0; k<corner.getSource().size(); k++) {
+					if(k < corner.getSource().size()-1) {
+						index1 = currentPosition + corner.getIndex();
+						cout<<"Position below is "<<positionBelow<<endl;
+						index2 = positionBelow + corner.getSource().at(k).getIndex();
+						index3 = positionBelow + corner.getSource().at(k+1).getIndex();
+
+						faceCounts.append(3);
+						faceConnects.append(index1);
+						faceConnects.append(index2);
+						faceConnects.append(index3);
+					}
+					else {
+						index1 = currentPosition + corner.getIndex();
+						cout<<"Position below is "<<positionBelow<<endl;
+						index2 = positionBelow + corner.getSource().at(k).getIndex();
+						index3 = positionBelow + corner.getSource().at(0).getIndex();
+
+						faceCounts.append(3);
+						faceConnects.append(index1);
+						faceConnects.append(index2);
+						faceConnects.append(index3);
+
+					}
+				}
+
+			}
+			else {
+				int currentPosition = 0,positionBelow = 0;
+				
+				for (int i = 0; i<stackLevel; i++){
+					currentPosition+=indexingHolder.at(i);
+				}
+				positionBelow = currentPosition-indexingHolder.at(stackLevel-1);
+				for(int i = 0; i<temp.getActivePlan().size(); i++){
+					Corner corner = temp.getActivePlan().at(i);
+
+					//We know it's a quad
+					if (corner.getSource().size() == 1){
+						int index1, index2,index3,index4;
+
+						if (i== temp.getActivePlan().size()-1){
+							index1 = currentPosition + corner.getIndex();
+							index2 = positionBelow + corner.getSource().at(0).getIndex();
+							index3 = positionBelow + temp.getActivePlan().at(0).getSource().at(0).getIndex();
+							index4 = currentPosition + temp.getActivePlan().at(0).getIndex();
+							faceCounts.append(4);
+							faceConnects.append(index1);
+							faceConnects.append(index2);
+							faceConnects.append(index3);
+							faceConnects.append(index4);
+						}
+						else {
+
+							//THe first index is this corner
+							index1 = currentPosition + corner.getIndex();
+							index2 = positionBelow + corner.getSource().at(0).getIndex();
+							index3 = positionBelow + corner.getSource().at(0).getIndex()+1;
+							index4 = currentPosition + corner.getIndex() + 1;
+							faceCounts.append(4);
+							faceConnects.append(index1);
+							faceConnects.append(index2);
+							faceConnects.append(index3);
+							faceConnects.append(index4);
+						}
+					}
+					//This is going to be a triangle and a quad
+					else if (corner.getSource().size() >= 2){
+						cout<<"We should be at this part"<<endl;
+						int index1, index2, index3, index4;
+						//Process the triangle first
+						for (int k = 0; k<corner.getSource().size(); k++) {
+							if(k < corner.getSource().size()-1) {
+								index1 = currentPosition + corner.getIndex();
+								cout<<"Position below is "<<positionBelow<<endl;
+								index2 = positionBelow + corner.getSource().at(k).getIndex();
+								index3 = positionBelow + corner.getSource().at(k+1).getIndex();
+
+								faceCounts.append(3);
+								faceConnects.append(index1);
+								faceConnects.append(index2);
+								faceConnects.append(index3);
+
+							}
+							else {
+								//Then process the quad
+
+								if (i== temp.getActivePlan().size()-1){
+									cout<<"Processing the last quad. The number of parents it has is: "<<corner.getSource().size()<<endl;
+									cout<<"Position below is "<<positionBelow<<endl;
+									index1 = currentPosition + corner.getIndex();
+									index2 = positionBelow + corner.getSource().at(k).getIndex();
+									index3 = positionBelow + temp.getActivePlan().at(0).getSource().at(0).getIndex();
+									index4 = currentPosition + temp.getActivePlan().at(0).getIndex();
+									faceCounts.append(4);
+									faceConnects.append(index1);
+									faceConnects.append(index2);
+									faceConnects.append(index3);
+									faceConnects.append(index4);
+								}
+								else {
+
+									//THe first index is this corner
+									index1 = currentPosition + corner.getIndex();
+									index2 = positionBelow + corner.getSource().at(k).getIndex();
+									index3 = positionBelow + corner.getSource().at(k).getIndex()+1;
+									index4 = currentPosition + corner.getIndex() + 1;
+									faceCounts.append(4);
+									faceConnects.append(index1);
+									faceConnects.append(index2);
+									faceConnects.append(index3);
+									faceConnects.append(index4);
+								}
+							}
+						}
+					}
