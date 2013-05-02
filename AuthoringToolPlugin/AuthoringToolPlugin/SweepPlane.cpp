@@ -26,12 +26,21 @@ SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anch
 	killTheSweep = false;
 	theLastHeight = -1.0;
 	
+	//Preprocessing to kill the algo 
 	maxProfileHeight = 0; 
 	for (int i = 0; i < pList.size(); i++) 
 	{
 		ProfileEdge pe = pList.at(i).getEdgeList().at(pList.at(i).getEdgeList().size() - 1); 
 		if (pe.getEndPoint().y > maxProfileHeight) maxProfileHeight = pe.getEndPoint().y; 
 	}
+	std::vector<PlanEdge> pe = plan.getEdgeList();
+	avgPlanCenter = glm::vec3(0); 
+	for (int i = 0; i < pe.size(); i++) 
+	{
+		avgPlanCenter += pe.at(i).getEndPoint(); 
+	}
+	avgPlanCenter /= (float) pe.size(); 
+	cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
@@ -107,13 +116,13 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 		//Move through the stack and start building the polygons
 
 		while(!activePlanStack.empty()){
-			cout<<"Active plan stack is not empty"<<endl;
+			//cout<<"Active plan stack is not empty"<<endl;
 			ActivePlan temp = activePlanStack.top();
 			activePlanStack.pop();
 			stackLevel--;
 			//Check if this is the floorplan
 			if(temp.getActivePlan().at(0).getSource().size()==0){
-				cout<<"Taking care of the floorplan"<<endl;
+				//cout<<"Taking care of the floorplan"<<endl;
 				int polySize = temp.getActivePlan().size();
 				faceCounts.append(polySize);
 				for(int i = 0; i<polySize; i++){
@@ -267,7 +276,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 		cout<<"The number of vertices is "<<numVertices<<endl;
 		cout<<"The number of faces is "<<numFaces<<endl;
 		for(int i = 0; i < pointArray.length(); i++){
-			cout<<"The point "<<pointArray[i].x<<" "<<pointArray[i].y<<" "<<pointArray[i].z<<endl;
+			//cout<<"The point "<<pointArray[i].x<<" "<<pointArray[i].y<<" "<<pointArray[i].z<<endl;
 		}
 		cout<<"The connections array is "<<endl;
 		for (int i =0; i<faceConnects.length(); i++){
@@ -354,8 +363,12 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 
 			if (edge.getIsTop() == true){
 				//cout<<"Found top edge at height: "<<edge.getEndPoint().y<<endl;
-				if (edge.getEndPoint().y == theLastHeight) cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
-				if (height >= edge.getEndPoint().y/* && edge.getEndPoint().y != theLastHeight*/){
+				if (edge.getEndPoint().y == theLastHeight) {
+					cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
+					killTheSweep = true; 
+					break;
+				}
+				if (height >= edge.getEndPoint().y && edge.getEndPoint().y != theLastHeight){
 					//cout<<"Adding the last edge height"<<endl;
 					currentProfileFromHeight.push_back(edge);
 					prof.getEdgesUsed().at(j) = true;
@@ -435,7 +448,7 @@ void SweepPlane::updateIntersectionVectors(float height)
 			return;
 	}
 
-	cout<<"TESTING UPDATE INTERSECTION VECTORS"<<endl; 
+	cout<<"TESTING UPDATE INTERSECTION VECTORS.."<<endl; 
 	//Iterate through the active plan and calculate the varying vectors based on the different edge plans.
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 		
@@ -444,13 +457,13 @@ void SweepPlane::updateIntersectionVectors(float height)
 		PlanEdge firstEdge = corner.getLeftEdge();
 		PlanEdge secondEdge = corner.getRightEdge();		
 		ProfileEdge firstProfileEdge = currentProfileFromHeight.at(firstEdge.getProfileType());
-
-		cout<<"*************************************************"<<endl;
-		cout<<"In corner: "<<corner.getIndex()<<endl;
-		cout<<"First edge start: "<<firstEdge.getStartPoint().x<<" "<<firstEdge.getStartPoint().y<<" "<<firstEdge.getStartPoint().z<<" " <<endl;
-		cout<<"First edge end: "<<firstEdge.getEndPoint().x<<" "<<firstEdge.getEndPoint().y<<" "<<firstEdge.getEndPoint().z<<" " <<endl;
-		cout<<"Second edge start: "<<secondEdge.getStartPoint().x<<" "<<secondEdge.getStartPoint().y<<" "<<secondEdge.getStartPoint().z<<" " <<endl;
-		cout<<"Second edge end: "<<secondEdge.getEndPoint().x<<" "<<secondEdge.getEndPoint().y<<" "<<secondEdge.getEndPoint().z<<" " <<endl;
+		//if (firstEdge.getStartPoint().x < -100) {
+			cout<<"*************************************************"<<endl;
+			cout<<"In corner: "<<corner.getIndex()<<endl;
+			cout<<"First edge start: "<<firstEdge.getStartPoint().x<<" "<<firstEdge.getStartPoint().y<<" "<<firstEdge.getStartPoint().z<<" " <<endl;
+			cout<<"First edge end: "<<firstEdge.getEndPoint().x<<" "<<firstEdge.getEndPoint().y<<" "<<firstEdge.getEndPoint().z<<" " <<endl;
+			cout<<"Second edge start: "<<secondEdge.getStartPoint().x<<" "<<secondEdge.getStartPoint().y<<" "<<secondEdge.getStartPoint().z<<" " <<endl;
+			cout<<"Second edge end: "<<secondEdge.getEndPoint().x<<" "<<secondEdge.getEndPoint().y<<" "<<secondEdge.getEndPoint().z<<" " <<endl;
 
 		//Next we test whether the edge are the same!
 		if (glm::length(firstEdge.getStartPoint() - secondEdge.getStartPoint()) < EPSILON && glm::length(firstEdge.getEndPoint() - secondEdge.getEndPoint()) < EPSILON)
@@ -483,6 +496,7 @@ void SweepPlane::updateIntersectionVectors(float height)
  
 		thePlan.setIntersectionVector(generateIntersection(edgeVec1,edgeVec2,profVec1,profVec2));
 	}
+	cout<<"AT THE END OF INTERSECTION VECTOR"<<endl;
 }
 
 /*
@@ -583,13 +597,18 @@ void SweepPlane::fillQueueWithIntersections(float height)
 							addToQ = false; 
 						}
 					}
-					if (intersectionPoint.y > maxProfileHeight){
+					//Make sure that we have a valid point
+				
+					if (intersectionPoint.y > maxProfileHeight || glm::distance(intersectionPoint, avgPlanCenter) > 50){
 						addToQ = false; 
 					}
 
 					if (addToQ) {
 						//This is the code to create the intersection event and push it onto the queue
-						//cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
+						cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
+						cout<<"The distance between the points is: "<<glm::distance(intersectionPoint, avgPlanCenter)<<endl;
+						cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
+						
 						foundIntersections = true;
 						std::vector<Corner> source;
 						source.push_back(firstCorner);
@@ -630,10 +649,14 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 		
 		std::vector<Corner> parentCorner;
 		parentCorner.push_back(tempCorner);
-
-		//We are still going to do this for each of the corners for each of the edges they are associated with
-		Event edgeChange = Event(profEdge.getEndPoint().y,newPoint,parentCorner,Event::PROFILE);
-		q.push(edgeChange);
+		//TODO********************************************************************
+		//TODO - THIS IS A HACKY FIX BC WE SHOULD NEVERRRR GET A POINT THAT IS NOT ACTUALLY ON THE PROFILE...
+		if (glm::distance(newPoint, avgPlanCenter) < 50) {
+		//TODO********************************************************************
+			//We are still going to do this for each of the corners for each of the edges they are associated with
+			Event edgeChange = Event(profEdge.getEndPoint().y,newPoint,parentCorner,Event::PROFILE);
+			q.push(edgeChange);
+		}
 	}
 }
 
@@ -773,7 +796,8 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 				 Corner parent = corner.getSource().at(j);
 				 flagPlan.at(parent.getIndex())=true;
 			 }
-			 cout<<"We pushed an intersection on this at height: "<<corner.getPt().y<<endl;
+			 if (corner.getPt().x < -100) 
+				cout<<"We pushed an INTERSECTION on this at point: "<<" "<<corner.getPt().x<<corner.getPt().y<<endl;
 			 cornerQ.push(corner);
 		 }
 		 else if (e.getType() == Event::PROFILE){
@@ -785,6 +809,8 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 				 continue;
 			 }
 			 else {
+				 if (corner.getPt().x < -100) 
+					cout<<"We pushed an PROFILE on this at point: "<<" "<<corner.getPt().x<<corner.getPt().y<<endl;
 				 cornerQ.push(corner);
 				 flagPlan.at(parent.getIndex())=true;
 			 } 
@@ -792,14 +818,14 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 	}
 
 	//This loop pushes any points that have not been brought up to the next height level, up to the next level
-	cout<<"The size of the sorting queue is "<<cornerQ.size()<<endl;
+	//cout<<"The size of the sorting queue is "<<cornerQ.size()<<endl;
 	int numPointsNotRaised = 0;
 	for(int i = 0; i<flagPlan.size(); i++){
 		if (flagPlan.at(i) == false){
 			numPointsNotRaised++;
 		}
 	}
-	cout<<"The number of points not yet raised is: "<<numPointsNotRaised<<endl;
+	//cout<<"The number of points not yet raised is: "<<numPointsNotRaised<<endl;
 
 	//Raise the extra points that don't get no love!
 		for (int i = 0; i<flagPlan.size(); i++){
@@ -830,6 +856,8 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 				//cout<<"Pushing rent corner"<<endl;
 				Corner finalCorner = Corner(newPoint,myParent);
 				//cout<<"Adding final corner"<<endl;
+				if (finalCorner.getPt().x < -100)
+					cout<<"We RAISED A CORNER on this at point: "<<" "<<finalCorner.getPt().x<<finalCorner.getPt().y<<endl;
 				cornerQ.push(finalCorner);
 				//cout<<"Added to corner q"<<endl;
 			}
@@ -1073,9 +1101,16 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 			}	
 		}
 
-		
+		//Make sure that we are not adding "bad" corners (ones that are wayyy to far away) to the active plan
+		bool addCorner = true; 
+		if (glm::distance(avgPlanCenter, newCorner.getPt()) > 1000) 
+		{
+			addCorner = false; 
+		}
 
-		postCluster.push_back(newCorner);
+		//if (addCorner) {
+			postCluster.push_back(newCorner);
+		//}
 	}
 
 	if (DEBUG == 1) cout<<"Got to end of process clusters."<<endl;
@@ -1108,7 +1143,8 @@ void SweepPlane::processQueue()
 	if (firstEvent.getType() == Event::ANCHOR) cout<<"anchor";
 	else if (firstEvent.getType() == Event::INTERSECTION) cout<<"intersection";
 	else if (firstEvent.getType() == Event::PROFILE) cout<<"Profile change";
-	cout<<" and its height is: "<<firstEvent.getHeight()<<endl; 
+	cout<<" and its height is: "<<firstEvent.getHeight(); 
+	cout<<" and its point is: "<<firstEvent.getPoint().x<<" "<<firstEvent.getPoint().y<<" "<<firstEvent.getPoint().z<<endl;
 
 	q.pop();
 	events.push_back(firstEvent);
