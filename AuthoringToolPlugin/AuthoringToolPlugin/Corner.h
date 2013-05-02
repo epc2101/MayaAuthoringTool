@@ -20,6 +20,8 @@ private:
 	bool leftEdgeMesh;
 	int meshIndex;
 
+	bool skipped;
+
 
 public:
 	Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt);
@@ -49,6 +51,8 @@ public:
 	void setRightMesh(bool b);
 	void setLeftMesh(bool b);
 
+	bool getSkipped();
+	void setSkipped(bool b);
 
 	Corner(void);
 	~Corner(void);

@@ -34,6 +34,7 @@ private:
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;
 	std::priority_queue<Event, std::vector<Event>, CompareHeight> anchorQ; 
 	float theLastHeight; 
+	int theLastHeightCount; 
 
 public:
 	//Constructor
@@ -61,12 +62,18 @@ public:
 	void fillQueueWithAnchors(float height); 
 	void fillQueueWithHorizontalChanges(float height);
 	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
+	bool shortestDistTest(glm::vec3  p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, float &mua, float &mub, glm::vec3 &pa, glm::vec3 &pb);
+
+
+	
 
 	//Queue processing helper functions
 	std::priority_queue<Corner,std::vector<Corner>, CompareParent> preprocessNewPlanQ(std::vector<Event> events);
 	void  updateNewPlanEdges(std::vector<Corner> &tempActivePlan);
 	std::vector<Corner> processClusters(std::vector<Corner> &tempActivePlan); 
 	//std::vector<Corner> processInterClusters(std::vector<std::vector<Corner>> clusters, std::vector<Corner> &tempActivePlan);
+	
+
 
 	//Main control loops
 	void processQueue();

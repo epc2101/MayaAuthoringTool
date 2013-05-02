@@ -1,4 +1,4 @@
-﻿Build started 5/1/2013 7:21:49 PM.
+﻿Build started 5/2/2013 1:59:11 PM.
      1>Project "C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -19,15 +19,9 @@
      1>SweepPlane.cpp(465): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(467): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(483): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(712): warning C4258: 'q' : definition from the for loop is ignored; the definition from the enclosing scope is used
-                 SweepPlane.cpp(697) : definition of 'q' ignored
-                 c:\users\greg\documents\github\mayaauthoringtool\authoringtoolplugin\authoringtoolplugin\SweepPlane.h(34) : definition of 'SweepPlane::q' used
-     1>SweepPlane.cpp(716): warning C4258: 'q' : definition from the for loop is ignored; the definition from the enclosing scope is used
-                 SweepPlane.cpp(697) : definition of 'q' ignored
-                 c:\users\greg\documents\github\mayaauthoringtool\authoringtoolplugin\authoringtoolplugin\SweepPlane.h(34) : definition of 'SweepPlane::q' used
-     1>SweepPlane.cpp(752): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(780): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(905): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(743): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(771): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(948): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
@@ -63,4 +57,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.94
+Time Elapsed 00:00:04.88
