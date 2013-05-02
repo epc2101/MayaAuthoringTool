@@ -9,9 +9,9 @@ float EPSILON = 0.0001;
 float RADIUS =  0.000001;
 
 
-int DEBUG = 1; 
+int DEBUG = 0; 
 int DEBUG_ANCHOR = 0; 
-int DEBUG_PROFILE = 1; 
+int DEBUG_PROFILE = 0; 
 int DEBUG_FLOORPLAN = 0; 
 
 SweepPlane::SweepPlane(void)
@@ -25,6 +25,13 @@ SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anch
 	anchorList = aList; 
 	killTheSweep = false;
 	theLastHeight = -1.0;
+	
+	maxProfileHeight = 0; 
+	for (int i = 0; i < pList.size(); i++) 
+	{
+		ProfileEdge pe = pList.at(i).getEdgeList().at(pList.at(i).getEdgeList().size() - 1); 
+		if (pe.getEndPoint().y > maxProfileHeight) maxProfileHeight = pe.getEndPoint().y; 
+	}
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
@@ -78,11 +85,11 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 		//We fill up the point array
 		int i = 1;
 		while(!activePlanQueue.empty()){
-			cout<<"In plan : "<<i<<endl;
+			//cout<<"In plan : "<<i<<endl;
 			ActivePlan temp = activePlanQueue.front();
 			for(int j = 0; j<temp.getActivePlan().size(); j++){
 				glm::vec3 tempVec = temp.getActivePlan().at(j).getPt();
-				cout<<"Point is "<<tempVec.x<< " "<<tempVec.y<<" " <<tempVec.z<<endl;
+				//cout<<"Point is "<<tempVec.x<< " "<<tempVec.y<<" " <<tempVec.z<<endl;
 				MPoint tempPoint = MPoint(tempVec.x, tempVec.y,tempVec.z);
 				pointArray.append(tempPoint);
 				
@@ -346,10 +353,10 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 			}*/
 
 			if (edge.getIsTop() == true){
-				cout<<"Found top edge at height: "<<edge.getEndPoint().y<<endl;
-				if (edge.getEndPoint().y != theLastHeight) cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
-				if (height >= edge.getEndPoint().y && edge.getEndPoint().y != theLastHeight){
-					cout<<"Adding the last edge height"<<endl;
+				//cout<<"Found top edge at height: "<<edge.getEndPoint().y<<endl;
+				if (edge.getEndPoint().y == theLastHeight) cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
+				if (height >= edge.getEndPoint().y/* && edge.getEndPoint().y != theLastHeight*/){
+					//cout<<"Adding the last edge height"<<endl;
 					currentProfileFromHeight.push_back(edge);
 					prof.getEdgesUsed().at(j) = true;
 					break;
@@ -358,25 +365,39 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 			
 			if (height >= edge.getStartPoint().y && height < (edge.getEndPoint().y)){
 				//We test the current edge and see if the one below it has been taken if it is horizontal.
-				if(prof.getEdgesUsed().at(j)==false && j > 0){
-					//We can see if we skipped over the previous edge 
-					if (prof.getEdgesUsed().at(j-1) == false && edge.getIsHorizontal()){
-						cout<<"The lower edge is horizontal!!!!"<<endl;
-						ProfileEdge horizEdge = prof.getEdgeList().at(j-1);
-						currentProfileFromHeight.push_back(horizEdge);
-						prof.getEdgesUsed().at(j-1) = true;
-						break;
-					}
+				//if(prof.getEdgesUsed().at(j)==false && j > 0){
+				//	//We can see if we skipped over the previous edge 
+				//	if (prof.getEdgesUsed().at(j-1) == false && edge.getIsHorizontal()){
+				//		cout<<"The lower edge is horizontal!!!!"<<endl;
+				//		ProfileEdge horizEdge = prof.getEdgeList().at(j-1);
+				//		currentProfileFromHeight.push_back(horizEdge);
+				//		prof.getEdgesUsed().at(j-1) = true;
+				//		break;
+				//	}
 
-				}
-				cout<<"Adding general profile change event"<<endl;
+				//}
+				//cout<<"Adding general profile change event"<<endl;
 				currentProfileFromHeight.push_back(edge);
 				prof.getEdgesUsed().at(j) = true;
 				break;
 			}	
 		}
 	}
+
+	float topHeight = 0.0;
+	for(int i = 0; i<currentProfileFromHeight.size(); i++){
+		if(currentProfileFromHeight.at(i).getEndPoint().y > topHeight){
+			topHeight = currentProfileFromHeight.at(i).getEndPoint().y;
+		}
+	}
+
+	if (height > topHeight){
+		cout<<"KILLING - because the height is greater than the top height"<<endl;
+		killTheSweep = true;
+	}
+	//cout<<"AT THE END OF GET PROFILES FROM HEIGHT"<<endl;
 	return currentProfileFromHeight; 
+
 }
 
 
@@ -409,10 +430,12 @@ void SweepPlane::updateIntersectionVectors(float height)
 
 	//If we are down to a single point in the plane, we kill the algorithm
 	if (thePlan.getActivePlan().size() == 1){
+			cout<<"Killing because we only have one point in the plane"<<endl;
 			killTheSweep = true;
 			return;
 	}
 
+	cout<<"TESTING UPDATE INTERSECTION VECTORS"<<endl; 
 	//Iterate through the active plan and calculate the varying vectors based on the different edge plans.
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 		
@@ -422,9 +445,17 @@ void SweepPlane::updateIntersectionVectors(float height)
 		PlanEdge secondEdge = corner.getRightEdge();		
 		ProfileEdge firstProfileEdge = currentProfileFromHeight.at(firstEdge.getProfileType());
 
+		cout<<"*************************************************"<<endl;
+		cout<<"In corner: "<<corner.getIndex()<<endl;
+		cout<<"First edge start: "<<firstEdge.getStartPoint().x<<" "<<firstEdge.getStartPoint().y<<" "<<firstEdge.getStartPoint().z<<" " <<endl;
+		cout<<"First edge end: "<<firstEdge.getEndPoint().x<<" "<<firstEdge.getEndPoint().y<<" "<<firstEdge.getEndPoint().z<<" " <<endl;
+		cout<<"Second edge start: "<<secondEdge.getStartPoint().x<<" "<<secondEdge.getStartPoint().y<<" "<<secondEdge.getStartPoint().z<<" " <<endl;
+		cout<<"Second edge end: "<<secondEdge.getEndPoint().x<<" "<<secondEdge.getEndPoint().y<<" "<<secondEdge.getEndPoint().z<<" " <<endl;
+
 		//Next we test whether the edge are the same!
 		if (glm::length(firstEdge.getStartPoint() - secondEdge.getStartPoint()) < EPSILON && glm::length(firstEdge.getEndPoint() - secondEdge.getEndPoint()) < EPSILON)
 		{
+			cout<<"KILLING - because the edges start points are the same."<<endl;
 			killTheSweep = true; 
 			break; 
 		}
@@ -459,6 +490,14 @@ Goes through the active plan and figures out the intersection events.  It then s
 */
 void SweepPlane::fillQueueWithIntersections(float height)
 {
+	//if (height > 8  && height < 11)
+	//{
+		//cout<<"**************************************************************************"<<endl;
+		//cout<<"**************************************************************************"<<endl;
+		//cout<<"**************************************************************************"<<endl;
+	//	cout<<"In fille q with intersections"<<endl;
+	//}
+
 	bool foundIntersections = false; 
 	//This is where the intersection method should really start
 	if (DEBUG == 1) { 
@@ -470,79 +509,101 @@ void SweepPlane::fillQueueWithIntersections(float height)
 		for (int j = 1; j < thePlan.getActivePlan().size(); j++) {
 
 			//We skip if the vector is being compared to itself
-			if (i == j) {continue;}
-			glm::vec3 firstVec, secondVec;
-			Corner firstCorner, secondCorner;
-			//We will calculate the intersection with the corner and its next neighbor - need to handle the end
-			firstVec = thePlan.getIntersectionVectors().at(i);
-			secondVec = thePlan.getIntersectionVectors().at(j);
-			firstCorner = thePlan.getActivePlan().at(i);
-			secondCorner = thePlan.getActivePlan().at(j);
-			firstVec = glm::normalize(firstVec);
-			secondVec = glm::normalize(secondVec);
+			if (i != j) {
 
-			if (firstVec.y < 0.0){
-				cout<<"First vec is negative"<<endl;
-			}
-			if (secondVec.y < 0.0){
-				cout<<"Second vec is negative"<<endl;
-			}
+				glm::vec3 firstVec, secondVec;
+				Corner firstCorner, secondCorner;
+				//We will calculate the intersection with the corner and its next neighbor - need to handle the end
+				firstVec = thePlan.getIntersectionVectors().at(i);
+				secondVec = thePlan.getIntersectionVectors().at(j);
 
-			if (DEBUG == 1){
-				cout<<endl;
-				cout<<"The first vector is "<<firstVec.x<<" "<<firstVec.y<<" "<<firstVec.z<<endl;
-				cout<<"The second vector is "<<secondVec.x<<" "<<secondVec.y<<" "<<secondVec.z<<endl;
-				cout<<endl;
-			}
+				firstCorner = thePlan.getActivePlan().at(i);
+				secondCorner = thePlan.getActivePlan().at(j);
 
-			//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
-			//We extend the vectors in both directions from their current points and perform a line intersection test
-			glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
+				firstVec = glm::normalize(firstVec);
+				secondVec = glm::normalize(secondVec);
 
-			//These are the initial starting points
-			firstStartPoint = firstCorner.getPt();
-			secondStartPoint = secondCorner.getPt();
+				//cout<<"***Intersection Corner Indices****"<<endl; 
+				//cout<<"***i = "<<i<<"***j = "<<j<<endl;
+				//cout<<"First: "<< firstCorner.getIndex()<<" Second: "<<secondCorner.getIndex()<<endl; 
+				//	cout<<"Starting from first: "<<firstCorner.getIndex()<<" ->"<<firstStartPoint.x<<" "<<firstStartPoint.y<<" "<<firstStartPoint.z<<endl;
+				//	cout<<"Starting from second: "<<secondCorner.getIndex()<<" ->"<<secondStartPoint.x<<" "<<secondStartPoint.y<<" "<<secondStartPoint.z<<endl;
 
-			
 
-			float t = 10000.0;
+				if (DEBUG == 1){
+					if ((firstCorner.getIndex() == 5 || firstCorner.getIndex() == 6) && height > 8) {
+						if (firstVec.y < 0.0){
+							cout<<"First vec is negative"<<endl;
+						}
+						if (secondVec.y < 0.0){
+							cout<<"Second vec is negative"<<endl;
+						}
+						cout<<endl;
 
-			//The top points are multiplied by a large t value (around 10000)
-			firstTopPoint = firstStartPoint + (firstVec*t);
-			secondTopPoint = secondStartPoint + (secondVec*t);
-
-			if (intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint)){
-				//This is the code to create the intersection event and push it onto the queue
-
-				cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
-				//intersectionPoint.y+=firstCorner.getPt().y;
-				foundIntersections = true;
-				/*if (intersectionPoint.y < height){
-					continue;
-				}*/
-				std::vector<Corner> source;
-				source.push_back(firstCorner);
-				source.push_back(secondCorner);
-				Event intersect = Event(intersectionPoint.y, intersectionPoint,source, Event::INTERSECTION);
-				
-				q.push(intersect);
-				if (DEBUG == 1) {
-					cout<<"The size of the queue is "<<q.size()<<endl;
+						cout<<"The first vector is "<<firstVec.x<<" "<<firstVec.y<<" "<<firstVec.z<<endl;
+						cout<<"The second vector is "<<secondVec.x<<" "<<secondVec.y<<" "<<secondVec.z<<endl;
+						cout<<endl;
+					}
 				}
 
-			}
-			else {
-				if (DEBUG == 1) {
-					cout<<"Didn't find intersection..."<<endl;
+				//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
+				//We extend the vectors in both directions from their current points and perform a line intersection test
+				glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
+
+				//These are the initial starting points
+				firstStartPoint = firstCorner.getPt();
+				secondStartPoint = secondCorner.getPt();
+
+				float t = 10000.0;
+
+				//The top points are multiplied by a large t value (around 10000)
+				firstTopPoint = firstStartPoint + (firstVec*t);
+				secondTopPoint = secondStartPoint + (secondVec*t);
+
+				//if (height > 5 && height < 11) {
+				//if (firstCorner.getIndex() == 5) {
+				//	cout<<"****************INDEX 5 & 6**********************"<<endl;
+				//	cout<<"Starting from first: "<<firstCorner.getIndex()<<" ->"<<firstStartPoint.x<<" "<<firstStartPoint.y<<" "<<firstStartPoint.z<<endl;
+				//	cout<<"Starting from second: "<<secondCorner.getIndex()<<" ->"<<secondStartPoint.x<<" "<<secondStartPoint.y<<" "<<secondStartPoint.z<<endl;
+				//}
+				//}
+
+				bool intTest1 = intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint);
+				float mua, mub; 
+				glm::vec3 pa, pb; 
+				bool intTest2 = shortestDistTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint, mua, mub, pa, pb);
+				bool addToQ = true; 
+				if (intTest1 || intTest2 ){
+					//Check if the direct intersection test has missed & see if the shortest dist is close enough to count as intersection
+					if (intTest1 == false) {
+						//Check if the y value is greater than the current height
+						if (pa.y > (height) && fabs(pa.x - pb.x) < 0.25f && fabs(pa.y - pb.y) < 0.25f && fabs(pa.z - pb.z) < 0.25f) {
+							intersectionPoint = ((pa + pb) /2.f); 
+						} else {
+							addToQ = false; 
+						}
+					}
+					if (intersectionPoint.y > maxProfileHeight){
+						addToQ = false; 
+					}
+
+					if (addToQ) {
+						//This is the code to create the intersection event and push it onto the queue
+						//cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
+						foundIntersections = true;
+						std::vector<Corner> source;
+						source.push_back(firstCorner);
+						source.push_back(secondCorner);
+						Event intersect = Event(intersectionPoint.y, intersectionPoint,source, Event::INTERSECTION);
+
+						q.push(intersect);
+					}
 				}
-				continue;
 			}
-		//}
+		}
 	}
-	}
-	//if (foundIntersections == false) {
-	//	killTheSweep = true; 
-	//}
+
+
 }
 
 void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
@@ -624,7 +685,7 @@ bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 
 {
 	glm::vec3 da = line1E-line1S, db = line2E-line2S, dc = line2S-line1S;
 
-	if (glm::dot(glm::cross(da,db),dc) != 0.0){
+	if (glm::dot(dc, glm::cross(da,db)) != 0.0){
 		return false;
 	}
 
@@ -638,9 +699,53 @@ bool SweepPlane::intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 
 		intersection = line1S + da*abs(s);
 		return true;
 	}
-
-
 	return false;
+}
+
+//Calcs the shortest distance between two lines.  Use as backup if we are off by a small value
+//Thanks to Paul Bourke http://paulbourke.net/geometry/pointlineplane/lineline.c
+bool SweepPlane::shortestDistTest(glm::vec3  p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, float &mua, float &mub, glm::vec3 &pa, glm::vec3 &pb)
+{
+   glm::vec3 p13,p43,p21;
+   float d1343,d4321,d1321,d4343,d2121;
+   float numer,denom;
+
+   p13.x = p1.x - p3.x;
+   p13.y = p1.y - p3.y;
+   p13.z = p1.z - p3.z;
+   p43.x = p4.x - p3.x;
+   p43.y = p4.y - p3.y;
+   p43.z = p4.z - p3.z;
+   if (abs(p43.x) < EPSILON && abs(p43.y) < EPSILON && abs(p43.z) < EPSILON)
+      return(FALSE);
+   p21.x = p2.x - p1.x;
+   p21.y = p2.y - p1.y;
+   p21.z = p2.z - p1.z;
+   if (abs(p21.x) < EPSILON && abs(p21.y) < EPSILON && abs(p21.z) < EPSILON)
+      return(FALSE);
+
+   d1343 = p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
+   d4321 = p43.x * p21.x + p43.y * p21.y + p43.z * p21.z;
+   d1321 = p13.x * p21.x + p13.y * p21.y + p13.z * p21.z;
+   d4343 = p43.x * p43.x + p43.y * p43.y + p43.z * p43.z;
+   d2121 = p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
+
+   denom = d2121 * d4343 - d4321 * d4321;
+   if (abs(denom) < EPSILON)
+      return false;
+   numer = d1343 * d4321 - d1321 * d4343;
+
+   mua = numer / denom;
+   mub = (d1343 + d4321 * (mua)) / d4343;
+
+   pa.x = p1.x + mua * p21.x;
+   pa.y = p1.y + mua * p21.y;
+   pa.z = p1.z + mua * p21.z;
+   pb.x = p3.x + mub * p43.x;
+   pb.y = p3.y + mub * p43.y;
+   pb.z = p3.z + mub * p43.z;
+
+   return true;
 }
 
 //Generate the new priority q of the next active plan, sorted by the right-most parent index (ensures correct edge ordering) 
@@ -699,11 +804,11 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 	//Raise the extra points that don't get no love!
 		for (int i = 0; i<flagPlan.size(); i++){
 			if (flagPlan.at(i) == false){
-				cout<<"We shouldn't be in here!!!"<<endl;
+				cout<<"RAISING EXTRA POINTS: We shouldn't be in here!!!"<<endl;
 				glm::vec3 vec = thePlan.getIntersectionVectors().at(i);
-				cout<<"Got vec "<<vec.x<<endl;
+				//cout<<"Got vec "<<vec.x<<endl;
 				Corner parentCorner = thePlan.getActivePlan().at(i);
-				cout<<"Got rents "<<parentCorner.getIndex()<<endl;
+				//cout<<"Got rents "<<parentCorner.getIndex()<<endl;
 				float newActivePlanHeight;
 				if (cornerQ.size() > 0) {
 					newActivePlanHeight = cornerQ.top().getPt().y;
@@ -715,18 +820,18 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 				cout<<"New height " <<newActivePlanHeight<<endl;
 
 				float difference = abs(newActivePlanHeight - parentCorner.getPt().y);
-				cout<<"Dif: "<<difference<<endl;
+				//cout<<"Dif: "<<difference<<endl;
 				float multiply = difference/(vec.y+pow(10.0,-6.0));
-				cout<<"Mult: "<<multiply<<endl;
+				//cout<<"Mult: "<<multiply<<endl;
 				glm::vec3 newPoint = parentCorner.getPt()+(vec*multiply);
-				cout<<"newPoint: "<<newPoint.y<<endl;
+				//cout<<"newPoint: "<<newPoint.y<<endl;
 				std::vector<Corner> myParent;
 				myParent.push_back(parentCorner);
-				cout<<"Pushing rent corner"<<endl;
+				//cout<<"Pushing rent corner"<<endl;
 				Corner finalCorner = Corner(newPoint,myParent);
-				cout<<"Adding final corner"<<endl;
+				//cout<<"Adding final corner"<<endl;
 				cornerQ.push(finalCorner);
-				cout<<"Added to corner q"<<endl;
+				//cout<<"Added to corner q"<<endl;
 			}
 		}
 	cout<<"Got through process new plan q"<<endl;
@@ -748,8 +853,9 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);
-			tempActivePlan.at(0).setRightEdge(edge); //TODO setRightEdge
-			tempActivePlan.at(i).setLeftEdge(edge);
+			//TODO - CHECK IF THIS IS CORRECT - FLIPPED 0 & i & i, i+1
+			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
+			tempActivePlan.at(0).setLeftEdge(edge);
 			//TODO - Deleted map update here...maybe add back?
 		} else {
 			startPoint = tempActivePlan.at(i).getPt();
@@ -757,8 +863,8 @@ void SweepPlane::updateNewPlanEdges(std::vector<Corner> &tempActivePlan)
 			std::vector<Corner> myCorn = tempActivePlan.at(i).getSource();
 			profile = myCorn.at(myCorn.size()-1).getRightEdge().getProfileType();
 			PlanEdge edge = PlanEdge(startPoint,endPoint,profile);			
-			tempActivePlan.at(i+1).setRightEdge(edge); //TODO setRightEdge
-			tempActivePlan.at(i).setLeftEdge(edge);
+			tempActivePlan.at(i).setRightEdge(edge); //TODO setRightEdge
+			tempActivePlan.at(i+1).setLeftEdge(edge);
 			//TODO - Deleted map update here...maybe add back?
 		} 
 		if (DEBUG == 1) {
@@ -925,7 +1031,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 				bool addParent = true; 
 				for (int p = 0; p < parents.size(); p++) {
 					if (tempSource.at(j).getIndex() == parents.at(p).getIndex()) addParent = false; 	
-					cout<<"The parent's right edge index is: "<<tempSource.at(j).getRightEdge().getIndex()<<endl;
+					//cout<<"The parent's right edge index is: "<<tempSource.at(j).getRightEdge().getIndex()<<endl;
 				}
 				if (addParent == true) {
 					parents.push_back(tempSource.at(j)); 
@@ -958,11 +1064,11 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 					for(int g = 0; g<indexToShift; g++){
 						improvedVector.push_back(newCorner.getSource().at(g));
 					}
-					cout<<"The size of the improved vector is: "<<improvedVector.size()<<endl;
+					//cout<<"The size of the improved vector is: "<<improvedVector.size()<<endl;
 					std::sort(improvedVector.begin(), improvedVector.end(), CompareParent());
-					cout<<"after sorting?"<<endl;
+					//cout<<"after sorting?"<<endl;
 					newCorner = Corner(newCorner.getLeftEdge(), newCorner.getRightEdge(), newCorner.getPt(),improvedVector);
-					cout<<"After last for loop."<<endl;
+					//cout<<"After last for loop."<<endl;
 				}
 			}	
 		}
@@ -1139,6 +1245,8 @@ void SweepPlane::buildIt()
 		} else {
 			break;
 		}
+		sameHeightCount++;
+		if (sameHeightCount > 100) {cout<<"FORCING KILL"<<endl; break;}
 	}
 }
 

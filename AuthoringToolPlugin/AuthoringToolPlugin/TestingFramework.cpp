@@ -361,6 +361,18 @@ void TestingFramework::testIntesections()
 			cout<<"FAILED!!"<<endl;
 			cout<<"Did it find neg intersection? Found intersection at: "<<intersect.x<<" "<<intersect.y<<" "<<intersect.z<<endl;
 	}	
+
+	cout<<"5. Testing expected intersection. Testing real example that fails"<<endl;
+	start1 = glm::vec3(-1.96793, 0, -7.434402 ); 
+	start2 = glm::vec3(3.104956, 0, -7.87172); 
+	end1 = glm::vec3(2.836363, 5.779027, -1.280395); 
+	end2 = glm::vec3(-1.354797, 5.779027, -0.91909); 
+	if (plane.intersectionTest(start1, end1, start2, end2, intersect) == false) {
+		cout<<"FAILED"<<endl;
+	} else {
+			cout<<"PASSED!!"<<endl;
+			cout<<"Did it find neg intersection? Found intersection at: "<<intersect.x<<" "<<intersect.y<<" "<<intersect.z<<endl;
+	}	
 }
 
 //Test anchor rotations
