@@ -85,7 +85,7 @@ void ActivePlan::pruneExcessPoints()
 
 			std::cout<<"The 3 values are x: "<<xValue<<" y: "<<yValue<<" z: "<<zValue<<std::endl;
 
-			float ERROR = 0.0001;
+			float ERROR = 0.01;
 
 			if(c.getSkipped()){
 				continue;

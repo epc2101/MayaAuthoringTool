@@ -29,6 +29,8 @@ private:
 	std::queue<ActivePlan> activePlanQueue;
 	std::queue<Anchor> outputAnchors;
 	bool killTheSweep;
+	float maxProfileHeight;
+	glm::vec3 avgPlanCenter;
 
 	ActivePlan thePlan;
 	std::priority_queue<Event,std::vector<Event>,CompareHeight> q;

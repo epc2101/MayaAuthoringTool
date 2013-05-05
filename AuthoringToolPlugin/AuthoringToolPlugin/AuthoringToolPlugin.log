@@ -1,27 +1,14 @@
-﻿Build started 5/2/2013 1:59:11 PM.
+﻿Build started 5/5/2013 1:40:13 PM.
      1>Project "C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt SweepPlane.cpp /GR /GS /EHsc /I "."  /c 
-         SweepPlane.cpp
-     1>SweepPlane.cpp(8): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(9): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(77): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(91): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(98): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(111): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(216): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(392): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(420): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(424): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(68): warning C4101: 'frame' : unreferenced local variable
-     1>SweepPlane.cpp(465): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(467): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(483): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(743): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(771): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(948): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files\Autodesk\Maya2013\include" /Zi /nologo /W3 /WX- /O2 /D WIN32 /D NDEBUG /D _WINDOWS /D _AFXDLL /D _MBCS /D NT_PLUGIN /D REQUIRE_IOSTREAM /D Bits64_ /D _WINDLL /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fd"vc100.pdb" /Gd /TP /errorReport:prompt ActivePlan.cpp /GR /GS /EHsc /I "."  /c 
+         ActivePlan.cpp
+     1>ActivePlan.cpp(82): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>ActivePlan.cpp(83): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>ActivePlan.cpp(84): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>ActivePlan.cpp(88): warning C4305: 'initializing' : truncation from 'double' to 'float'
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
@@ -57,4 +44,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.88
+Time Elapsed 00:00:02.16

@@ -25,6 +25,22 @@ SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anch
 	anchorList = aList; 
 	killTheSweep = false;
 	theLastHeight = -1.0;
+
+		//Preprocessing to kill the algo 
+	maxProfileHeight = 0; 
+	for (int i = 0; i < pList.size(); i++) 
+	{
+		ProfileEdge pe = pList.at(i).getEdgeList().at(pList.at(i).getEdgeList().size() - 1); 
+		if (pe.getEndPoint().y > maxProfileHeight) maxProfileHeight = pe.getEndPoint().y; 
+	}
+	std::vector<PlanEdge> pe = plan.getEdgeList();
+	avgPlanCenter = glm::vec3(0); 
+	for (int i = 0; i < pe.size(); i++) 
+	{
+		avgPlanCenter += pe.at(i).getEndPoint(); 
+	}
+	avgPlanCenter /= (float) pe.size(); 
+	cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
@@ -624,6 +640,14 @@ Goes through the active plan and figures out the intersection events.  It then s
 */
 void SweepPlane::fillQueueWithIntersections(float height)
 {
+	//if (height > 8  && height < 11)
+	//{
+		//cout<<"**************************************************************************"<<endl;
+		//cout<<"**************************************************************************"<<endl;
+		//cout<<"**************************************************************************"<<endl;
+	//	cout<<"In fille q with intersections"<<endl;
+	//}
+
 	bool foundIntersections = false; 
 	//This is where the intersection method should really start
 	if (DEBUG == 1) { 
@@ -632,89 +656,109 @@ void SweepPlane::fillQueueWithIntersections(float height)
 	}
 	//Compare each corner to all the other ones and determine the possible intersection events
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
-		for (int j = 0; j < thePlan.getActivePlan().size(); j++) {
-
-			//We make sure the corner in question doesn't contribute if it's skipped
-			/*if(thePlan.getActivePlan().at(i).getSkipped() || thePlan.getActivePlan().at(j).getSkipped()){
-				continue;
-			}*/
+		for (int j = 1; j < thePlan.getActivePlan().size(); j++) {
 
 			//We skip if the vector is being compared to itself
 			if (i != j) {
-			glm::vec3 firstVec, secondVec;
-			Corner firstCorner, secondCorner;
-			//We will calculate the intersection with the corner and its next neighbor - need to handle the end
-			firstVec = thePlan.getIntersectionVectors().at(i);
-			secondVec = thePlan.getIntersectionVectors().at(j);
-			firstCorner = thePlan.getActivePlan().at(i);
-			secondCorner = thePlan.getActivePlan().at(j);
-			firstVec = glm::normalize(firstVec);
-			secondVec = glm::normalize(secondVec);
 
-			if (firstVec.y < 0.0){
-				cout<<"First vec is negative"<<endl;
-			}
-			if (secondVec.y < 0.0){
-				cout<<"Second vec is negative"<<endl;
-			}
+				glm::vec3 firstVec, secondVec;
+				Corner firstCorner, secondCorner;
+				//We will calculate the intersection with the corner and its next neighbor - need to handle the end
+				firstVec = thePlan.getIntersectionVectors().at(i);
+				secondVec = thePlan.getIntersectionVectors().at(j);
 
-			if (DEBUG == 1){
-				cout<<endl;
-				cout<<"The first vector is "<<firstVec.x<<" "<<firstVec.y<<" "<<firstVec.z<<endl;
-				cout<<"The second vector is "<<secondVec.x<<" "<<secondVec.y<<" "<<secondVec.z<<endl;
-				cout<<endl;
-			}
+				firstCorner = thePlan.getActivePlan().at(i);
+				secondCorner = thePlan.getActivePlan().at(j);
 
-			//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
-			//We extend the vectors in both directions from their current points and perform a line intersection test
-			glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
+				firstVec = glm::normalize(firstVec);
+				secondVec = glm::normalize(secondVec);
 
-			//These are the initial starting points
-			firstStartPoint = firstCorner.getPt();
-			secondStartPoint = secondCorner.getPt();
+				//cout<<"***Intersection Corner Indices****"<<endl; 
+				//cout<<"***i = "<<i<<"***j = "<<j<<endl;
+				//cout<<"First: "<< firstCorner.getIndex()<<" Second: "<<secondCorner.getIndex()<<endl; 
+				//	cout<<"Starting from first: "<<firstCorner.getIndex()<<" ->"<<firstStartPoint.x<<" "<<firstStartPoint.y<<" "<<firstStartPoint.z<<endl;
+				//	cout<<"Starting from second: "<<secondCorner.getIndex()<<" ->"<<secondStartPoint.x<<" "<<secondStartPoint.y<<" "<<secondStartPoint.z<<endl;
 
-			
 
-			float t = 10000.0;
+				if (DEBUG == 1){
+					if ((firstCorner.getIndex() == 5 || firstCorner.getIndex() == 6) && height > 8) {
+						if (firstVec.y < 0.0){
+							cout<<"First vec is negative"<<endl;
+						}
+						if (secondVec.y < 0.0){
+							cout<<"Second vec is negative"<<endl;
+						}
+						cout<<endl;
 
-			//The top points are multiplied by a large t value (around 10000)
-			firstTopPoint = firstStartPoint + (firstVec*t);
-			secondTopPoint = secondStartPoint + (secondVec*t);
-
-bool intTest1 = intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint);
-			float mua, mub; 
-			glm::vec3 pa, pb; 
-			bool intTest2 = shortestDistTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint, mua, mub, pa, pb);
-			bool addToQ = true;
-			if (intTest1 || intTest2 ){
-				//Check if the direct intersection test has missed & see if the shortest dist is close enough to count as intersection
-				if (intTest1 == false) {
-					//Check if the y value is greater than the current height
-					if (pa.y >= (height) && fabs(pa.x - pb.x) < 0.25f && fabs(pa.y - pb.y) < 0.25f && fabs(pa.z - pb.z) < 0.25f) {
-						intersectionPoint= ((pa + pb) /2.f); 
-					} else {
-						addToQ = false;
+						cout<<"The first vector is "<<firstVec.x<<" "<<firstVec.y<<" "<<firstVec.z<<endl;
+						cout<<"The second vector is "<<secondVec.x<<" "<<secondVec.y<<" "<<secondVec.z<<endl;
+						cout<<endl;
 					}
 				}
-				if (addToQ) {
-				//This is the code to create the intersection event and push it onto the queue
-				cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
-				//intersectionPoint.y+=firstCorner.getPt().y;
-				foundIntersections = true;
-				/*if (intersectionPoint.y < height){
-					continue;
-				}*/
-				std::vector<Corner> source;
-				source.push_back(firstCorner);
-				source.push_back(secondCorner);
-				Event intersect = Event(intersectionPoint.y, intersectionPoint,source, Event::INTERSECTION);
-				
-				q.push(intersect);
+
+				//Test if the vectors are parallel (might want to utilize an epsilon value for equality to deal with floating point issues
+				//We extend the vectors in both directions from their current points and perform a line intersection test
+				glm::vec3 firstStartPoint, secondStartPoint, firstBelowPoint, secondBelowPoint, firstTopPoint, secondTopPoint, intersectionPoint;
+
+				//These are the initial starting points
+				firstStartPoint = firstCorner.getPt();
+				secondStartPoint = secondCorner.getPt();
+
+				float t = 10000.0;
+
+				//The top points are multiplied by a large t value (around 10000)
+				firstTopPoint = firstStartPoint + (firstVec*t);
+				secondTopPoint = secondStartPoint + (secondVec*t);
+
+				//if (height > 5 && height < 11) {
+				//if (firstCorner.getIndex() == 5) {
+				//	cout<<"****************INDEX 5 & 6**********************"<<endl;
+				//	cout<<"Starting from first: "<<firstCorner.getIndex()<<" ->"<<firstStartPoint.x<<" "<<firstStartPoint.y<<" "<<firstStartPoint.z<<endl;
+				//	cout<<"Starting from second: "<<secondCorner.getIndex()<<" ->"<<secondStartPoint.x<<" "<<secondStartPoint.y<<" "<<secondStartPoint.z<<endl;
+				//}
+				//}
+
+				bool intTest1 = intersectionTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint,intersectionPoint);
+				float mua, mub; 
+				glm::vec3 pa, pb; 
+				bool intTest2 = shortestDistTest(firstStartPoint,firstTopPoint,secondStartPoint,secondTopPoint, mua, mub, pa, pb);
+				bool addToQ = true; 
+				if (intTest1 || intTest2 ){
+					//Check if the direct intersection test has missed & see if the shortest dist is close enough to count as intersection
+					if (intTest1 == false) {
+						//Check if the y value is greater than the current height
+						if (pa.y > (height) && fabs(pa.x - pb.x) < 0.25f && fabs(pa.y - pb.y) < 0.25f && fabs(pa.z - pb.z) < 0.25f) {
+							intersectionPoint = ((pa + pb) /2.f); 
+						} else {
+							addToQ = false; 
+						}
+					}
+					//Make sure that we have a valid point
+
+					if (intersectionPoint.y > maxProfileHeight || glm::distance(intersectionPoint, avgPlanCenter) > 50){
+						addToQ = false; 
+					}
+
+					if (addToQ) {
+						//This is the code to create the intersection event and push it onto the queue
+						cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
+						cout<<"The distance between the points is: "<<glm::distance(intersectionPoint, avgPlanCenter)<<endl;
+						cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
+
+						foundIntersections = true;
+						std::vector<Corner> source;
+						source.push_back(firstCorner);
+						source.push_back(secondCorner);
+						Event intersect = Event(intersectionPoint.y, intersectionPoint,source, Event::INTERSECTION);
+
+						q.push(intersect);
+					}
 				}
-			}
 			}
 		}
 	}
+
+
 }
 
 void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
@@ -723,13 +767,10 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 		return;
 	}
 
+
+
 	//We will prevent overlaps by only useing the right edge
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
-
-		/*if(thePlan.getActivePlan().at(i).getSkipped()){
-				continue;
-			}*/
-
 		Corner tempCorner = thePlan.getActivePlan().at(i);
 		glm::vec3 cornerVec = thePlan.getIntersectionVectors().at(i);
 
@@ -738,18 +779,28 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 		if (profEdge.getIsHorizontal()){
 			continue;
 		}
-		
+
+		if(tempCorner.getSkipped()){
+			continue;
+		}
+
+
+
 		float difference = abs(profEdge.getEndPoint().y - tempCorner.getPt().y);
 		float multiply = difference/(cornerVec.y+pow(10.0,-6.0));
 		glm::vec3 newPoint = tempCorner.getPt()+(cornerVec*multiply);
 		//newPoint.y = abs(newPoint.y);
-		
+
 		std::vector<Corner> parentCorner;
 		parentCorner.push_back(tempCorner);
-
-		//We are still going to do this for each of the corners for each of the edges they are associated with
-		Event edgeChange = Event(profEdge.getEndPoint().y,newPoint,parentCorner,Event::PROFILE);
-		q.push(edgeChange);
+		//TODO********************************************************************
+		//TODO - THIS IS A HACKY FIX BC WE SHOULD NEVERRRR GET A POINT THAT IS NOT ACTUALLY ON THE PROFILE...
+		if (glm::distance(newPoint, avgPlanCenter) < 50) {
+		//TODO********************************************************************
+			//We are still going to do this for each of the corners for each of the edges they are associated with
+			Event edgeChange = Event(profEdge.getEndPoint().y,newPoint,parentCorner,Event::PROFILE);
+			q.push(edgeChange);
+		}
 	}
 }
 
@@ -922,10 +973,10 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 
 	//Raise the extra points that don't get no love!
 		for (int i = 0; i<flagPlan.size(); i++){
-			/*if(thePlan.getActivePlan().at(i).getSkipped()==true){
+			if(thePlan.getActivePlan().at(i).getSkipped()==true){
 				
 				continue;
-			}*/
+			}
 
 			if (flagPlan.at(i) == false){
 				cout<<"We shouldn't be in here!!!"<<endl;
@@ -1358,7 +1409,7 @@ void SweepPlane::buildIt()
 		f++;
 		processQueue();
 		thePlan.updateCornerIndices();
-		//thePlan.updateEdges();
+//		thePlan.updateEdges();
 		cout<<"THE CURRENT SIZE OF THE ANCHORS ARE: "<<thePlan.edgeAnchorMap.size()<<endl;
 		activePlanStack.push(thePlan);
 		activePlanQueue.push(thePlan);
@@ -1393,7 +1444,7 @@ void SweepPlane::buildIt()
 			break;
 		}
 		stopIt++; 
-		if (stopIt > 5) {
+		if (stopIt > 25) {
 			cout<<"MANUALLY FORCING A KIILLLLLLL!!!"<<endl;
 			break;
 		}
