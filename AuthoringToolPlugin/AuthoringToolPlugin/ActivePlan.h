@@ -26,9 +26,27 @@ public:
 	void setIntersectionVector(glm::vec3 v);
 	void cleanIntersectionVectors();
 	std::vector<PlanEdge> getEdgeList(); 
+	void setCornerMeshIndex(int cornerIndex, int meshIndex);
+	void setCornerIndex(int i);
+	void updateCornerIndices();
+
+
+	int getLeftEdgeLeftIndex(int index);
+	int getLeftEdgeRightIndex(int index);
+
+	int getRightEdgeLeftIndex(int index);
+	int getRightEdgeRightIndex(int index);
+
+	void pruneExcessPoints();
+
+	void setCornerLeft(int index, bool value);
+	void setCornerRight(int index, bool value);
 
 	ActivePlan(std::vector<Corner> cornerPlan);
 	ActivePlan(void);
 	~ActivePlan(void);
+
+	//New Methods to update the mesh creation
+	void updateEdges(std::deque<Corner> &cornPlan);
 };
 

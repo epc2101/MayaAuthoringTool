@@ -1,6 +1,6 @@
 #include "Anchor.h"
 
-int A_DEBUG = 1;
+int A_DEBUG = 0;
 Anchor::Anchor(void)
 {
 }
@@ -33,6 +33,10 @@ int Anchor::getIndex()
 	return index; 
 }
 
+void Anchor::setFloorPlanIndex(int i)
+{
+	floorPlanIndex = i; 
+}
 float Anchor::getFloorPlanPercent()
 {
 	return floorPlanPercent; 

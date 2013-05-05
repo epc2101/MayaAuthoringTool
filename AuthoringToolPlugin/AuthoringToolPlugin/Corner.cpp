@@ -10,6 +10,10 @@ Corner::Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt)
 	previousEdge = _previousEdge;
 	nextEdge = _nextEdge;
 	pt = _pt;
+	rightEdgeMesh = false;
+	leftEdgeMesh = false;
+	meshIndex = -1;
+	skipped = false;
 
 }
 
@@ -19,6 +23,10 @@ Corner::Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt, std::v
 	nextEdge = _nextEdge;
 	pt = _pt; 
 	srcCorners = parents; 
+	rightEdgeMesh = false;
+	leftEdgeMesh = false;
+	meshIndex = -1;
+	skipped = false;
 }
 
 PlanEdge Corner::getRightEdge()
@@ -64,6 +72,7 @@ Corner::Corner(glm::vec3 p, std::vector<Corner> parents)
 {
 	pt = p;
 	srcCorners = parents;
+	skipped = false;
 }
 void Corner::setLeftEdge(PlanEdge e)
 {
@@ -72,4 +81,49 @@ void Corner::setLeftEdge(PlanEdge e)
 void Corner::setRightEdge(PlanEdge e)
 {
 	previousEdge = e;
+}
+
+int Corner::getMeshIndex()
+{
+	return meshIndex;
+}
+void Corner::setMeshIndex(int i)
+{
+	meshIndex = i;
+}
+
+bool Corner::getRightMesh()
+{
+	return rightEdgeMesh;
+}
+bool Corner::getLeftMesh()
+{
+	return leftEdgeMesh;
+}
+void Corner::setRightMesh(bool b)
+{
+	rightEdgeMesh = b;
+}
+void Corner::setLeftMesh(bool b)
+{
+	leftEdgeMesh = b;
+}
+
+void Corner::setLeftEdgeIndex(int i)
+{
+	nextEdge.setRightCornerIndex(i);
+}
+void Corner::setRightEdgeIndex(int i)
+{
+	previousEdge.setLeftCornerIndex(i);
+}
+
+bool Corner::getSkipped()
+{
+	return skipped;
+}
+
+void Corner::setSkipped(bool b)
+{
+	skipped = b;
 }

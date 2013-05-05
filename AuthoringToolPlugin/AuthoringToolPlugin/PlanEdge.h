@@ -3,6 +3,7 @@
 
 #include <vector>
 
+
 class PlanEdge :
 	public Edge
 {
@@ -10,6 +11,8 @@ class PlanEdge :
 private:
 	int profileType;
 	int index; 
+	int leftCornerIndex;
+	int rightCornerIndex;
 
 public:
 	//Various constructors
@@ -22,6 +25,11 @@ public:
 	//Getters/Setters
 	int getProfileType();
 	void setProfileType(int p);
+
+	int getLeftCornerIndex();
+	int getRightCornerIndex();
+	void setLeftCornerIndex(int l);
+	void setRightCornerIndex(int r);
 	//********************************
 	//Maybe not using this
 	std::vector<Anchor> getAnchors(); 

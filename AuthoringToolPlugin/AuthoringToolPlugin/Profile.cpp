@@ -45,14 +45,12 @@ std::vector<ProfileEdge> Profile::normalizeProfile(std::vector<ProfileEdge> e)
 	glm::vec3 start = edge.getStartPoint();
 	float heightChange = start.y;
 	float transChange = start.x;
-	std::cout<<"Height change is: "<<heightChange<<std::endl;
 
 	for(int i = 0; i<e.size(); i++){
 		ProfileEdge temp = e.at(i);
 		glm::vec3 startPoint = temp.getStartPoint();
 		glm::vec3 endPoint = temp.getEndPoint();
 		int anchor = temp.getAnchorType();
-		
 
 		startPoint.x -= transChange;
 		startPoint.y -= heightChange;
@@ -60,7 +58,7 @@ std::vector<ProfileEdge> Profile::normalizeProfile(std::vector<ProfileEdge> e)
 		endPoint.x -= transChange;
 		endPoint.y -= heightChange;
 
-		std::cout<<"The y value of the end point is "<<endPoint.y<<std::endl;
+		//std::cout<<"The y value of the end point is "<<endPoint.y<<std::endl;
 
 		//Check if horizontal and if it is the topmost point
 		bool isTop, isHorizontal;
@@ -72,7 +70,7 @@ std::vector<ProfileEdge> Profile::normalizeProfile(std::vector<ProfileEdge> e)
 			isTop = false;
 		}
 
-		if((startPoint.y - endPoint.y) < DIFF){
+		if(abs(startPoint.y - endPoint.y) < DIFF){
 			isHorizontal = true;
 		}
 		else{

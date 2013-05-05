@@ -36,7 +36,7 @@ void FileParser::parseFile(){
 		//Setup the floor plan data
 		if(lineHeader == "#FloorPlanStart"){
 			configFile >> lineHeader;
-			cout<<"In floorplan start..."<<endl;
+			//cout<<"In floorplan start..."<<endl;
 			while(lineHeader != "#FloorPlanEnd"){
 				
 				//Parse first point, second point, profile and anchor
@@ -50,9 +50,9 @@ void FileParser::parseFile(){
 				FloorPlanEdges.push_back(tempEdge);
 				FloorPlanProfile.push_back(profile);
 
-				cout<<"The profile index at parsing is"<<FloorPlanProfile.back()<<endl;
+				//cout<<"The profile index at parsing is"<<FloorPlanProfile.back()<<endl;
 
-				cout<<"lineHeader: "<<lineHeader<<endl;
+				//cout<<"lineHeader: "<<lineHeader<<endl;
 				//Check the beginning of next line to see if should end;
 				configFile >> lineHeader;
 			}
@@ -61,19 +61,32 @@ void FileParser::parseFile(){
 
 			//Test the ordering of the plan edges - if CW we are good, otherweise we need to flip
 			orderIsCW = testOrder(FloorPlanEdges);
-			cout<<"IS counter clockwise: "<<orderIsCW<<endl;
-			if (orderIsCW){
+
+			if (!orderIsCW){
 				plan = FloorPlan(FloorPlanEdges, FloorPlanEdges.size(), FloorPlanProfile);
 			}
 			else {
 				std::vector<PlanEdge> tempPlanEdge;
 				std::vector<int> tempProfileList;
 
+				int j = 0; 
 				while(!FloorPlanEdges.empty()){
-					PlanEdge temp = FloorPlanEdges.back();
-					FloorPlanEdges.pop_back();
-					int tempNum = FloorPlanProfile.back();
-					FloorPlanProfile.pop_back();
+					PlanEdge temp;
+					int tempNum; 
+					if (j == 0) {
+						temp = FloorPlanEdges.front(); 	
+					    FloorPlanEdges.erase(FloorPlanEdges.begin());
+						tempNum = FloorPlanProfile.front();
+						FloorPlanProfile.erase(FloorPlanProfile.begin()); 
+					} else {
+						temp = FloorPlanEdges.back();
+						FloorPlanEdges.pop_back();
+						tempNum = FloorPlanProfile.back();
+						FloorPlanProfile.pop_back();
+					}
+					j++;
+					//cout<<"First edge to be popped: "<<temp2.getStartPoint().x<<" "<<temp2.getStartPoint().z<<" End: "<<temp2.getEndPoint().x<<" "<<temp2.getEndPoint().z<<endl;
+
 
 					glm::vec3 newStart, newEnd;
 					newStart = temp.getEndPoint();
@@ -150,7 +163,7 @@ void FileParser::parseFile(){
 			return;
 		}
 
-		cout<<"GOT HERE??!!"<<endl;
+		//cout<<"GOT HERE??!!"<<endl;
 		//******Beths code start...I'm on a boat....
 		configFile >> lineHeader;
 		int numAnchors = 0; 
@@ -161,33 +174,35 @@ void FileParser::parseFile(){
 		    configFile >> numAnchors;
 			cout<<"In anchors.  #: "<<numAnchors<<endl;
 			for (int i = 0; i < numAnchors; i++) {
-				configFile >> lineHeader; /* #AnchorStarti*/ cout<<" "<<lineHeader<<" ";
-				configFile >> lineHeader; /*#FloorPlanEdge*/ cout<<" "<<lineHeader<<" ";
+				configFile >> lineHeader; /* #AnchorStarti*/ //cout<<" "<<lineHeader<<" ";
+				configFile >> lineHeader; /*#FloorPlanEdge*/ //cout<<" "<<lineHeader<<" ";
 				configFile >> floorPlanEdge;  
 				configFile >> lineHeader; //#Profile
 				configFile >> profile; 
 				configFile >> lineHeader; //ProfileEdge
 				configFile >> profileEdge; 
 				configFile >> lineHeader; //#AnchorEndi
+
 				Anchor a = Anchor(i, floorPlanEdge, profile, profileEdge); 
-				Profile p = profiles.at(i); 
+				Profile p = profiles.at(profile); 
 				ProfileEdge e = p.getEdgeList().at((int) profileEdge);
 				glm::vec3 dir = e.getEndPoint() - e.getStartPoint();
 				float profilePercent = profileEdge - (int)profileEdge; 
 				a.setHeight((e.getStartPoint() + dir * profilePercent).y); 
 				//Add the anchor to the floorPlanEdge Anchor list
 				a.setID(i); 
-				anchors.push_back(a); 
-
-				//TODO - THIS ISN"T WORKING
-				//plan.getEdgeList().at((int)floorPlanEdge).addAnchor(a);
-
+				anchors.push_back(a);
+				//std::cout<<"In file parser.  Got anchor: "<<a.getID()<<" "<<a.getFloorPlanIndex()<<std::endl;
 			}
-			if(!orderIsCW) {
+			if(orderIsCW) {
 				for (int i = 0; i < anchors.size(); i++)
 				{
-					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
+					//cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
 					anchors.at(i).setFloorPlanPercent(1.f - anchors.at(i).getFloorPlanPercent());
+					//cout<<"The old index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
+					if (anchors.at(i).getFloorPlanIndex() != 0) 
+						anchors.at(i).setFloorPlanIndex(plan.getEdgeList().size() - anchors.at(i).getFloorPlanIndex()); 
+					//cout<<"The new index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
 				}
 
 			}
@@ -202,19 +217,16 @@ bool FileParser::testOrder(std::vector<PlanEdge> currentPlan)
 	int testNum = 0;
 	for(int i = 0; i<currentPlan.size(); i++){
 		PlanEdge tempEdge = currentPlan.at(i);
-		int xNum = tempEdge.getEndPoint().x + tempEdge.getStartPoint().x;
-		int zNum = tempEdge.getEndPoint().z - tempEdge.getStartPoint().z;
+		int xNum = tempEdge.getEndPoint().x - tempEdge.getStartPoint().x;
+		int zNum = tempEdge.getEndPoint().z + tempEdge.getStartPoint().z;
 		testNum += (xNum*zNum);
 	}
-	if(testNum < 0){
+	if(testNum <= 0){
 		cout<<"IS COUNTER CLOCKWISE"<<endl;
 		return false;
 	}
 	else {
-		if (testNum == 0) {
-			//Try running around the edges and seeing whether the cross product is pos/neg
-			cout<<"Uhoh! We got 0"<<endl;
-		}
+
 		cout<<"IS CLOCKWISE"<<endl;
 		return true;
 	}
@@ -232,7 +244,7 @@ std::vector<Profile> FileParser::getProfiles(){
 
 std::vector<Anchor> FileParser::getAnchors()
 {
-	cout<<"The size of the anchors in file parse is: "<<anchors.size(); 
+	//cout<<"The size of the anchors in file parse is: "<<anchors.size()<<endl; 
 	return anchors; 
 }
 

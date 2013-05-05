@@ -24,6 +24,9 @@
     <None Include="PluginDataOriginalDump.txt">
       <Filter>Miscellaneous Files</Filter>
     </None>
+    <None Include="MeshCreationDump.txt">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AuthoringToolPluginNode.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CompareIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestingFramework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -143,6 +149,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CompareIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestingFramework.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
