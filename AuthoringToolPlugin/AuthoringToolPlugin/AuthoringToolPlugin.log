@@ -1,4 +1,4 @@
-﻿Build started 5/2/2013 2:00:49 PM.
+﻿Build started 5/4/2013 8:55:27 PM.
      1>Project "C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -18,9 +18,9 @@
      1>SweepPlane.cpp(323): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(325): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(341): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(646): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(678): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(850): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(644): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(676): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(848): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Beth\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
@@ -56,4 +56,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.01
+Time Elapsed 00:00:03.94

@@ -365,10 +365,8 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 				//cout<<"Found top edge at height: "<<edge.getEndPoint().y<<endl;
 				if (edge.getEndPoint().y == theLastHeight) {
 					cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
-					killTheSweep = true; 
-					break;
 				}
-				if (height >= edge.getEndPoint().y && edge.getEndPoint().y != theLastHeight){
+				if (height >= edge.getEndPoint().y){
 					//cout<<"Adding the last edge height"<<endl;
 					currentProfileFromHeight.push_back(edge);
 					prof.getEdgesUsed().at(j) = true;
@@ -456,6 +454,9 @@ void SweepPlane::updateIntersectionVectors(float height)
 		Corner corner = thePlan.getActivePlan().at(i);
 		PlanEdge firstEdge = corner.getLeftEdge();
 		PlanEdge secondEdge = corner.getRightEdge();		
+		cout<<"Got second edge"<<endl;
+		cout<<"first edge profile type: "<<firstEdge.getProfileType()<<endl; 
+		cout<<"The size of the profiles: "<<currentProfileFromHeight.size(); 
 		ProfileEdge firstProfileEdge = currentProfileFromHeight.at(firstEdge.getProfileType());
 		//if (firstEdge.getStartPoint().x < -100) {
 			cout<<"*************************************************"<<endl;
@@ -485,9 +486,6 @@ void SweepPlane::updateIntersectionVectors(float height)
 		
 		}
 		ProfileEdge secondProfileEdge = currentProfileFromHeight.at(secondEdge.getProfileType());
-
-		
-
 		glm::vec3 edgeVec1 = firstEdge.getEndPoint()-firstEdge.getStartPoint();
 		glm::vec3 profVec1 = firstProfileEdge.getEndPoint()-firstProfileEdge.getStartPoint();
 			
