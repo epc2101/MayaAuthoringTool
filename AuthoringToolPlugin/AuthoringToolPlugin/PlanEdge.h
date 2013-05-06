@@ -40,6 +40,10 @@ public:
 	int getIndex(); 
 	//bool operator()( PlanEdge const& lhs, PlanEdge const& rhs ) const; 
 
+	void setStartPoint(glm::vec3 start);
+
+	void setEndPoint(glm::vec3 end);
+
 	~PlanEdge(void);
 };
 

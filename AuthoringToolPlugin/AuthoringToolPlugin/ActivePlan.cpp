@@ -20,30 +20,34 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 		glm::vec3 pt = e.getStartPoint();
 		PlanEdge previousEdge, nextEdge;
 
+
 		if (i == 0) {
+			nextEdge = e;
 			previousEdge = thePlan.getEdgeList().at(thePlan.getNumPoints()-1);
 			previousEdge.setProfileType(thePlan.getProfileList().at(thePlan.getNumPoints()-1));
-			previousEdge.setRightCornerIndex(1);
-			previousEdge.setLeftCornerIndex(0);
-			nextEdge = e;
-			nextEdge.setRightCornerIndex(0);
-			nextEdge.setLeftCornerIndex(thePlan.getNumPoints()-1);
+			
+			previousEdge.setRightCornerIndex(0);
+			previousEdge.setLeftCornerIndex(thePlan.getNumPoints()-1);
+			
+			nextEdge.setRightCornerIndex(1);
+			nextEdge.setLeftCornerIndex(0);
+
 		}  else {
 			previousEdge = thePlan.getEdgeList().at(i-1);
 			previousEdge.setProfileType(thePlan.getProfileList().at(i-1));
-			previousEdge.setRightCornerIndex(i+1);
-			if (thePlan.getNumPoints()-1){
-				previousEdge.setLeftCornerIndex(0);
-			} else {
-			previousEdge.setLeftCornerIndex(i);
-			}
+
+
+			previousEdge.setLeftCornerIndex(i-1);
+			previousEdge.setRightCornerIndex(i);
+
 			nextEdge = e;
-			nextEdge.setLeftCornerIndex(i-1);
-			if (thePlan.getNumPoints()-1){
+			nextEdge.setLeftCornerIndex(i);
+
+			if (i==thePlan.getNumPoints()-1){
 				nextEdge.setRightCornerIndex(0);
 			}
 			else {
-			nextEdge.setRightCornerIndex(i);
+				nextEdge.setRightCornerIndex(i+1);
 			
 			}
 		}
@@ -52,7 +56,7 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 		//std::cout<<"Next edge index is "<<nextEdge.getProfileType()<<std::endl;
 
 
-		Corner c = Corner(previousEdge, nextEdge, pt); 
+		Corner c = Corner(nextEdge, previousEdge, pt); 
 		//std::cout<<"The corner has the edge profile type of: "<<c.getLeftEdge().getProfileType()<<std::endl;
 
 		c.setIndex(i);
@@ -65,7 +69,7 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 void ActivePlan::pruneExcessPoints()
 {
 	//Somewhat arbitrary number selection right now
-	if (activePlan.size() > 4){
+	if (activePlan.size() >= 4){
 		for(int i = 0; i<activePlan.size(); i++){
 			Corner c = activePlan.at(i);
 			Corner pruneCorner = activePlan.at(c.getRightEdge().getRightCornerIndex());
@@ -75,15 +79,55 @@ void ActivePlan::pruneExcessPoints()
 			std::cout<<"Index of the prune corner is : "<<pruneCorner.getIndex()<<std::endl;
 			std::cout<<"Index of the final corner is : "<<testCorner.getIndex()<<std::endl;
 			
-			glm::vec3 P = testCorner.getPt();
+			glm::vec3 B = testCorner.getPt();
 			glm::vec3 A = pruneCorner.getPt();
-			glm::vec3 B = c.getPt();
+			glm::vec3 P = c.getPt();
 
-			float xValue = (P.x-B.x)/(A.x-B.x + pow(10.0,-6));
+
+			//****THIS IS CODE FROM STACK OVERFLOW http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+		//	float minimum_distance(vec2 v, vec2 w, vec2 p) {
+  //// Return minimum distance between line segment vw and point p
+  //const float l2 = length_squared(v, w);  // i.e. |w-v|^2 -  avoid a sqrt
+  //if (l2 == 0.0) return distance(p, v);   // v == w case
+  //// Consider the line extending the segment, parameterized as v + t (w - v).
+  //// We find projection of point p onto the line. 
+  //// It falls where t = [(p-v) . (w-v)] / |w-v|^2
+  //const float t = dot(p - v, w - v) / l2;
+  //if (t < 0.0) return distance(p, v);       // Beyond the 'v' end of the segment
+  //else if (t > 1.0) return distance(p, w);  // Beyond the 'w' end of the segment
+  //const vec2 projection = v + t * (w - v);  // Projection falls on the segment
+  //return distance(p, projection);
+
+			float distance=0.0;
+			glm::vec3 proj;
+			float l2 = pow(glm::length(A-B),2);
+			if(l2 < 0.001){
+				distance = glm::length(P-A);
+			}
+			float t = glm::dot(P-B,A-B)/l2;
+			if (t<0.0){
+				distance = glm::length(P-B);
+			}
+			else if (t>1.0){
+				distance = glm::length(P-A);
+			}
+			else {
+				proj = B + (t*(A-B));
+				distance = glm::length(P-proj);
+			}
+
+			std::cout<<"T value is: "<<t<<std::endl;
+			std::cout<<"The Distance is: "<<distance<<std::endl;
+			std::cout<<"The location of point A(pruneCorner) is: "<<A.x<<" "<<A.y<<" "<<A.z<<std::endl;
+			std::cout<<"The location of point B is: "<<B.x<<" "<<B.y<<" "<<B.z<<std::endl;
+			std::cout<<"The location of point P is: "<<P.x<<" "<<P.y<<" "<<P.z<<std::endl;
+			std::cout<<"The location of projected point is: "<<proj.x<<" "<<proj.y<<" "<<proj.z<<std::endl;
+			
+			/*float xValue = (P.x-B.x)/(A.x-B.x + pow(10.0,-6));
 			float yValue = (P.y-B.y)/(A.y-B.y+ pow(10.0,-6));
 			float zValue = (P.z-B.z)/(A.z-B.z+ pow(10.0,-6));
 
-			std::cout<<"The 3 values are x: "<<xValue<<" y: "<<yValue<<" z: "<<zValue<<std::endl;
+			std::cout<<"The 3 values are x: "<<xValue<<" y: "<<yValue<<" z: "<<zValue<<std::endl;*/
 
 			float ERROR = 0.01;
 
@@ -92,32 +136,92 @@ void ActivePlan::pruneExcessPoints()
 			}
 
 			//This means we need to do us some prunin!
-			if(abs(xValue-yValue) < ERROR && abs(xValue-zValue) < ERROR && abs(yValue-zValue) < ERROR){
+			if(distance < ERROR){
 				std::cout<<"Pruned!"<<std::endl;
 				//We need to check that it isn't involved in an intersection!
-				if (A.x > P.x && B.x < P.x && A.y > P.y && B.y < P.y && A.z > P.z && B.z < P.z){
-
-					if (abs(P.x)-abs(A.x)<ERROR && abs(P.y)-abs(A.y)<ERROR && abs(P.z)-abs(A.z)<ERROR){
-						continue;
-					}
-					if (abs(P.x)-abs(B.x)<ERROR && abs(P.y)-abs(B.y)<ERROR && abs(P.z)-abs(B.z)<ERROR){
-						continue;
-					}
+				
 
 					//We need to fix the edges connecting them for indices
-					PlanEdge rightEdge = activePlan.at(i).getRightEdge();
+				/*	PlanEdge rightEdge = activePlan.at(i).getRightEdge();
 					rightEdge.setRightCornerIndex(testCorner.getIndex());
 					PlanEdge leftEdge = testCorner.getLeftEdge();
 					leftEdge.setLeftCornerIndex(i);
 					activePlan.at(i).setRightEdge(rightEdge);
-					activePlan.at(testCorner.getIndex()).setLeftEdge(leftEdge);
+					activePlan.at(testCorner.getIndex()).setLeftEdge(leftEdge);*/
 
 					//Now we need to make sure the extra corner doesn't get in the way
 					activePlan.at(pruneCorner.getIndex()).setSkipped(true);
-				}
+				
 			}
 
 		}
+	}
+
+}
+
+std::vector<Corner> ActivePlan::cleanPrunedPlan()
+{
+	std::vector<Corner> newCornerPlan;
+	int index = 0;
+	for(int i = 0; i<activePlan.size(); i++){
+		Corner c = activePlan.at(i);
+		if (c.getSkipped()){
+			continue;
+		}
+		
+
+		PlanEdge tEdge = c.getRightEdge();
+		PlanEdge pruned = c.getLeftEdge();
+		int prevInd = pruned.getLeftCornerIndex();
+		int nextInd = tEdge.getRightCornerIndex();
+
+		std::cout<<"The next index potentially to be pruned is: "<<nextInd<<std::endl;
+		std::cout<<"The previous index potentially to be pruned is: "<<prevInd<<std::endl;
+		
+		//We know the next one is going to be pruned off so we handle it all here
+		if(activePlan.at(nextInd).getSkipped()){
+			PlanEdge keptEdge = activePlan.at(nextInd).getRightEdge();
+			keptEdge.setStartPoint(c.getPt());
+			keptEdge.setLeftCornerIndex(index);
+
+			if(i = activePlan.size()-1){
+				//This maybe should be 1
+				keptEdge.setRightCornerIndex(1);
+			} else {
+			keptEdge.setRightCornerIndex(index+1);
+			}
+			c.setRightEdge(keptEdge);
+			//c.setIndex(index);
+
+		}
+		if(activePlan.at(prevInd).getSkipped()){
+			PlanEdge keptEdge = activePlan.at(prevInd).getLeftEdge();
+			keptEdge.setEndPoint(activePlan.at(activePlan.at(prevInd).getLeftEdge().getLeftCornerIndex()).getPt());
+			keptEdge.setRightCornerIndex(index-1);
+			keptEdge.setLeftCornerIndex(index);
+			c.setLeftEdge(keptEdge);
+			//c.setIndex(index);
+		}
+
+		newCornerPlan.push_back(c);
+		index++;
+	}
+
+	for(int i = 0; i<newCornerPlan.size(); i++){
+		std::cout<<"Index in new corner plan: "<<newCornerPlan.at(i).getIndex()<<std::endl;
+		std::cout<<"The next index from the right edge is: "<<newCornerPlan.at(i).getRightEdge().getRightCornerIndex()<<std::endl;
+		std::cout<<"The next index from the left edge is: "<<newCornerPlan.at(i).getLeftEdge().getLeftCornerIndex()<<std::endl;
+	}
+
+	return newCornerPlan;
+
+}
+
+void ActivePlan::setActivePlan(std::vector<Corner> corn)
+{
+	activePlan.clear();
+	for(int i = 0; i<corn.size(); i++){
+		activePlan.push_back(corn.at(i));
 	}
 
 }

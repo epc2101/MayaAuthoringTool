@@ -37,6 +37,8 @@ public:
 	int getRightEdgeLeftIndex(int index);
 	int getRightEdgeRightIndex(int index);
 
+	std::vector<Corner> cleanPrunedPlan();
+
 	void pruneExcessPoints();
 
 	void setCornerLeft(int index, bool value);
@@ -48,5 +50,7 @@ public:
 
 	//New Methods to update the mesh creation
 	void updateEdges(std::deque<Corner> &cornPlan);
+
+	void setActivePlan(std::vector<Corner> corn);
 };
 

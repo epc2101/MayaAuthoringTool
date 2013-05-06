@@ -95,3 +95,13 @@ int PlanEdge::getIndex()
 //	if (lhs.getIndex() < rhs.getIndex())
 //		return true; 
 //}
+
+void PlanEdge::setStartPoint(glm::vec3 start)
+{
+	startPoint = start;
+}
+
+void PlanEdge::setEndPoint(glm::vec3 end)
+{
+	endPoint = end;
+}
