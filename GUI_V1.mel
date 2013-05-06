@@ -1,5 +1,6 @@
 //Global variables
 global string $ProTrusionMenu;
+global string $menuName; //For dynamically updating the profiles
 
 //Curve names
 global string $floorPlanCurve;
@@ -244,7 +245,7 @@ global proc ProfileToFPHelper2(string $window, int $edge)
        CurveAsProfile();
        $fpEdgeToProfile[$edge]  = (size($profileCurves) - 1); 
     }
-    
+
     deleteUI $window;
 }
 
@@ -628,6 +629,7 @@ global proc CurveAsProfile()
        vector $testPt = $pPoints[$i];
        print ("X: "+ $testPt.x + " " + $testPt.y+ " " + $testPt.z +"\n");
    }
+     
 }
 
 
@@ -950,6 +952,42 @@ clear($anchorProfileEdge);
  }
 }
 
+global proc SelectProfileToColor()
+{
+    global string $profileCurves[]; 
+    print ("Num profile curves" + size($profileCurves)); 
+    string $window = `window -title "Select profile" -w 200 -h 220`;
+        menuBarLayout profileSelector;
+        menu -label "Select profile to see edge connections";
+
+         int $i;
+         menuItem
+             -label "Default draw"
+             -command ("colorEdgeByProfile -1");
+         for ($i = 0; $i < size($profileCurves); $i++) {
+            menuItem
+             -label $profileCurves[$i]
+             -command ("colorEdgeByProfile " + string($i));
+        }   
+    showWindow $window;
+}
+
+//If prof num is -1, then reset 
+global proc colorEdgeByProfile(int $profNum)
+{
+   select -cl;
+   global int $fpEdgeToProfile[];
+   global string $floorPlanCurve;  
+   print ("Floor plan curve: " + $floorPlanCurve + "\n");
+   for ($i = 0; $i < size($fpEdgeToProfile); $i++) {
+       if ($profNum == $fpEdgeToProfile[$i]) {
+           string $selectionStr = ($floorPlanCurve + ".cv[" + string($i) + "]");
+           //select -tgl curve9.cv[3] ;
+           select - tgl $selectionStr;
+       }
+   }
+
+}
 
 //****************************************************************************************************************
 // GUI LAYOUT 
@@ -964,7 +1002,8 @@ global proc ProGUI()
     //Profile
     global vector $pPoints[];
     global int $numPtsInProfile[];
-    global int $pHasAnchor[];       
+    global int $pHasAnchor[];  
+    global string $profileCurves[];     
         
     print "Number points in profile at start: ";
     int $size = size($pPoints);
@@ -989,12 +1028,12 @@ formLayout -numberOfDivisions 100 myFormForm;
 //Menu bar
 menuBarLayout popUpMenu;
     menu -label "Floor plan";
-        menuItem
+        /*menuItem
         -label "Load floor plan"
         -command "LoadFloorPlan()";
         menuItem
         -label "Save floor plan"
-        -command "SaveFloorPlan()";
+        -command "SaveFloorPlan()";*/
         menuItem
         -label "Create new plan"
         -command "CreateFloorPlan()";
@@ -1002,12 +1041,12 @@ menuBarLayout popUpMenu;
         -l "Set selected curve as floor plan" 
         -c "$fpPoints = CurveAsFP()";
      menu -label "Profile";
-        menuItem
+        /*menuItem
         -label "Load profile"
         -command "LoadProfile()";
         menuItem
         -label "Save profile"
-        -command "SaveProfile()";
+        -command "SaveProfile()";*/
         menuItem
         -label "Create new profile"
         -command "CreateNewProfile()";
@@ -1058,6 +1097,11 @@ string $sep = `separator -style "singleDash"`;
 //Descriptions
 string $floorPlanTxt = `text "Floor plan input\t\t\t\t\t"`;
 string $profileTxt = `text "Profile input"`;
+
+menu -label "Show profile-edge link";
+    menuItem  
+        -label "Click to select profile"
+        -command "SelectProfileToColor()";
 
 //Floor plan editor
 modelPanel -mbv 0 -cam "top" floorPlanPanel;
