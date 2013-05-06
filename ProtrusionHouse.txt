@@ -19,8 +19,8 @@
 #ProfilePointStart -.5 6 #ProfilePointEnd -.5 6.5 #Anchor 0
 #ProfilePointStart -.5 6.5 #ProfilePointEnd -1.5 8 #Anchor 0
 #ProfilePointStart -1.5 8 #ProfilePointEnd -1.5 9 #Anchor 0
-#ProfilePointStart -1.5 9 #ProfilePointEnd 5.5 15 #Anchor 0
-#ProfilePointStart 5.5 15 #ProfilePointEnd 7.5 17 #Anchor 0
+#ProfilePointStart -1.5 9 #ProfilePointEnd 2.5 15 #Anchor 0
+#ProfilePointStart 2.5 15 #ProfilePointEnd 7.5 17 #Anchor 0
 #ProfileEnd0
 
 #ProfileStart1

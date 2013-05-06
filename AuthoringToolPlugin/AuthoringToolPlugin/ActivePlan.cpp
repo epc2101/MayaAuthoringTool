@@ -20,31 +20,35 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 		glm::vec3 pt = e.getStartPoint();
 		PlanEdge previousEdge, nextEdge;
 
+
 		if (i == 0) {
+			nextEdge = e;
 			previousEdge = thePlan.getEdgeList().at(thePlan.getNumPoints()-1);
 			previousEdge.setProfileType(thePlan.getProfileList().at(thePlan.getNumPoints()-1));
-			previousEdge.setRightCornerIndex(1);
-			previousEdge.setLeftCornerIndex(0);
-			nextEdge = e;
-			nextEdge.setRightCornerIndex(0);
-			nextEdge.setLeftCornerIndex(thePlan.getNumPoints()-1);
+
+			previousEdge.setRightCornerIndex(0);
+			previousEdge.setLeftCornerIndex(thePlan.getNumPoints()-1);
+
+			nextEdge.setRightCornerIndex(1);
+			nextEdge.setLeftCornerIndex(0);
+
 		}  else {
 			previousEdge = thePlan.getEdgeList().at(i-1);
 			previousEdge.setProfileType(thePlan.getProfileList().at(i-1));
-			previousEdge.setRightCornerIndex(i+1);
-			if (thePlan.getNumPoints()-1){
-				previousEdge.setLeftCornerIndex(0);
-			} else {
-			previousEdge.setLeftCornerIndex(i);
-			}
+
+
+			previousEdge.setLeftCornerIndex(i-1);
+			previousEdge.setRightCornerIndex(i);
+
 			nextEdge = e;
-			nextEdge.setLeftCornerIndex(i-1);
-			if (thePlan.getNumPoints()-1){
+			nextEdge.setLeftCornerIndex(i);
+
+			if (i==thePlan.getNumPoints()-1){
 				nextEdge.setRightCornerIndex(0);
 			}
 			else {
-			nextEdge.setRightCornerIndex(i);
-			
+				nextEdge.setRightCornerIndex(i+1);
+
 			}
 		}
 		//std::cout<<"Before adding edges to corner..."<<std::endl;
@@ -52,14 +56,14 @@ ActivePlan::ActivePlan(FloorPlan thePlan)
 		//std::cout<<"Next edge index is "<<nextEdge.getProfileType()<<std::endl;
 
 
-		Corner c = Corner(previousEdge, nextEdge, pt); 
+		Corner c = Corner(nextEdge, previousEdge, pt); 
 		//std::cout<<"The corner has the edge profile type of: "<<c.getLeftEdge().getProfileType()<<std::endl;
 
 		c.setIndex(i);
-		
+
 		activePlan.push_back(c);
 	}
-	
+
 }
 
 void ActivePlan::pruneExcessPoints()
@@ -296,10 +300,10 @@ std::vector<PlanEdge> ActivePlan::getEdgeList()
 void ActivePlan::setCornerLeft(int index, bool value)
 {
 	activePlan.at(index).setLeftMesh(value);
-	std::cout<<"The new values of the corner's left is: "<<activePlan.at(index).getLeftMesh()<<std::endl;
+	//std::cout<<"The new values of the corner's left is: "<<activePlan.at(index).getLeftMesh()<<std::endl;
 }
 void ActivePlan::setCornerRight(int index, bool value)
 {
 	activePlan.at(index).setRightMesh(value);
-	std::cout<<"The new values of the corner's right is: "<<activePlan.at(index).getRightMesh()<<std::endl;
+	//std::cout<<"The new values of the corner's right is: "<<activePlan.at(index).getRightMesh()<<std::endl;
 }

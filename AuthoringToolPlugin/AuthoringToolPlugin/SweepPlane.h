@@ -14,6 +14,7 @@
 #include <set>
 #include "CompareHeight.h"
 #include "CompareParent.h"
+#include "CompareIndex.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Anchor.h"
 
@@ -27,7 +28,7 @@ private:
 	std::vector<Anchor> anchorList; 
 	std::stack<ActivePlan> activePlanStack;
 	std::queue<ActivePlan> activePlanQueue;
-	std::queue<Anchor> outputAnchors;
+	std::priority_queue<Anchor, std::vector<Anchor>, CompareIndex> outputAnchors;
 	bool killTheSweep;
 	float maxProfileHeight;
 	glm::vec3 avgPlanCenter;
@@ -91,7 +92,7 @@ public:
 	glm::vec3 rotateVector(glm::vec3 testVec);
 	glm::vec3 generateIntersection(glm::vec3 planEdge1, glm::vec3 planEdge2, glm::vec3 profileEdge1, glm::vec3 profileEdge2);
 
-	std::queue<Anchor> getOutputAnchors() {return outputAnchors;}
+	std::priority_queue<Anchor, std::vector<Anchor>, CompareIndex> getOutputAnchors() {return outputAnchors;}
 	void popOutputAnchors() { outputAnchors.pop(); }
 
 	~SweepPlane(void);

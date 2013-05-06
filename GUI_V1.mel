@@ -424,6 +424,7 @@ global proc vector[] GetEditPoints(string $curve, int $type)
 	int $numEPs = $span + $degree;
     vector $editPoints[];
     
+    print ("Getting the edit points for curve: " + $curve);
 	for ($i=0; $i < $numEPs; $i++)
 	{
 		float $ep[]   = `pointPosition -l ( $curve + ".ep["+$i+"]" )`;
@@ -439,6 +440,76 @@ global proc vector[] GetEditPoints(string $curve, int $type)
 
 	delete $infoNode; //Delete node bc we don't need it anymore	
 	return $editPoints;
+}
+
+
+//Updates the floor plan curve
+global proc vector[] UpdateFloorPlan()
+{
+    global string $floorPlanCurve;
+   
+    //Floor plan curves can only have y value as 0 -> TODO- should we allow axis to be rotated in future versions?
+    vector $floorPlanArray[];
+    if ( catch ( $floorPlanArray = GetEditPoints($floorPlanCurve, 1) ) )
+    {
+       window -title "Error";
+       columnLayout;
+           text "The floor plan must lie on the xz plane.\t";      
+       showWindow;
+       error;
+    }    else {
+        //Make sure that the start = end
+        int $size = size($floorPlanArray) - 1;
+        vector $start = $floorPlanArray[0];
+        float $sx = $start.x; float $sy = $start.y; float $sz = $start.z;
+        vector $end = $floorPlanArray[$size];
+        float $ex = $end.x; float $ey = $end.y; float $ez = $end.z;
+        //TODO  - Do we want to give the user an option to close off or just do it?
+        if ($sx != $ex || $sy != $ey || $sz != $ez)
+        {
+            string $curveCV = $floorPlanCurve + ".cv[" + string($size) + "]";
+            print $curveCV;
+            select -r $curveCV;
+            curve -os -a -p $sx $sy $sz $floorPlanCurve;  
+            $floorPlanArray[size($floorPlanArray)] = <<$sx, $sy, $sz>>;
+        }              
+        return $floorPlanArray;
+    }
+}
+
+//Updates the points in each of the profiles
+global proc UpdateProfiles()
+{
+
+    global string $profileCurves[]; 
+    global int $fpEdgeToProfile[]; 
+    global int $numPtsInProfile[]; 
+    global vector $pPoints[];
+    
+    vector $profilePoints[];
+    clear($pPoints); 
+    for ($i = 0; $i < size($profileCurves); $i++)
+    {
+        if (catch ($profilePoints = GetEditPoints($profileCurves[$i], 0) ) )
+        {
+            window -title "Error";
+            columnLayout;
+            text ("There was an error in updating the points in profile: " + $profileCurves[$i]);      
+            showWindow;
+            error;
+        } else 
+        {
+            int $currNumPoints = size($pPoints);
+            print "\nNumber points: ";
+            print $currNumPoints;    
+            $numPtsInProfile[$i] = size($profilePoints);
+            int $k;
+            for ($k = 0; $k < size($profilePoints); $k++)
+            {
+                $pPoints[$currNumPoints + $k] = $profilePoints[$k];
+            }
+        }
+    }
 }
 
 //Assigns the selected curve to the floor plan 
@@ -614,8 +685,8 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
     int $numPts = size($fpPoints);    
     setAttr ProTrusionNode1.numPoints $numPts;
     //TODO - make dynamic again
-    //setAttr -type "string" ProTrusionNode1.fileName $fileName;
-    setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionAnchors.txt";
+    setAttr -type "string" ProTrusionNode1.fileName $fileName;
+    //setAttr -type "string" ProTrusionNode1.fileName "C:\\Users\\Beth\\MayaAuthoringTool\\ProtrusionHouse.txt";
     connectAttr ProTrusionNode1.outputMesh meshShape.inMesh;
     //For each anchor -> link data from anchor node to the transform node, link to imported obj  file
     //TODO - change when done testing to bring in
@@ -662,7 +733,7 @@ global proc CreateMesh(vector $fpPoints[], string $fileName)
        setAttr ($newAnchorNamespace + ".translateZ") $zz[$i];
     }
     
-testUpdateAnchor();
+    testUpdateAnchor();
         
   /*  connectAttr ProTrusionNode1.outputMesh $pPoints;
     connectAttr ProTrusionNode1.outputMesh $pHasAnchor;
@@ -724,6 +795,7 @@ global proc EditMesh()
     
 }
 
+//New = 0, update = 1
 global proc GenerateText(vector $fpPoints[], int $updateOrNew)
 {
     //TODO - update this to current directory
@@ -751,6 +823,14 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
         $fileId = `fopen $filePath "w"` ; 
     print ($filePath + "\n");
     
+    //****************************
+    //If we are updating recalc the floor plan & profile points
+    if ($updateOrNew == 1) {
+        $fpPoints = UpdateFloorPlan(); 
+        UpdateProfiles();
+    }
+    
+    
     //***************************************************************************************************
     //Start of floorplan parse
     fprint $fileId ("#FloorPlanStart\r\n") ;  
@@ -770,17 +850,24 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
     //Start of profile parse
     fprint $fileId (" #Profiles " + string(size($profileCurves)) +"\r\n");
     int $k; 
+    int $numPtsAdded = 0; 
     for ($i = 0; $i < size($profileCurves); $i++)
     {
+        print("Writing profile " +string($i)); 
         fprint $fileId (" #ProfileStart" + string($i) + "\r\n");
         for ($k = 0; $k < $numPtsInProfile[$i]-1; $k++)
         {
-            vector $pt = $pPoints[$i+$k];
+               
+            vector $pt = $pPoints[$k+$numPtsAdded];
+            print (" #ProfilePointStart " + string(-$pt.z) + " " + string($pt.y) + " ");
             fprint $fileId (" #ProfilePointStart " + string(-$pt.z) + " " + string($pt.y) + " ");
-            $pt = $pPoints[$i+$k+1];        
+            $pt = $pPoints[$numPtsAdded+$k+1];        
             fprint $fileId ("#ProfilePointEnd " + string(-$pt.z) + " " + string($pt.y) + " ");  
-            fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\r\n");      
+            print ("#ProfilePointEnd " + string(-$pt.z) + " " + string($pt.y) + " ");
+            fprint $fileId ("#Anchor " + string($pHasAnchor[$i]) + "\r\n");   
+          
         }  
+        $numPtsAdded += $numPtsInProfile[$i];
         fprint $fileId (" #ProfileEnd" + string($i) +"\r\n");      
     }
     
@@ -810,11 +897,19 @@ global proc GenerateText(vector $fpPoints[], int $updateOrNew)
          CreateMesh($fpPoints, $filePath);
    } else {
        int $numPts = size($fpPoints); 
-       //TODO - call procedure that figures out if any of the anchors has been moved & interpolates their position
        setAttr ProTrusionNode1.numPoints $numPts;
-       testUpdateAnchor();
+       //TODO - figure out where we are doing this...
+       //setAttr ProTrusionNode1.fileName $filePath;
+       scriptJob -attributeChange "ProTrusionNode1.anchorPosition" "MelLikesBS()";
+       testUpdateAnchor(); 
    }
         
+}
+
+global proc MelLikesBS()
+{
+   print "Wooo!!!!! the attribute changed!!!!\n";  
+   testUpdateAnchor(); 
 }
 
 global proc ClearAll()
@@ -933,19 +1028,22 @@ menuBarLayout popUpMenu;
         -label "Create new anchor"
         -command "LinkAnchorToFloorPlan()";
      menu -label "Create building mesh";
-         menuItem
+/*         menuItem
          -label "Generate building"
          //-command " CreateMesh($fpPoints, $fpHasAnchor, $fpEdgeToProfile, $pPoints, $pHasAnchor)";
          -command "CreateMesh($fpPoints, "")";
          menuItem
          -label "Edit mesh"
-         -command "EditMesh()";
+         -command "EditMesh()";*/
          menuItem
          -label "Generate building with text file"
          -command "GenerateText($fpPoints, 0)";
          menuItem
          -label "Update building via text file"
          -command "GenerateText($fpPoints, 1)";
+         menuItem
+         -label "Update anchors (use after update building)"
+         -command "testUpdateAnchor()";
          menuItem
          -label "Clear all"
          -command "ClearAll()";

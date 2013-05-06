@@ -92,8 +92,8 @@ MStatus AuthoringToolPlugin::compute( const MPlug& plug, MDataBlock& data )
 			
 			//We will run the tests first
 			if (TESTING == 1){
-			TestingFramework tester = TestingFramework();
-			tester.runTests();
+			//TestingFramework tester = TestingFramework();
+			//tester.runTests();
 			}
 			else {
 			//std::string myFile = thefile.asChar();

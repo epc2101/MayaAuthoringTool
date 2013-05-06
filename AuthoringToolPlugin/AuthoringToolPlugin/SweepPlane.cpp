@@ -10,7 +10,7 @@ float RADIUS =  0.000001;
 
 
 int DEBUG = 0; 
-int DEBUG_ANCHOR = 0; 
+int DEBUG_ANCHOR = 1; 
 int DEBUG_PROFILE = 0; 
 int DEBUG_FLOORPLAN = 0; 
 
@@ -41,6 +41,7 @@ SweepPlane::SweepPlane(FloorPlan p, std::vector<Profile> pList, std::vector<Anch
 	}
 	avgPlanCenter /= (float) pe.size(); 
 	cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
+	cout<<"The max profile height is: "<<maxProfileHeight<<endl;
 }
 
 /*Tests the data coming in from the file to make sure it's distributed correctly across structure*/
@@ -94,11 +95,11 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 		//We fill up the point array
 		int i = 1;
 		while(!activePlanQueue.empty()){
-			cout<<"In plan : "<<i<<endl;
+			//cout<<"In plan : "<<i<<endl;
 			ActivePlan temp = activePlanQueue.front();
 			for(int j = 0; j<temp.getActivePlan().size(); j++){
 				glm::vec3 tempVec = temp.getActivePlan().at(j).getPt();
-				cout<<"Point is "<<tempVec.x<< " "<<tempVec.y<<" " <<tempVec.z<<endl;
+				//cout<<"Point is "<<tempVec.x<< " "<<tempVec.y<<" " <<tempVec.z<<endl;
 				MPoint tempPoint = MPoint(tempVec.x, tempVec.y,tempVec.z);
 				pointArray.append(tempPoint);
 				
@@ -138,13 +139,13 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 			activePlanStack.pop();
 			bool firstPop = true;
 			while(!activePlanStack.empty()){
-				cout<<"We have made it into the while loop"<<endl;
+				//cout<<"We have made it into the while loop"<<endl;
 				//We make sure the top level has the proper mesh indices assigned to it
 				
 				if (firstPop){
 					//We want to assign the proper mesh indices to the corners
 					stackLevel--;
-					cout<<"The stacklevel is: "<<stackLevel<<endl;
+					//cout<<"The stacklevel is: "<<stackLevel<<endl;
 					int topMeshIndex = 0;
 					for(int i = 0; i<stackLevel; i++){
 						topMeshIndex+=indexingHolder.at(i);
@@ -154,8 +155,8 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 					for(int i = 0; i<topPlan.getActivePlan().size(); i++){
 						topPlan.setCornerMeshIndex(i,topMeshIndex+i);
 						//cout<<"Supposed Mesh Index: "<<indexingHolder.at(stackLevel)+i<<endl;
-						cout<<"Mesh index: "<<topPlan.getActivePlan().at(i).getMeshIndex()<<endl;
-						cout<<"Corner index: "<<topPlan.getActivePlan().at(i).getIndex();
+						//cout<<"Mesh index: "<<topPlan.getActivePlan().at(i).getMeshIndex()<<endl;
+						//cout<<"Corner index: "<<topPlan.getActivePlan().at(i).getIndex();
 					}
 					//cout<<"We are setting up the top plan for the first time"<<endl;
 					//topPlan.updateEdgse();
@@ -173,8 +174,8 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 
 				for(int i = 0; i<bottomPlan.getActivePlan().size(); i++){
 						bottomPlan.setCornerMeshIndex(i,meshIndex+i);
-						cout<<"Mesh index: "<<bottomPlan.getActivePlan().at(i).getMeshIndex()<<endl;
-						cout<<"Corner index: "<<bottomPlan.getActivePlan().at(i).getIndex()<<endl;
+						//cout<<"Mesh index: "<<bottomPlan.getActivePlan().at(i).getMeshIndex()<<endl;
+						//cout<<"Corner index: "<<bottomPlan.getActivePlan().at(i).getIndex()<<endl;
 				}
 				//bottomPlan.updateEdges();
 
@@ -185,9 +186,9 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 
 					//We are in a pyramid situation and everything is a triangle
 					for(int i = 0; i<bottomPlan.getActivePlan().size(); i++){
-						cout<<"Size of the bottom plan is: "<<bottomPlan.getActivePlan().size();
+						//cout<<"Size of the bottom plan is: "<<bottomPlan.getActivePlan().size();
 						Corner c = topPlan.getActivePlan().at(0);
-						cout<<"This is the number of times through the pyramid section"<<endl;
+						//cout<<"This is the number of times through the pyramid section"<<endl;
 						//int pIndex1 = c.getSource().at(i).getIndex(), pIndex2 = c.getSource().at(i+1).getIndex();
 								
 						index1 = c.getMeshIndex();
@@ -205,7 +206,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							index3 = bottomPlan.getActivePlan().at(i+1).getMeshIndex();
 						}
 
-						cout<<"The 3 indices are: "<<index1<<" "<<index2<<" "<<index3<<endl;
+						//cout<<"The 3 indices are: "<<index1<<" "<<index2<<" "<<index3<<endl;
 
 						faceCounts.append(3);
 						faceConnects.append(index1);
@@ -228,7 +229,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							}
 						}
 						if (openPoly){
-							cout<<"We should be making a flat roof!"<<endl;
+							//cout<<"We should be making a flat roof!"<<endl;
 							faceCounts.append(topPlan.getActivePlan().size());
 							for(int i = 0; i<topPlan.getActivePlan().size(); i++){
 								faceConnects.append(topPlan.getActivePlan().at(i).getMeshIndex());
@@ -251,16 +252,16 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							rightMostParentIndex = index;
 							
 
-							cout<<"The index of the parent in the plan is: "<<index<<endl;
-							cout<<"The index in the mesh of parent is "<<leftParentPlanIndex<<endl;
+		/*					cout<<"The index of the parent in the plan is: "<<index<<endl;
+							cout<<"The index in the mesh of parent is "<<leftParentPlanIndex<<endl;*/
 
 							//cout<<topPlan.getActivePlan().at(i).getLeftEdge().getLeftCornerIndex()<<" IS THE LEFT CORNER INDEX "<<topPlan.getActivePlan().at(i).getLeftEdge().getRightCornerIndex()<<" is the right"<<endl;
 
 							if(!topPlan.getActivePlan().at(i).getLeftMesh()){
-								cout<<"Creating left mesh"<<endl;
-								cout<<"The indices of the top left edge are: "<<topPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<topPlan.getLeftEdgeRightIndex(i)<<endl;
-								cout<<"The indices of the bottom left edge are: "<<bottomPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<bottomPlan.getLeftEdgeRightIndex(i)<<endl;
-								
+								//cout<<"Creating left mesh"<<endl;
+								//cout<<"The indices of the top left edge are: "<<topPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<topPlan.getLeftEdgeRightIndex(i)<<endl;
+								//cout<<"The indices of the bottom left edge are: "<<bottomPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<bottomPlan.getLeftEdgeRightIndex(i)<<endl;
+								//
 								int topConnectIndex = topPlan.getLeftEdgeLeftIndex(i), bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(leftParentPlanIndex);
 								
 								//cout<<"Top connect index is: "<<topConnectIndex<<" bottom is: "<<bottomConnectIndex<<endl;
@@ -275,10 +276,10 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								index3 = bottomConnectMeshIndex;
 								index4 = leftMostParentIndex;
 								
-								cout<<"The mesh index of the corner is: "<<index1<<endl;
-								cout<<"The mesh index of the top connected is: "<<index2<<endl;
-								cout<<"The mesh index of the bottom connected on is: "<<index3<<endl;
-								cout<<"The mesh of the corner's parent is: "<<index4<<endl;
+								//cout<<"The mesh index of the corner is: "<<index1<<endl;
+								//cout<<"The mesh index of the top connected is: "<<index2<<endl;
+								//cout<<"The mesh index of the bottom connected on is: "<<index3<<endl;
+								//cout<<"The mesh of the corner's parent is: "<<index4<<endl;
 
 								faceCounts.append(4);
 								faceConnects.append(index1);
@@ -292,7 +293,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							}
 
 							if(!topPlan.getActivePlan().at(i).getRightMesh()){
-								cout<<"Creating the right edge mesh"<<endl;
+								//cout<<"Creating the right edge mesh"<<endl;
 								//First, find the edges attached to the critical points
 								//PlanEdge right = c.getRightEdge();
 								//PlanEdge bottomRight = bottomPlan.getActivePlan().at(leftParentPlanIndex).getRightEdge();
@@ -340,21 +341,29 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								faceConnects.append(index3);
 							}
 
-							//We use the outer indices to create the quads
-							if(!c.getLeftMesh()){
-								//First, find the edges attached to the critical points
-								PlanEdge left = c.getLeftEdge();
-								PlanEdge bottomLeft = bottomPlan.getActivePlan().at(leftParentPlanIndex).getLeftEdge();
+							if(!topPlan.getActivePlan().at(i).getLeftMesh()){
+								//cout<<"Creating left mesh"<<endl;
+								//cout<<"The indices of the top left edge are: "<<topPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<topPlan.getLeftEdgeRightIndex(i)<<endl;
+								//cout<<"The indices of the bottom left edge are: "<<bottomPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<bottomPlan.getLeftEdgeRightIndex(i)<<endl;
 								
-								int topConnectIndex = left.getLeftCornerIndex(), bottomConnectIndex = bottomLeft.getLeftCornerIndex();
+								int topConnectIndex = topPlan.getLeftEdgeLeftIndex(i), bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(leftParentPlanIndex);
+								
+								//cout<<"Top connect index is: "<<topConnectIndex<<" bottom is: "<<bottomConnectIndex<<endl;
 
 								int topConnectMeshIndex = topPlan.getActivePlan().at(topConnectIndex).getMeshIndex(), 
 									bottomConnectMeshIndex = bottomPlan.getActivePlan().at(bottomConnectIndex).getMeshIndex();
+
+								
 
 								index1 = c.getMeshIndex();
 								index2 = topConnectMeshIndex;
 								index3 = bottomConnectMeshIndex;
 								index4 = leftMostParentIndex;
+								
+								//cout<<"The mesh index of the corner is: "<<index1<<endl;
+								//cout<<"The mesh index of the top connected is: "<<index2<<endl;
+								//cout<<"The mesh index of the bottom connected on is: "<<index3<<endl;
+								//cout<<"The mesh of the corner's parent is: "<<index4<<endl;
 
 								faceCounts.append(4);
 								faceConnects.append(index1);
@@ -362,23 +371,24 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								faceConnects.append(index3);
 								faceConnects.append(index4);
 
-								topPlan.getActivePlan().at(i).setLeftMesh(true);
-								topPlan.getActivePlan().at(topConnectIndex).setRightMesh(true);
+								topPlan.setCornerLeft(i,true);
+								topPlan.setCornerRight(topConnectIndex,true);
 								//Need to set the other one as well!
 							}
-
-							if(!c.getRightMesh()){
+							
+							if(!topPlan.getActivePlan().at(i).getRightMesh()){
 								//First, find the edges attached to the critical points
 								PlanEdge right = c.getRightEdge();
-								PlanEdge bottomRight = bottomPlan.getActivePlan().at(leftParentPlanIndex).getRightEdge();
+								PlanEdge bottomRight = bottomPlan.getActivePlan().at(rightParentPlanIndex).getRightEdge();
 								
-								int topConnectIndex = right.getLeftCornerIndex(), bottomConnectIndex = bottomRight.getLeftCornerIndex();
-
-								int topConnectMeshIndex = topPlan.getActivePlan().at(topConnectIndex).getMeshIndex(), 
+								//int topConnectIndex = right.getRightCornerIndex(), bottomConnectIndex = bottomRight.getRightCornerIndex();
+								int topConnectIndex = topPlan.getRightEdgeRightIndex(i), bottomConnectIndex = bottomPlan.getRightEdgeRightIndex(rightParentPlanIndex);
+								
+									int topConnectMeshIndex = topPlan.getActivePlan().at(topConnectIndex).getMeshIndex(), 
 									bottomConnectMeshIndex = bottomPlan.getActivePlan().at(bottomConnectIndex).getMeshIndex();
 
 								index1 = c.getMeshIndex();
-								index2 = leftMostParentIndex;
+								index2 = rightMostParentIndex;
 								index3 = bottomConnectMeshIndex;
 								index4 = topConnectMeshIndex;
 
@@ -388,8 +398,9 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								faceConnects.append(index3);
 								faceConnects.append(index4);
 
-								topPlan.getActivePlan().at(i).setRightMesh(true);
-								topPlan.getActivePlan().at(topConnectIndex).setLeftMesh(true);
+								
+								topPlan.setCornerRight(i,true);
+								topPlan.setCornerLeft(topConnectIndex,true);
 								//Need to set the other one as well!
 							}
 
@@ -434,11 +445,11 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 		cout<<"The number of vertices is "<<numVertices<<endl;
 		cout<<"The number of faces is "<<numFaces<<endl;
 		for(int i = 0; i < pointArray.length(); i++){
-			cout<<"The point "<<pointArray[i].x<<" "<<pointArray[i].y<<" "<<pointArray[i].z<<endl;
+			//cout<<"The point "<<pointArray[i].x<<" "<<pointArray[i].y<<" "<<pointArray[i].z<<endl;
 		}
-		cout<<"The connections array is "<<endl;
+		//cout<<"The connections array is "<<endl;
 		for (int i =0; i<faceConnects.length(); i++){
-			cout<<faceConnects[i]<<" "<<endl;
+			//cout<<faceConnects[i]<<" "<<endl;
 		}
 		
 			
@@ -465,7 +476,9 @@ void SweepPlane::createAnchors(MObject& anchorPosData, MObject& anchorRotData, M
 	 //x, y, z position calculated for each anchor
 	while (!outputAnchors.empty())
 	{
-		Anchor a = outputAnchors.front(); 
+		Anchor a = outputAnchors.top(); 
+		cout<<"Got anchor with index: "<<a.getID()<<endl;
+		cout<<"Its associated wiht floorplan edge: "<<a.getFloorPlanIndex()<<endl;
 		outputAnchors.pop();
 		posArray.append(a.getTranslation().x);
 		posArray.append(a.getTranslation().y);
@@ -512,14 +525,19 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 			{
 				cout<<"The height of the start point is "<<edge.getStartPoint().y<<endl;
 				cout<<"The height of the end point 0 "<<edge.getEndPoint().y<<endl;
+				cout<<"The current height is "<<height<<" and it's being compared to "<<edge.getEndPoint().y<<endl;
 			}
 
-			cout<<"The current height is "<<height<<" and it's being compared to "<<edge.getEndPoint().y<<endl;
+			
 			/*if (height >= edge.getEndPoint().y){
 			continue;
 			}*/
+
 			if (edge.getIsTop() == true){
-				if (height >= edge.getEndPoint().y){
+				if (edge.getEndPoint().y == theLastHeight) {
+					cout<<"The edge is a top & it is the same height as it was the last time."<<endl;
+				}
+				if (height >= edge.getEndPoint().y  /*&& edge.getEndPoint().y != theLastHeight*/){
 					currentProfileFromHeight.push_back(edge);
 					prof.getEdgesUsed().at(j) = true;
 					break;
@@ -547,15 +565,13 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 		}
 	}
 
-	float topHeight = 0.0;
-	for(int i = 0; i<currentProfileFromHeight.size(); i++){
-		if(currentProfileFromHeight.at(i).getEndPoint().y > topHeight){
-			topHeight = currentProfileFromHeight.at(i).getEndPoint().y;
-		}
+	if (height > maxProfileHeight){
+		killTheSweep = true;
 	}
 
-	if (height > topHeight){
-		killTheSweep = true;
+	cout<<"Getting profile edges from height...The end points are: "<<endl;
+	for (int i = 0; i < currentProfileFromHeight.size(); i++) {
+		cout<<currentProfileFromHeight.at(i).getEndPoint().z<<" "<<currentProfileFromHeight.at(i).getEndPoint().y<<" "<<currentProfileFromHeight.at(i).getEndPoint().z<<endl;
 	}
 
 	return currentProfileFromHeight; 
@@ -565,6 +581,7 @@ std::vector<ProfileEdge> SweepPlane::getProfileEdgesAtHeight(float height)
 //Updates the vectors from the active plan's corners based off of the profile's intersections
 void SweepPlane::updateIntersectionVectors(float height)
 {
+	cout<<"IN UPDATE INTERSECTION VECTORS..........."<<endl;
 	std::vector<ProfileEdge> currentProfileFromHeight = getProfileEdgesAtHeight(height);
 	std::vector<bool> aboveTheProfile;
 	aboveTheProfile.resize(0);
@@ -594,6 +611,8 @@ void SweepPlane::updateIntersectionVectors(float height)
 			return;
 	}
 
+
+
 	//Iterate through the active plan and calculate the varying vectors based on the different edge plans.
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 		
@@ -610,28 +629,37 @@ void SweepPlane::updateIntersectionVectors(float height)
 			break; 
 		}
 
-		if (DEBUG ==1 ) {
-			cout<<"Current profile from height : "<<currentProfileFromHeight.size()<<endl;
-			cout<<"The data of the first edge is..."<<endl;
-			cout<<"First Edge Start Point is "<<firstEdge.getStartPoint().x<<" "<<firstEdge.getStartPoint().y<<" "<<firstEdge.getStartPoint().z<<endl;
-			cout<<"First Edge End Point is "<<firstEdge.getEndPoint().x<<" "<<firstEdge.getEndPoint().y<<" "<<firstEdge.getEndPoint().z<<endl;
-			cout<<"First Edge Profile Index is: "<<firstEdge.getProfileType()<<endl;
-			cout<<"Second Edge Profile Index is: "<<secondEdge.getProfileType()<<endl;
-			cout<<"First Profile Edge Start Point is "<<firstProfileEdge.getStartPoint().x<<" "<<firstProfileEdge.getStartPoint().y<<" "<<firstProfileEdge.getStartPoint().z<<endl;
-			cout<<"First Profile Edge End Point is "<<firstProfileEdge.getEndPoint().x<<" "<<firstProfileEdge.getEndPoint().y<<" "<<firstProfileEdge.getEndPoint().z<<endl;
-		
-		}
+			cout<<"*************************************************"<<endl;
+			cout<<"In corner: "<<corner.getIndex()<<endl;
+			cout<<"First edge start: "<<firstEdge.getStartPoint().x<<" "<<firstEdge.getStartPoint().y<<" "<<firstEdge.getStartPoint().z<<" " <<endl;
+			cout<<"First edge end: "<<firstEdge.getEndPoint().x<<" "<<firstEdge.getEndPoint().y<<" "<<firstEdge.getEndPoint().z<<" " <<endl;
+			cout<<"Second edge start: "<<secondEdge.getStartPoint().x<<" "<<secondEdge.getStartPoint().y<<" "<<secondEdge.getStartPoint().z<<" " <<endl;
+			cout<<"Second edge end: "<<secondEdge.getEndPoint().x<<" "<<secondEdge.getEndPoint().y<<" "<<secondEdge.getEndPoint().z<<" " <<endl;
+
 		ProfileEdge secondProfileEdge = currentProfileFromHeight.at(secondEdge.getProfileType());
 
 		
 
 		glm::vec3 edgeVec1 = firstEdge.getEndPoint()-firstEdge.getStartPoint();
 		glm::vec3 profVec1 = firstProfileEdge.getEndPoint()-firstProfileEdge.getStartPoint();
-			
+		glm::vec3 normEdgeVec1 = glm::normalize(edgeVec1); 
+
 		glm::vec3 edgeVec2 = secondEdge.getEndPoint()-secondEdge.getStartPoint();
 		glm::vec3 profVec2 = secondProfileEdge.getEndPoint()-secondProfileEdge.getStartPoint();
+		glm::vec3 normEdgeVec2 = glm::normalize(edgeVec2); 
  
-		thePlan.setIntersectionVector(generateIntersection(edgeVec1,edgeVec2,profVec1,profVec2));
+		if (glm::length(normEdgeVec1- normEdgeVec2) < EPSILON) {
+			if (glm::length(glm::normalize(profVec1) - glm::normalize(profVec2)) < EPSILON) {
+				cout<<"Good..The edges match"<<endl;
+				thePlan.setIntersectionVector(glm::normalize(profVec1)); 
+			} else {
+				cout<<"USER ERROR!  You cannot input two edges along the same line with different profile directions"<<endl;
+				cout<<"Generating edge direction based on FIRST profile"<<endl;
+				thePlan.setIntersectionVector(glm::normalize(profVec1)); 
+			}
+		} else {
+			thePlan.setIntersectionVector(generateIntersection(edgeVec1,edgeVec2,profVec1,profVec2));
+		}
 	}
 }
 
@@ -742,8 +770,8 @@ void SweepPlane::fillQueueWithIntersections(float height)
 					if (addToQ) {
 						//This is the code to create the intersection event and push it onto the queue
 						cout<<"The intersection point generated is: "<<intersectionPoint.x<<" "<<intersectionPoint.y<<" "<<intersectionPoint.z<<endl;
-						cout<<"The distance between the points is: "<<glm::distance(intersectionPoint, avgPlanCenter)<<endl;
-						cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
+						//cout<<"The distance between the points is: "<<glm::distance(intersectionPoint, avgPlanCenter)<<endl;
+						//cout<<"The avg plan center is : "<<avgPlanCenter.x<<" "<<avgPlanCenter.y<<" "<<avgPlanCenter.z<<endl;
 
 						foundIntersections = true;
 						std::vector<Corner> source;
@@ -767,8 +795,6 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 		return;
 	}
 
-
-
 	//We will prevent overlaps by only useing the right edge
 	for(int i = 0; i<thePlan.getActivePlan().size(); i++){
 		Corner tempCorner = thePlan.getActivePlan().at(i);
@@ -785,17 +811,36 @@ void SweepPlane::fillQueueWithEdgeDirectionChanges(float height){
 		}
 
 
-
+		//************TODO -> LOOK AT THIS / ASK GREG...we are getting the wrong values at the end...
+		//It works for the most part until we are like right on the end...so I added the inefficient way 
 		float difference = abs(profEdge.getEndPoint().y - tempCorner.getPt().y);
 		float multiply = difference/(cornerVec.y+pow(10.0,-6.0));
-		glm::vec3 newPoint = tempCorner.getPt()+(cornerVec*multiply);
-		//newPoint.y = abs(newPoint.y);
-
+		glm::vec3 newPoint = tempCorner.getPt()+(glm::normalize(cornerVec)*multiply);
+				//cout<<"The difference is: "<<difference<<endl;
+		//cout<<"The multipy is: "<<multiply<<endl;
+		//cout<<"Corner vec y is: "<<cornerVec.y<<endl;
+		//cout<<"The profile start is: "<< profEdge.getStartPoint().x<<" "<<profEdge.getStartPoint().y<<" "<<profEdge.getStartPoint().z<<" "<<endl;
+		//cout<<"The profile start is: "<< profEdge.getEndPoint().x<<" "<<profEdge.getEndPoint().y<<" "<<profEdge.getEndPoint().z<<" "<<endl;
+		cout<<"Got this new point in fill q with edge direction change events: "<<newPoint.x<<" "<<newPoint.y<<" "<<newPoint.z<<endl;
+		
 		std::vector<Corner> parentCorner;
 		parentCorner.push_back(tempCorner);
+
+		//If we get invalid results try to find a better point?
+		//if (glm::distance(newPoint, avgPlanCenter) > 100) {
+			newPoint = tempCorner.getPt(); 
+			float t = 0.f; 
+			while (newPoint.y < profEdge.getEndPoint().y) {
+				t += 0.01; 
+				newPoint += cornerVec * t; 
+			}
+		//}
+
+
+		cout<<"NEW NEW PT: "<<newPoint.x<<" "<<newPoint.y<<" "<<newPoint.z<<endl;
 		//TODO********************************************************************
 		//TODO - THIS IS A HACKY FIX BC WE SHOULD NEVERRRR GET A POINT THAT IS NOT ACTUALLY ON THE PROFILE...
-		if (glm::distance(newPoint, avgPlanCenter) < 50) {
+		if (glm::distance(newPoint, avgPlanCenter) < 20) {
 		//TODO********************************************************************
 			//We are still going to do this for each of the corners for each of the edges they are associated with
 			Event edgeChange = Event(profEdge.getEndPoint().y,newPoint,parentCorner,Event::PROFILE);
@@ -981,9 +1026,9 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 			if (flagPlan.at(i) == false){
 				cout<<"We shouldn't be in here!!!"<<endl;
 				glm::vec3 vec = thePlan.getIntersectionVectors().at(i);
-				cout<<"Got vec "<<vec.x<<endl;
+				//cout<<"Got intersection vec "<<vec.x<<vec.y<<vec.z<<endl;
 				Corner parentCorner = thePlan.getActivePlan().at(i);
-				cout<<"Got rents "<<parentCorner.getIndex()<<endl;
+				//cout<<"Got rents at index"<<parentCorner.getIndex()<<endl;
 				float newActivePlanHeight;
 				if (cornerQ.size() > 0) {
 					newActivePlanHeight = cornerQ.top().getPt().y;
@@ -992,23 +1037,25 @@ std::priority_queue<Corner,std::vector<Corner>, CompareParent> SweepPlane::prepr
 				else  {
 					newActivePlanHeight = events.at(0).getHeight();
 				}
-				cout<<"New height " <<newActivePlanHeight<<endl;
+				
 
 				float difference = abs(newActivePlanHeight - parentCorner.getPt().y);
-				cout<<"Dif: "<<difference<<endl;
+				//cout<<"Dif: "<<difference<<endl;
 				float multiply = difference/(vec.y+pow(10.0,-6.0));
-				cout<<"Mult: "<<multiply<<endl;
+				//cout<<"Mult: "<<multiply<<endl;
 				glm::vec3 newPoint = parentCorner.getPt()+(vec*multiply);
-				cout<<"newPoint: "<<newPoint.y<<endl;
+				//cout<<"Parent corner position: "<<parentCorner.getPt().x<<" "<<parentCorner.getPt().y<<" "<<parentCorner.getPt().z<<endl;
+				//cout<<"newPoint: "<<newPoint.x<<" "<<newPoint.y<<" "<<newPoint.z<<endl;
 				std::vector<Corner> myParent;
 				myParent.push_back(parentCorner);
-				cout<<"Pushing rent corner"<<endl;
+				//cout<<"Pushing rent corner"<<endl;
 				Corner finalCorner = Corner(newPoint,myParent);
-				cout<<"Adding final corner"<<endl;
+				//cout<<"Adding final corner"<<endl;
 				cornerQ.push(finalCorner);
-				cout<<"Added to corner q"<<endl;
+				//cout<<"Added to corner q"<<endl;
 			}
 		}
+		
 	//cout<<"Got through process new plan q"<<endl;
 	return cornerQ;
 }
@@ -1071,7 +1118,7 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 		cout<<"PRINTING the plan edges: "<<endl;
 		for (int i = 0; i < ap.size(); i++) {
 			cout<<"Index: "<<ap.at(i).getIndex()<<endl;
-			//cout<<"Start: "<<ap.at(i).getRightEdge().getStartPoint().x<<" "<<ap.at(i).getRightEdge().getStartPoint().z<<" End: "<<ap.at(i).getRightEdge().getEndPoint().x<<" "<<ap.at(i).getRightEdge().getEndPoint().z<<endl;
+			cout<<"Right - Start: "<<ap.at(i).getRightEdge().getStartPoint().x<<" "<<ap.at(i).getRightEdge().getStartPoint().z<<" End: "<<ap.at(i).getRightEdge().getEndPoint().x<<" "<<ap.at(i).getRightEdge().getEndPoint().z<<endl;
 			cout<<"LEFT - Start: "<<ap.at(i).getLeftEdge().getStartPoint().x<<" "<<ap.at(i).getLeftEdge().getStartPoint().z<<" End: "<<ap.at(i).getLeftEdge().getEndPoint().x<<" "<<ap.at(i).getLeftEdge().getEndPoint().z<<endl;
 
 		}
@@ -1079,8 +1126,8 @@ void SweepPlane::calcAnchorTransforms(Anchor &a)
 	int edgeIndex = a.getFloorPlanIndex(); 
 	float percentEdge = a.getFloorPlanPercent();
 	//get the edge from the active plan and calc the angle from the point to the origin
-	glm::vec3 start = ap.at(edgeIndex).getLeftEdge().getStartPoint();
-	glm::vec3 end = ap.at(edgeIndex).getLeftEdge().getEndPoint();
+	glm::vec3 start = ap.at(edgeIndex).getRightEdge().getStartPoint();
+	glm::vec3 end = ap.at(edgeIndex).getRightEdge().getEndPoint();
 	glm::vec3 dir = glm::normalize(end - start); 
 	glm::vec3 point = start + percentEdge * dir * glm::distance(start, end);  
 	
@@ -1216,8 +1263,13 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 			for (int j = 0; j < tempSource.size(); j++) {
 				bool addParent = true; 
 				for (int p = 0; p < parents.size(); p++) {
-					if (tempSource.at(j).getIndex() == parents.at(p).getIndex()) addParent = false; 	
-					cout<<"The parent's right edge index is: "<<tempSource.at(j).getRightEdge().getIndex()<<endl;
+					if (tempSource.at(j).getIndex() == parents.at(p).getIndex()) {
+						addParent = false; 	
+					} else {
+						cout<<"The parent's right edge index is: "<<tempSource.at(j).getRightEdge().getIndex()<<endl;
+						cout<<"The parents's right edge point is: "<<tempSource.at(j).getRightEdge().getEndPoint().x<<endl;
+						cout<<"The parent's left edge index is: "<<tempSource.at(j).getLeftEdge().getIndex()<<endl;
+					}
 				}
 				if (addParent == true) {
 					parents.push_back(tempSource.at(j)); 
@@ -1228,7 +1280,7 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 		endEdge.setLeftCornerIndex(cluster.at(0).getIndex());
 		startEdge.setRightCornerIndex(cluster.at(cluster.size() -1).getIndex());
 		Corner newCorner = Corner(endEdge, startEdge, cluster.at(0).getPt(), parents);
-		if(DEBUG == 1){
+		if(DEBUG == 0){
 			cout<<"***********************"<<endl;
 			cout<<"Parent indices at cluster"<<endl;
 			for(int f = 0; f<newCorner.getSource().size(); f++){
@@ -1258,7 +1310,8 @@ std::vector<Corner> SweepPlane::processClusters(std::vector<Corner> &tempActiveP
 					std::sort(improvedVector.begin(), improvedVector.end(), CompareParent());
 					newCorner = Corner(newCorner.getLeftEdge(), newCorner.getRightEdge(), newCorner.getPt(),improvedVector);
 				}
-			}	
+			}
+			cout<<"After updating the sources..."<<newCorner.getIndex()<<endl;
 		}
 
 		
@@ -1292,18 +1345,27 @@ void SweepPlane::processQueue()
 	std::vector<Corner> tempActivePlan;
 
 	Event firstEvent = q.top();
-	//if (firstEvent.getHeight() - theLastHeight < EPSILON) {
-	//	cout<<"KILLING - killed because we are not finding any new heights"<<endl;
-	//	//sameHeightCount++; 
-	//	//if (sameHeightCount > 10) {
-	//		killTheSweep = true;
-	//		return;
-	//	//}
-	//}
+	//theLastHeight = firstEvent.getHeight(); 
 
-	theLastHeight = firstEvent.getHeight(); 
+
+	while (q.top().getPoint().y == theLastHeight) {
+		cout<<"***************************************"<<endl;
+		cout<<"In process q & getting events at the same height as the last time..."<<endl;
+		cout<<"The last height was "<<theLastHeight<<endl;
+		cout<<"The top of the stack is: "<<q.top().getPoint().y<<endl;
+		q.pop();
+	}
+	firstEvent = q.top();
 	q.pop();
 	events.push_back(firstEvent);
+
+	cout<<"The first event type is: ";
+	if (firstEvent.getType() == Event::ANCHOR) cout<<"anchor";
+	else if (firstEvent.getType() == Event::INTERSECTION) cout<<"intersection";
+	else if (firstEvent.getType() == Event::PROFILE) cout<<"Profile change";
+	cout<<" and its height is: "<<firstEvent.getHeight(); 
+	cout<<" and its point is: "<<firstEvent.getPoint().x<<" "<<firstEvent.getPoint().y<<" "<<firstEvent.getPoint().z<<endl;
+
 
 	//Get all anchor events less than the first event height
 	bool hasAnchor = false;
@@ -1321,11 +1383,18 @@ void SweepPlane::processQueue()
 		}
 	}
 
+	cout<<"THE NEXT EVENTS ARE: "<<endl;
 	//Get list of all events at the same height 
 	while ((q.top().getHeight() - firstEvent.getHeight() < EPSILON) && !q.empty())
 	{
-		//cout<<"The height of the firs event is "<<firstEvent.getHeight()<<endl;
-		//cout<<"The height of the event we are comparing is "<<q.top().getHeight()<<endl;
+		//****************DEBUGGING STUFF
+		if (q.top().getType() == Event::ANCHOR) cout<<"anchor";
+		else if (q.top().getType() == Event::INTERSECTION) cout<<"intersection";
+		else if (q.top().getType() == Event::PROFILE) cout<<"Profile change";
+		cout<<" and its height is: "<<q.top().getHeight(); 
+		cout<<" and its point is: "<<q.top().getPoint().x<<" "<<q.top().getPoint().y<<" "<<q.top().getPoint().z<<endl;
+		//DEBUGGING STUFF****************
+
 		events.push_back(q.top());
 		q.pop();
 	}
@@ -1366,10 +1435,10 @@ void SweepPlane::processQueue()
 void SweepPlane::addAnchorsToFloorPlan()
 {
 	//Add anchors to the current plan
-	std::cout<<"The size of the anchors in sweepplane is: "<<anchorList.size()<<endl;
+	//std::cout<<"The size of the anchors in sweepplane is: "<<anchorList.size()<<endl;
 	for (int i = 0; i < anchorList.size(); i++)
 	{
-		cout<<"Adding anchor to map..."<<endl;
+		//cout<<"Adding anchor to map..."<<endl;
 		thePlan.edgeAnchorMap.insert(std::pair<int, Anchor>(anchorList.at(i).getFloorPlanIndex(), anchorList.at(i)));
 	}
 }
@@ -1448,6 +1517,7 @@ void SweepPlane::buildIt()
 			cout<<"MANUALLY FORCING A KIILLLLLLL!!!"<<endl;
 			break;
 		}
+		theLastHeight= height; 
 	}
 }
 

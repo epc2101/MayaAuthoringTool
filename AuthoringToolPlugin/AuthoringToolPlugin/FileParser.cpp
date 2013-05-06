@@ -74,8 +74,11 @@ void FileParser::parseFile(){
 					PlanEdge temp;
 					int tempNum; 
 					if (j == 0) {
-						temp = FloorPlanEdges.front(); 	
-					    FloorPlanEdges.erase(FloorPlanEdges.begin());
+						temp = FloorPlanEdges.front(); 
+						std::cout<<"REVERSING....IN EDGE 0: "<<endl;
+						std::cout<<"The floor plan front is: "<<temp.getStartPoint().x<<" "<<temp.getStartPoint().y<<" "<<temp.getStartPoint().z<<endl;
+					    std::cout<<"The floor plan front is: "<<temp.getEndPoint().x<<" "<<temp.getEndPoint().y<<" "<<temp.getEndPoint().z<<endl;
+						FloorPlanEdges.erase(FloorPlanEdges.begin());
 						tempNum = FloorPlanProfile.front();
 						FloorPlanProfile.erase(FloorPlanProfile.begin()); 
 					} else {
@@ -192,17 +195,17 @@ void FileParser::parseFile(){
 				//Add the anchor to the floorPlanEdge Anchor list
 				a.setID(i); 
 				anchors.push_back(a);
-				//std::cout<<"In file parser.  Got anchor: "<<a.getID()<<" "<<a.getFloorPlanIndex()<<std::endl;
+				std::cout<<"In file parser.  Got anchor: "<<a.getID()<<" "<<a.getFloorPlanIndex()<<std::endl;
 			}
 			if(orderIsCW) {
 				for (int i = 0; i < anchors.size(); i++)
 				{
-					//cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
+					cout<<"REVERSIZING ANCHOR PERCENTS!!"<<endl;
 					anchors.at(i).setFloorPlanPercent(1.f - anchors.at(i).getFloorPlanPercent());
-					//cout<<"The old index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
+					cout<<"The old index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
 					if (anchors.at(i).getFloorPlanIndex() != 0) 
 						anchors.at(i).setFloorPlanIndex(plan.getEdgeList().size() - anchors.at(i).getFloorPlanIndex()); 
-					//cout<<"The new index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
+					cout<<"The new index: "<<anchors.at(i).getFloorPlanIndex()<<endl;
 				}
 
 			}
