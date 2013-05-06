@@ -1,4 +1,4 @@
-﻿Build started 5/6/2013 2:25:09 AM.
+﻿Build started 5/6/2013 5:09:22 PM.
      1>Project "C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "AuthoringToolPlugin.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -12,16 +12,16 @@
      1>SweepPlane.cpp(114): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
      1>SweepPlane.cpp(127): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
      1>SweepPlane.cpp(232): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(420): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
-     1>SweepPlane.cpp(448): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(452): warning C4018: '<' : signed/unsigned mismatch
+     1>SweepPlane.cpp(453): warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+     1>SweepPlane.cpp(481): warning C4018: '<' : signed/unsigned mismatch
+     1>SweepPlane.cpp(485): warning C4018: '<' : signed/unsigned mismatch
      1>SweepPlane.cpp(84): warning C4101: 'frame' : unreferenced local variable
-     1>SweepPlane.cpp(493): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(495): warning C4018: '<' : signed/unsigned mismatch
-     1>SweepPlane.cpp(511): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>SweepPlane.cpp(816): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(848): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>SweepPlane.cpp(1025): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(526): warning C4018: '<' : signed/unsigned mismatch
+     1>SweepPlane.cpp(528): warning C4018: '<' : signed/unsigned mismatch
+     1>SweepPlane.cpp(544): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>SweepPlane.cpp(849): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(881): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>SweepPlane.cpp(1058): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(990,5): warning MSB8012: TargetPath(C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\AuthoringToolPlugin.dll) does not match the Linker's OutputFile property value (C:\Users\Greg\Documents\GitHub\MayaAuthoringTool\AuthoringToolPlugin\AuthoringToolPlugin\Release_2012\AuthoringToolPlugin.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(991,5): warning MSB8012: TargetExt(.dll) does not match the Linker's OutputFile property value (.mll). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
        Link:
@@ -57,4 +57,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:07.32
+Time Elapsed 00:00:05.45

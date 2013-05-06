@@ -261,7 +261,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							//	cout<<"The indices of the top left edge are: "<<topPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<topPlan.getLeftEdgeRightIndex(i)<<endl;
 							//	cout<<"The indices of the bottom left edge are: "<<bottomPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<bottomPlan.getLeftEdgeRightIndex(i)<<endl;
 								
-								int topConnectIndex = topPlan.getLeftEdgeLeftIndex(i), bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(leftParentPlanIndex);
+								int topConnectIndex = topPlan.getLeftEdgeLeftIndex(i), bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(rightParentPlanIndex);
 								
 								//cout<<"Top connect index is: "<<topConnectIndex<<" bottom is: "<<bottomConnectIndex<<endl;
 
@@ -319,13 +319,25 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 							}
 						}
 						else {
+							//Test to see if these are just two points at the top
+							if (topPlan.getActivePlan().size() == 2){
+								leftParentPlanIndex = c.getSource().at(0).getIndex();
+								//c.getSource().size()-1
+								rightParentPlanIndex = c.getSource().at(1).getIndex();
+								//These are the mesh indices
+								leftMostParentIndex = bottomPlan.getActivePlan().at(leftParentPlanIndex).getMeshIndex();
+								rightMostParentIndex = bottomPlan.getActivePlan().at(rightParentPlanIndex).getMeshIndex();
+							}
+							else {
+
 							//We first handle the internal triangles
 							leftParentPlanIndex = c.getSource().at(0).getIndex();
+							//c.getSource().size()-1
 							rightParentPlanIndex = c.getSource().at(c.getSource().size()-1).getIndex();
 							//These are the mesh indices
 							leftMostParentIndex = bottomPlan.getActivePlan().at(leftParentPlanIndex).getMeshIndex();
 							rightMostParentIndex = bottomPlan.getActivePlan().at(rightParentPlanIndex).getMeshIndex();
-							
+							}
 
 							for(int j = 0; j<c.getSource().size()-1; j++){
 								int pIndex1 = c.getSource().at(j+1).getIndex(), pIndex2 = c.getSource().at(j).getIndex();
@@ -346,8 +358,18 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								//cout<<"Creating left mesh"<<endl;
 								//cout<<"The indices of the top left edge are: "<<topPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<topPlan.getLeftEdgeRightIndex(i)<<endl;
 								//cout<<"The indices of the bottom left edge are: "<<bottomPlan.getLeftEdgeLeftIndex(i)<<" for right is: "<<bottomPlan.getLeftEdgeRightIndex(i)<<endl;
-								
-								int topConnectIndex = topPlan.getLeftEdgeLeftIndex(i), bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(leftParentPlanIndex);
+								int topConnectIndex, bottomConnectIndex;
+								if(topPlan.getActivePlan().size() == 2){
+									topConnectIndex = topPlan.getLeftEdgeLeftIndex(i); 
+									bottomConnectIndex = topPlan.getActivePlan().at(topConnectIndex).getSource().at(1).getIndex();
+
+								}else {
+									topConnectIndex = topPlan.getLeftEdgeLeftIndex(i); 
+								bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(rightParentPlanIndex);
+								}
+
+								//topConnectIndex = topPlan.getLeftEdgeLeftIndex(i); 
+								//bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(rightParentPlanIndex);
 								
 								//cout<<"Top connect index is: "<<topConnectIndex<<" bottom is: "<<bottomConnectIndex<<endl;
 
@@ -359,7 +381,7 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								index1 = c.getMeshIndex();
 								index2 = topConnectMeshIndex;
 								index3 = bottomConnectMeshIndex;
-								index4 = leftMostParentIndex;
+								index4 = rightMostParentIndex;
 								
 								//cout<<"The mesh index of the corner is: "<<index1<<endl;
 								//cout<<"The mesh index of the top connected is: "<<index2<<endl;
@@ -382,8 +404,19 @@ MObject SweepPlane::createMesh(MObject& outData, MStatus& stat)
 								PlanEdge right = c.getRightEdge();
 								PlanEdge bottomRight = bottomPlan.getActivePlan().at(rightParentPlanIndex).getRightEdge();
 								
+
+								int topConnectIndex, bottomConnectIndex;
+								if(topPlan.getActivePlan().size() == 2){
+									topConnectIndex = topPlan.getRightEdgeRightIndex(i); 
+									bottomConnectIndex = topPlan.getActivePlan().at(topConnectIndex).getSource().at(0).getIndex();
+
+								}else {
+									topConnectIndex = topPlan.getLeftEdgeLeftIndex(i); 
+								bottomConnectIndex = bottomPlan.getLeftEdgeLeftIndex(leftParentPlanIndex);
+								}
+
 								//int topConnectIndex = right.getRightCornerIndex(), bottomConnectIndex = bottomRight.getRightCornerIndex();
-								int topConnectIndex = topPlan.getRightEdgeRightIndex(i), bottomConnectIndex = bottomPlan.getRightEdgeRightIndex(leftParentPlanIndex);
+								//int topConnectIndex = topPlan.getRightEdgeRightIndex(i), bottomConnectIndex = bottomPlan.getRightEdgeRightIndex(rightParentPlanIndex);
 								
 									int topConnectMeshIndex = topPlan.getActivePlan().at(topConnectIndex).getMeshIndex(), 
 									bottomConnectMeshIndex = bottomPlan.getActivePlan().at(bottomConnectIndex).getMeshIndex();

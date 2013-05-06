@@ -163,9 +163,12 @@ std::vector<Corner> ActivePlan::cleanPrunedPlan()
 {
 	std::vector<Corner> newCornerPlan;
 	int index = 0;
+	std::cout<<"The size of the active plan pre-pruning is: "<<activePlan.size()<<std::endl;
 	for(int i = 0; i<activePlan.size(); i++){
+		std::cout<<"Times through the loop: "<<i<<std::endl;
 		Corner c = activePlan.at(i);
 		if (c.getSkipped()){
+			std::cout<<"Skipping at original active plan index: "<<i<<std::endl;
 			continue;
 		}
 		
@@ -184,33 +187,35 @@ std::vector<Corner> ActivePlan::cleanPrunedPlan()
 			keptEdge.setStartPoint(c.getPt());
 			keptEdge.setLeftCornerIndex(index);
 
-			if(i = activePlan.size()-1){
+			if(i == activePlan.size()-1){
 				//This maybe should be 1
-				keptEdge.setRightCornerIndex(1);
+				keptEdge.setRightCornerIndex(0);
 			} else {
-			keptEdge.setRightCornerIndex(index+1);
+				keptEdge.setRightCornerIndex(index+1);
 			}
 			c.setRightEdge(keptEdge);
-			//c.setIndex(index);
+			c.setIndex(index);
 
 		}
 		if(activePlan.at(prevInd).getSkipped()){
 			PlanEdge keptEdge = activePlan.at(prevInd).getLeftEdge();
 			keptEdge.setEndPoint(activePlan.at(activePlan.at(prevInd).getLeftEdge().getLeftCornerIndex()).getPt());
-			keptEdge.setRightCornerIndex(index-1);
-			keptEdge.setLeftCornerIndex(index);
+			keptEdge.setLeftCornerIndex(index-1);
+			keptEdge.setRightCornerIndex(index);
 			c.setLeftEdge(keptEdge);
-			//c.setIndex(index);
+			c.setIndex(index);
 		}
 
 		newCornerPlan.push_back(c);
 		index++;
 	}
 
+	std::cout<<"The size of the post pruned plan is: "<<newCornerPlan.size()<<std::endl;
 	for(int i = 0; i<newCornerPlan.size(); i++){
 		std::cout<<"Index in new corner plan: "<<newCornerPlan.at(i).getIndex()<<std::endl;
 		std::cout<<"The next index from the right edge is: "<<newCornerPlan.at(i).getRightEdge().getRightCornerIndex()<<std::endl;
 		std::cout<<"The next index from the left edge is: "<<newCornerPlan.at(i).getLeftEdge().getLeftCornerIndex()<<std::endl;
+		std::cout<<"The profile index of the left edge is: "<<newCornerPlan.at(i).getLeftEdge().getProfileType()<<" and the right is: "<<newCornerPlan.at(i).getRightEdge().getProfileType()<<std::endl;
 	}
 
 	return newCornerPlan;
