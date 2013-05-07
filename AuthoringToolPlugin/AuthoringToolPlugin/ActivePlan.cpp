@@ -194,7 +194,7 @@ std::vector<Corner> ActivePlan::cleanPrunedPlan()
 				keptEdge.setRightCornerIndex(index+1);
 			}
 			c.setRightEdge(keptEdge);
-			c.setIndex(index);
+			//c.setIndex(index);
 
 		}
 		if(activePlan.at(prevInd).getSkipped()){
@@ -203,7 +203,7 @@ std::vector<Corner> ActivePlan::cleanPrunedPlan()
 			keptEdge.setLeftCornerIndex(index-1);
 			keptEdge.setRightCornerIndex(index);
 			c.setLeftEdge(keptEdge);
-			c.setIndex(index);
+			//c.setIndex(index);
 		}
 
 		newCornerPlan.push_back(c);
@@ -228,6 +228,117 @@ void ActivePlan::setActivePlan(std::vector<Corner> corn)
 	for(int i = 0; i<corn.size(); i++){
 		activePlan.push_back(corn.at(i));
 	}
+
+}
+bool ActivePlan::determineShittyPoints(float height)
+{
+	bool thereBeShittinessHere = false;
+	for(int i = 0; i<activePlan.size(); i++){
+		Corner c = activePlan.at(i);
+		if(c.getPt().y != c.getPt().y){
+			//This means we need to prune this fucker out of here
+			std::cout<<"The actual height is: "<<height<<" and the corner height is: "<<c.getPt().y<<std::endl;
+			activePlan.at(i).setIsShitty(true);
+			thereBeShittinessHere = true;
+			continue;
+		}
+	}
+
+	return thereBeShittinessHere;
+}
+
+std::vector<Corner> ActivePlan::removeShittyPoints()
+{
+		std::vector<Corner> newCornerPlan;
+	int index = 0;
+	std::cout<<"The size of the active plan pre-pruning is: "<<activePlan.size()<<std::endl;
+	for(int i = 0; i<activePlan.size(); i++){
+		std::cout<<"Times through the loop: "<<i<<std::endl;
+		Corner c = activePlan.at(i);
+		if (c.getIsShitty()){
+			std::cout<<"Skipping at original active plan index: "<<i<<std::endl;
+			continue;
+		}
+		
+
+		PlanEdge tEdge = c.getRightEdge();
+		PlanEdge pruned = c.getLeftEdge();
+		int prevInd = pruned.getLeftCornerIndex();
+		int nextInd = tEdge.getRightCornerIndex();
+
+		std::cout<<"The next index potentially to be pruned is: "<<nextInd<<std::endl;
+		std::cout<<"The previous index potentially to be pruned is: "<<prevInd<<std::endl;
+		
+		//We know the next one is going to be pruned off so we handle it all here
+		if(activePlan.at(nextInd).getIsShitty()){
+			PlanEdge keptEdge = activePlan.at(nextInd).getRightEdge();
+			keptEdge.setStartPoint(c.getPt());
+			keptEdge.setLeftCornerIndex(index);
+
+			if(i == activePlan.size()-1){
+				//This maybe should be 1
+				keptEdge.setRightCornerIndex(0);
+			} else {
+				keptEdge.setRightCornerIndex(index+1);
+			}
+			c.addSourceToFront(activePlan.at(nextInd).getSource().at(0));
+			c.setRightEdge(keptEdge);
+			c.setIndex(index);
+
+		}
+		if(activePlan.at(prevInd).getIsShitty()){
+			PlanEdge keptEdge = activePlan.at(prevInd).getLeftEdge();
+			keptEdge.setEndPoint(activePlan.at(activePlan.at(prevInd).getLeftEdge().getLeftCornerIndex()).getPt());
+			keptEdge.setLeftCornerIndex(index-1);
+			keptEdge.setRightCornerIndex(index);
+			//c.addToSource(activePlan.at(prevInd).getSource().at(0));
+			c.setLeftEdge(keptEdge);
+			c.setIndex(index);
+		}
+
+		newCornerPlan.push_back(c);
+		index++;
+	}
+
+	
+	if (newCornerPlan.size() == 2){
+
+		PlanEdge edge1 = newCornerPlan.at(0).getLeftEdge();
+		edge1.setLeftCornerIndex(1);
+		PlanEdge edge2 = newCornerPlan.at(0).getRightEdge();
+		edge2.setRightCornerIndex(1);
+		PlanEdge edge3 = newCornerPlan.at(1).getLeftEdge();
+		edge3.setLeftCornerIndex(0);
+		PlanEdge edge4 = newCornerPlan.at(1).getRightEdge();
+		edge4.setRightCornerIndex(0);
+
+		newCornerPlan.at(0).setLeftEdge(edge1);
+		newCornerPlan.at(0).setRightEdge(edge2);
+
+		newCornerPlan.at(1).setLeftEdge(edge3);
+		newCornerPlan.at(1).setRightEdge(edge4);
+
+	}
+	
+	
+	std::cout<<"The size of the post shitty plan is: "<<newCornerPlan.size()<<std::endl;
+	for(int i = 0; i<newCornerPlan.size(); i++){
+		std::cout<<"Index in new corner plan: "<<newCornerPlan.at(i).getIndex()<<std::endl;
+		std::cout<<"The next index from the right edge is: "<<newCornerPlan.at(i).getRightEdge().getRightCornerIndex()<<std::endl;
+		std::cout<<"The next index from the left edge is: "<<newCornerPlan.at(i).getLeftEdge().getLeftCornerIndex()<<std::endl;
+		std::cout<<"The profile index of the left edge is: "<<newCornerPlan.at(i).getLeftEdge().getProfileType()<<" and the right is: "<<newCornerPlan.at(i).getRightEdge().getProfileType()<<std::endl;
+		std::cout<<"The parents of each point are: ";
+		for(int j = 0; j<newCornerPlan.at(i).getSource().size(); j++){
+			std::cout<<newCornerPlan.at(i).getSource().at(j).getIndex()<<" ";
+
+		}
+		std::cout<<std::endl;
+	}
+
+	//This is hacky fix for the top section - might break in other circumstances
+	
+	return newCornerPlan;
+
 
 }
 

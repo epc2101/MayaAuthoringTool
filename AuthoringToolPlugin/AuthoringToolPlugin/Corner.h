@@ -21,6 +21,7 @@ private:
 	int meshIndex;
 
 	bool skipped;
+	bool isShitty;
 
 
 public:
@@ -42,6 +43,7 @@ public:
 	void setIndex(int ind); 
 	std::vector<Corner> getSource();
 	void addToSource(Corner c);
+	void addSourceToFront(Corner c);
 
 	int getMeshIndex();
 	void setMeshIndex(int i);
@@ -53,6 +55,9 @@ public:
 
 	bool getSkipped();
 	void setSkipped(bool b);
+
+	bool getIsShitty();
+	void setIsShitty(bool b);
 
 	Corner(void);
 	~Corner(void);

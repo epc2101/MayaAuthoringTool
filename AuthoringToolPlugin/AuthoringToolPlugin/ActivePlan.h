@@ -52,5 +52,8 @@ public:
 	void updateEdges(std::deque<Corner> &cornPlan);
 
 	void setActivePlan(std::vector<Corner> corn);
+
+	bool determineShittyPoints(float height);
+	std::vector<Corner> removeShittyPoints();
 };
 

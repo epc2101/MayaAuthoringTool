@@ -14,6 +14,7 @@ Corner::Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt)
 	leftEdgeMesh = false;
 	meshIndex = -1;
 	skipped = false;
+	isShitty = false;
 
 }
 
@@ -27,6 +28,7 @@ Corner::Corner(PlanEdge _previousEdge, PlanEdge _nextEdge, glm::vec3 _pt, std::v
 	leftEdgeMesh = false;
 	meshIndex = -1;
 	skipped = false;
+	isShitty = false;
 }
 
 PlanEdge Corner::getRightEdge()
@@ -64,6 +66,19 @@ void Corner::addToSource(Corner c)
 	srcCorners.push_back(c);
 }
 
+void Corner::addSourceToFront(Corner c)
+{
+	std::vector<Corner> tempCorner;
+	tempCorner.push_back(c);
+	for(int i = 0; i<srcCorners.size(); i++){
+		tempCorner.push_back(srcCorners.at(i));
+	}
+	srcCorners.clear();
+	for(int i = 0; i<tempCorner.size(); i++){
+		srcCorners.push_back(tempCorner.at(i));
+	}
+}
+
 Corner::~Corner(void)
 {
 }
@@ -73,6 +88,7 @@ Corner::Corner(glm::vec3 p, std::vector<Corner> parents)
 	pt = p;
 	srcCorners = parents;
 	skipped = false;
+	isShitty = false;
 }
 void Corner::setLeftEdge(PlanEdge e)
 {
@@ -126,4 +142,14 @@ bool Corner::getSkipped()
 void Corner::setSkipped(bool b)
 {
 	skipped = b;
+}
+
+bool Corner::getIsShitty()
+{
+	return isShitty;
+}
+
+void Corner::setIsShitty(bool b)
+{
+	isShitty = b;
 }
