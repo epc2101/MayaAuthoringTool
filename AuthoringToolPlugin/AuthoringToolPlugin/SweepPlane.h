@@ -64,9 +64,10 @@ public:
 	void fillQueueWithEdgeDirectionChanges(float height);
 	void fillQueueWithAnchors(float height); 
 	void fillQueueWithHorizontalChanges(float height);
+	//Test for intesections in order of exactness
 	bool intersectionTest(glm::vec3 line1S, glm::vec3 line1E, glm::vec3 line2S, glm::vec3 line2E, glm::vec3 &intersection);
 	bool shortestDistTest(glm::vec3  p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 p4, float &mua, float &mub, glm::vec3 &pa, glm::vec3 &pb);
-
+	bool planeLineIntersectTest(glm::vec3 planePt1, glm::vec3 planePt2, glm::vec3 planePt3, glm::vec3 lineS, glm::vec3 lineE, glm::vec3 &intersection);
 
 	
 

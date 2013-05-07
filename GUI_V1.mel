@@ -952,6 +952,24 @@ clear($anchorProfileEdge);
  }
 }
 
+global proc ClearAnchors()
+{
+    //Anchor info
+    global int $fpHasAnchor[];
+    clear($fpHasAnchor );
+    global int $pHasAnchor[];  //TODO - maybe get rid of these guys
+    clear($pHasAnchor ); 
+    //Each of these anchors are linked to a specific fp & profile edge (indices match for each anchor)
+    global string $anchorFiles[];
+    clear( $anchorFiles);
+    global float $anchorFPEdge[]; //edge#.percentInbetween
+    clear($anchorFPEdge);
+    global int $anchorProfileNum[]; //the profile the anchor is linked to 
+    clear($anchorProfileNum );
+    global float $anchorProfileEdge[]; //edge#.percentInbetween
+    clear($anchorProfileEdge);
+    
+}
 global proc SelectProfileToColor()
 {
     global string $profileCurves[]; 
@@ -978,12 +996,29 @@ global proc colorEdgeByProfile(int $profNum)
    select -cl;
    global int $fpEdgeToProfile[];
    global string $floorPlanCurve;  
+   global string $profileCurves[];
    print ("Floor plan curve: " + $floorPlanCurve + "\n");
    for ($i = 0; $i < size($fpEdgeToProfile); $i++) {
        if ($profNum == $fpEdgeToProfile[$i]) {
            string $selectionStr = ($floorPlanCurve + ".cv[" + string($i) + "]");
            //select -tgl curve9.cv[3] ;
            select - tgl $selectionStr;
+       }
+   }
+   
+   //If -1 decolor all
+   for ($i = 0; $i < size($profileCurves); $i++) {
+       string $c1 = ($profileCurves[$i] + ".overrideEnabled");  
+       string $c2 = ($profileCurves[$i] + ".overrideColor");  
+       if ($profNum == -1) {   
+           setAttr $c1 1;
+           setAttr $c2 0;
+       } else if ($profNum == $i) {
+           setAttr $c1 1;
+           setAttr $c2 17;
+       } else {
+          setAttr $c1 1;
+          setAttr $c2 0;        
        }
    }
 
@@ -1066,6 +1101,9 @@ menuBarLayout popUpMenu;
         menuItem
         -label "Create new anchor"
         -command "LinkAnchorToFloorPlan()";
+        menuItem
+        -label "Clear anchors"
+        -command "ClearAnchors()";
      menu -label "Create building mesh";
 /*         menuItem
          -label "Generate building"
